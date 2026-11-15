@@ -19,7 +19,7 @@ export interface ArmorSetDefinition {
   buffDuration?: string
 }
 
-export const armorSets = armorSetData.sets as ArmorSetDefinition[]
+export const armorSets = armorSetData.sets as unknown as ArmorSetDefinition[]
 
 const lookupKey = (value: string) => value.toLocaleLowerCase().replace(/[^a-z0-9]/g, '')
 const setNamesByClass = new Map<GameClass, ArmorSetDefinition[]>()
