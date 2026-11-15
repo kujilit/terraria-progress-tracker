@@ -1,4 +1,3 @@
-import type { GameClass, ItemStatus } from '../types'
 import type {
   AuthInput, BossRecord, CreateWorldInput, InventoryRecord, JoinWorldInput,
   ProgressRecord, TrackerApi, TrackerPlayer, TrackerSession, TrackerWorld,
