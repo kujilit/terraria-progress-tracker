@@ -8,6 +8,9 @@ export interface Item {
   icon:string; description:string; source:string; recipe?:{itemId:string;qty:number}[]
   station?:string; recipes?:CatalogRecipe[]; verified:boolean
   imageUrl?:string|null; imageOriginalUrl?:string|null; imagePageUrl?:string|null; imageFile?:string|null
+  classAssignment?:string|null; damage?:number|null; damageType?:string|null; defense?:number|null
+  equipmentEffect?:string|null; armorSetId?:string|null; armorSetName?:string|null; armorSetBonus?:string|null
+  buffName?:string|null; buffDuration?:string|null
 }
 export interface PlayerItem { playerId:string; itemId:string; status:ItemStatus; quantity:number }
 export interface Boss { id:string; name:string; stage:string; requires:string[] }
