@@ -171,7 +171,9 @@ export default function App() {
 
   const statusForPlayer = (playerId: string, itemId: string): ItemStatus => {
     if (isRemoteMode) {
-      return remoteProgress.find(row => row.playerId === playerId && row.itemId === itemId)?.status || 'missing'
+      const remoteStatus = remoteProgress.find(row => row.playerId === playerId && row.itemId === itemId)?.status
+      if (remoteStatus) return remoteStatus
+      return playerId === selected ? (statuses[itemId] || 'missing') : 'missing'
     }
     return statuses[`${playerId}:${itemId}`] || statuses[itemId] || 'missing'
   }
@@ -629,7 +631,7 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
     <div className="player-armor-set-bonus">
       <span className="player-armor-block-label">Особый бонус комплекта</span>
       <p>{set.setBonus}</p>
-      {set.buffName && <div className="player-gear-buff"><Sparkles size={13}/> Бафф: <b>{set.buffName}</b>{set.buffDuration && <small>{set.buffDuration}</small>}</div>}
+      {set.buffName && <div className="player-gear-buff"><Sparkles size={13}/> {set.buffName.toLowerCase().includes('дебафф') ? 'Дебафф:' : 'Бафф:'} <b>{set.buffName}</b>{set.buffDuration && <small>{set.buffDuration}</small>}</div>}
     </div>
     <button type="button" className="player-armor-toggle" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>
       <span>{expanded ? 'Скрыть части' : 'Показать части комплекта'}</span>
