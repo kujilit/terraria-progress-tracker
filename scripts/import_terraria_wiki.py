@@ -37,6 +37,7 @@ CLASS_FIELDS = {
     "ranged": "Ranger",
     "magic": "Mage",
     "summon": "Summoner",
+    "sentry": "Summoner",
 }
 ICONS = {
     "weapon": "⚔️",
@@ -200,9 +201,9 @@ def parse_number(value: Any, integer: bool = True) -> int | float | None:
 def item_key(item_id: Any, internal_name: str, name: str, page: str) -> str:
     numeric = parse_number(item_id)
     if numeric is not None and numeric > 0:
-        return f"terraria:{numeric}"
+        return f"terraria_{numeric}"
     stable_name = internal_name or name or page
-    return f"wiki:{slugify(stable_name)}"
+    return f"wiki_{slugify(stable_name)}"
 
 
 def wiki_url(page_title: str) -> str:
@@ -266,7 +267,7 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
 
     damage = parse_number(get(row, "damage"), integer=False)
     defense = parse_number(get(row, "defense"))
-    ammo_id = parse_number(get(row, "ammo"))
+    item_type = str(get(row, "type", "type2", default="") or "").casefold()
     head_slot = parse_number(get(row, "headSlot", "headslot"))
     body_slot = parse_number(get(row, "bodySlot", "bodyslot"))
     leg_slot = parse_number(get(row, "legSlot", "legslot"))
@@ -294,7 +295,9 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
     if accessory:
         categories.append("accessory")
 
-    if ammo_id is not None and ammo_id > 0 and not not_ammo:
+    # The Cargo "ammo" field on weapons is often the ammo ID they consume.
+    # Actual ammunition is identified by the item infobox type/category instead.
+    if re.search(r"\bammo\b", item_type) and not not_ammo:
         categories.append("ammo")
 
     if not categories:
@@ -333,7 +336,7 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
         "damage": damage,
         "damage_type": ", ".join(class_damage) if primary_category == "weapon" else None,
         "defense": defense,
-        "ammo_type": ammo_id,
+        "ammo_type": parse_number(get(row, "ammo")),
         "max_stack": parse_number(get(row, "maxStack", "maxstack")),
         "rarity": parse_number(get(row, "rare", "rarity")),
         "hardmode": hardmode,
@@ -404,7 +407,8 @@ def parse_recipe_ingredients(row: dict[str, Any]) -> list[dict[str, Any]]:
         for segment in structured.split("^"):
             parts = segment.split("¦")
             quantity = parse_number(parts[-1]) if parts else None
-            names = [part.strip() for part in parts[1:-1] if part.strip()]
+            raw_names = [part.strip() for part in parts[1:-1] if part.strip()]
+            names = [alternative for raw_name in raw_names for alternative in parse_alternatives(raw_name)]
             if not names:
                 # Some rows omit the leading/trailing Cargo delimiter.
                 cleaned = [part.strip() for part in parts if part.strip()]
@@ -445,7 +449,7 @@ def stable_recipe_key(row: dict[str, Any]) -> str:
 
 
 def make_material_stub(name: str, classes: set[str]) -> dict[str, Any]:
-    key = "name:" + slugify(name)
+    key = "name_" + slugify(name)
     return {
         "item_key": key,
         "terraria_id": None,
@@ -578,7 +582,7 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
                             None,
                         )
                     if linked_key is None:
-                        linked_key = "name:" + slugify(ingredient_name)
+                        linked_key = "name_" + slugify(ingredient_name)
                         all_items[linked_key] = make_material_stub(ingredient_name, current_classes)
                     elif linked_key not in all_items:
                         source = source_items[linked_key]
@@ -640,7 +644,7 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
                 normalized = normalize_text(ingredient_name)
                 linked = name_index.get(normalized) or source_name_index.get(normalized)
                 if linked is None:
-                    linked = "name:" + slugify(ingredient_name)
+                    linked = "name_" + slugify(ingredient_name)
                     if linked not in all_items:
                         all_items[linked] = make_material_stub(ingredient_name, result_classes)
                         needed_keys.add(linked)
