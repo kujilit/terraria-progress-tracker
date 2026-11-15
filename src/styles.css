@@ -506,3 +506,105 @@
   .progression-stage-items{grid-template-columns:1fr;padding:0 8px 8px}
   .weaker-gear-toggle{padding:9px}
 }
+
+
+/* Recipe tree popup */
+.item-recipe-link,.tree-recipe-link{display:inline-flex;align-items:center;gap:6px;min-width:0;padding:0;border:0;background:transparent;color:#e9dfcd;text-align:left;font:inherit;line-height:inherit;cursor:pointer}
+.item-recipe-link svg,.tree-recipe-link svg{flex:0 0 auto;color:#d5ae6b;opacity:.9}
+.item-recipe-link:hover,.tree-recipe-link:hover{color:#f3c978;text-decoration:underline;text-underline-offset:3px}
+.armor-recipe-link{font-size:11px;font-weight:700;overflow-wrap:anywhere}
+.tree-recipe-link{flex:1 1 120px;font-size:12px;font-weight:700;overflow-wrap:anywhere}
+.recipe-modal-backdrop{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;background:#050b11c9;backdrop-filter:blur(5px)}
+.recipe-modal{display:flex;flex-direction:column;width:min(920px,100%);max-height:min(88vh,900px);overflow:hidden;background:#182a35;border:1px solid #8b7049;box-shadow:0 24px 80px #000a,inset 0 0 0 2px #233844}
+.recipe-modal-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 20px;background:linear-gradient(110deg,#2c4049,#21333e);border-bottom:1px solid #6b593e}
+.recipe-modal-item{display:flex;align-items:center;gap:13px;min-width:0}
+.recipe-modal-art{display:grid;place-items:center;flex:0 0 58px;width:58px;height:58px;background:#263c48;border:1px solid #5a6e75;font-size:28px}
+.recipe-modal-art img{width:50px;height:50px;max-width:100%;max-height:100%;object-fit:contain;image-rendering:pixelated}
+.recipe-modal-item h2{margin:5px 0 3px;color:#f2e5ce;font-size:22px;overflow-wrap:anywhere}
+.recipe-modal-item small{color:#9bb0b5;font-size:11px}
+.recipe-modal-close{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border:1px solid #586c74;background:#1b303b;color:#e6d4ae}
+.recipe-modal-close:hover{border-color:#d4a45e;color:#f3ca7b}
+.recipe-modal-variant{display:flex;align-items:center;gap:12px;padding:11px 20px;border-bottom:1px solid #30454f;color:#9db0b5;font-size:12px}
+.recipe-modal-variant select{min-width:0;max-width:100%;padding:8px 10px;background:#101f29;border:1px solid #536873;color:#e2e6de;font-size:12px}
+.recipe-modal-body{overflow:auto;padding:16px 20px;min-height:140px}
+.recipe-modal-body .tree-root{padding:0}
+.recipe-modal-body .tree-item{max-width:none;flex-wrap:wrap;gap:10px;padding:10px}
+.recipe-modal-body .tree-children{margin-left:19px;padding-left:12px}
+.recipe-modal-empty{margin-top:13px;padding:13px 15px;background:#213641;border:1px dashed #50646b}
+.recipe-modal-empty b{color:#e5c88e;font-size:13px}
+.recipe-modal-empty p{margin:5px 0 0;color:#a6b6b9;font-size:11px;line-height:1.5}
+.recipe-modal-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 18px;padding:12px 20px;background:#142530;border-top:1px solid #344b56;color:#91a6ae;font-size:10px;line-height:1.4}
+.recipe-modal-footer small{color:#cfb47c}
+.tree-item{min-width:0}
+.tree-item>small{overflow-wrap:anywhere}
+.tree-item>button:not(.tree-recipe-link){flex:0 0 22px}
+
+/* Slightly larger overall interface */
+.content{padding:38px 42px}
+.page-heading h1{font-size:34px}
+.page-heading p{font-size:15px}
+.nav-item{font-size:15px;padding:12px 13px}
+.player-gear-section,.player-roster{padding:18px}
+.player-roster-card{padding:12px}
+.roster-identity b{font-size:13px}
+.roster-identity small{font-size:10px}
+.player-profile-panel{padding:22px 24px}
+.player-stat-grid>div{padding:12px 14px}
+.player-gear-card{padding:12px}
+.player-gear-art{width:52px;height:52px;flex-basis:52px}
+.player-gear-art img{width:46px;height:46px}
+.player-gear-main h3{font-size:14px}
+.player-gear-ru{font-size:10px}
+.player-gear-description{font-size:10px;line-height:1.5}
+.player-gear-status .state{font-size:9px}
+.player-gear-status select{font-size:10px;padding:7px}
+.player-armor-piece-info b,.player-armor-piece> b{font-size:12px}
+.player-armor-piece-info small{font-size:10px}
+.catalog-card{padding:16px}
+.catalog-card-art{width:62px;height:62px;flex-basis:62px}
+.catalog-card-art img{width:54px;height:54px}
+.catalog-card-body h3{font-size:16px}
+.catalog-card-description{font-size:12px}
+.accessory-card{padding:13px}
+.accessory-name-row h3{font-size:14px}
+.accessory-details p{font-size:11px}
+.player-category-tabs button,.player-status-filters button{font-size:11px;padding:8px 10px}
+.player-gear-filters label,.player-gear-search input{font-size:11px}
+
+/* Compact burger button next to the logo on mobile */
+.sidebar-header{display:contents}
+.mobile-nav-toggle{display:none}
+@media(max-width:700px){
+  .sidebar-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .sidebar .brand{padding:0;border:0}
+  .mobile-nav-toggle{display:grid;place-items:center;flex:0 0 44px;width:44px;height:42px;margin:0;padding:0;border:1px solid #566b75;background:#203642;color:#e7c782;cursor:pointer}
+  .mobile-nav-toggle:hover,.mobile-nav-toggle:focus-visible{border-color:#ddb56f;background:#2c424d}
+  .sidebar .nav-item{display:none}
+  .sidebar.mobile-nav-open .nav-item{display:flex;width:100%;padding:12px 11px;margin:3px 0;font-size:14px}
+  .sidebar.mobile-nav-open .world-switch{display:block;margin:13px 0;padding:12px}
+  .sidebar.mobile-nav-open .nav-label{display:block;padding:5px 8px 8px}
+  .sidebar.mobile-nav-open .sidebar-bottom{display:block}
+  .sidebar.mobile-nav-open{box-shadow:0 12px 30px #0007}
+  .sidebar.mobile-nav-open .sidebar-bottom .nav-item{display:flex}
+  .topbar{padding-left:16px;padding-right:16px}
+  .content{padding:24px 16px}
+  .page-heading h1{font-size:27px}
+  .player-gear-main h3{font-size:13px}
+  .recipe-modal-backdrop{padding:10px}
+  .recipe-modal{max-height:92dvh}
+  .recipe-modal-header{padding:12px}
+  .recipe-modal-art{width:48px;height:48px;flex-basis:48px}
+  .recipe-modal-art img{width:42px;height:42px}
+  .recipe-modal-item h2{font-size:18px}
+  .recipe-modal-body{padding:10px}
+  .recipe-modal-footer{padding:10px 12px}
+  .recipe-modal-variant{align-items:flex-start;flex-direction:column;padding:10px 12px}
+  .recipe-modal-variant select{width:100%}
+}
+@media(max-width:420px){
+  .recipe-modal-body .tree-children{margin-left:10px;padding-left:8px}
+  .recipe-modal-body .tree-item{padding:8px}
+  .recipe-modal-body .tree-item>small{font-size:9px}
+  .player-gear-card{gap:8px}
+  .content{padding-left:12px;padding-right:12px}
+}

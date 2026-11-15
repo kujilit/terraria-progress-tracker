@@ -58,6 +58,7 @@ export default function App() {
   const [catalogSort, setCatalogSort] = useState<'name' | 'stage' | 'status'>('name')
   const [target, setTarget] = useState('terra_blade')
   const [recipeIndex, setRecipeIndex] = useState(0)
+  const [craftModalItem, setCraftModalItem] = useState<Item | null>(null)
   const classColors: Record<GameClass, string> = { Melee:'#d98d54', Ranger:'#79a8d8', Mage:'#a88add', Summoner:'#76b98c' }
   const currentPlayers: Player[] = isRemoteMode
     ? (remotePlayers.length ? remotePlayers : session ? [session.player] : []).map(p => ({...p,color:classColors[p.gameClass]}))
@@ -279,46 +280,19 @@ export default function App() {
       setInventoryItemId(catalogItems[0].id)
     }
   }, [catalogItems, target, inventoryItemId])
-  const recipeTree = (id: string, depth = 0, seen: string[] = []): any => {
-    const it = catalogItems.find(x => x.id === id)
-    if (!it || depth > 20) return null
-    const cycle = seen.includes(id)
-    const recipesForItem = it.recipes || []
-    const selectedRecipe = recipesForItem[id === target ? recipeIndex : 0] || recipesForItem[0]
-    const ingredients = selectedRecipe?.ingredients || it.recipe || []
-    const children = cycle ? [] : ingredients.map(ingredient => {
-      const child = recipeTree(ingredient.itemId, depth + 1, [...seen, id])
-      return child ? {
-        qty: ingredient.qty,
-        alternatives: ingredient.alternatives || [],
-        ...child,
-      } : null
-    }).filter(Boolean)
-    return {
-      it,
-      depth,
-      cycle,
-      station: selectedRecipe?.station || it.station,
-      children,
-    }
-  }
-  const tree = current ? recipeTree(current.id) : null
+  const tree = current ? buildRecipeTree(current.id, catalogItems, recipeIndex) : null
   useEffect(() => { setRecipeIndex(0) }, [target])
   const pageTitle = nav.find(n => n.id === tab)?.label || 'Игроки'
   if (isRemoteMode && !session) return <AuthScreen onSession={handleSession}/>
   
   return <div className="app-shell">
     <aside className={"sidebar " + (mobileNavOpen ? "mobile-nav-open" : "")}>
-      <div className="brand"><div className="brand-mark">T</div><div><b>TERRARIA</b><small>PROGRESS TRACKER</small></div></div>
-      <button
-        type="button"
-        className="mobile-nav-toggle"
-        aria-expanded={mobileNavOpen}
-        onClick={() => setMobileNavOpen(value => !value)}
-      >
-        <span>{mobileNavOpen ? <X size={15}/> : <Menu size={15}/>} {mobileNavOpen ? 'Закрыть меню' : 'Разделы'}</span>
-        <ChevronRight className={mobileNavOpen ? 'open' : ''} size={15}/>
-      </button>
+      <div className="sidebar-header">
+        <div className="brand"><div className="brand-mark">T</div><div><b>TERRARIA</b><small>PROGRESS TRACKER</small></div></div>
+        <button type="button" className="mobile-nav-toggle" aria-label={mobileNavOpen ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen(value => !value)}>
+          {mobileNavOpen ? <X size={22}/> : <Menu size={22}/>}
+        </button>
+      </div>
       <div className="world-switch"><span className="eyebrow">ТЕКУЩИЙ МИР</span><b>{session?.world.name || 'For The Worthy'}</b><small>{session ? `${session.world.difficulty} · ${session.world.evilBiome} · ${session.world.gameVersion}` : 'Master · Crimson · 1.4.5.x'}</small>{session && <button className="invite-code" onClick={() => navigator.clipboard.writeText(session.world.joinCode)}>КОД МИРА · {session.world.joinCode}</button>}</div>
       <div className="nav-label">ПРИКЛЮЧЕНИЕ</div>
       {nav.map(n => <button key={n.id} className={'nav-item ' + (tab === n.id ? 'active' : '')} onClick={() => { setTab(n.id); setMobileNavOpen(false) }}>
@@ -433,11 +407,12 @@ export default function App() {
                 matchedCount={matched}
                 statusForItem={itemId => statusForPlayer(player.id, itemId)}
                 onStatus={setStatus}
+                onCraft={setCraftModalItem}
                 disabled={isRemoteMode && selected !== session?.player.id}
               />)}
             </div>}
             {visiblePlayerItems.length > 0 && <div className="player-gear-grid">
-              {visiblePlayerItems.map(item => <PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id, item.id)} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}
+              {visiblePlayerItems.map(item => <PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id, item.id)} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected !== session?.player.id}/>)}
             </div>}
             {visibleGearCount === 0 && <div className="player-gear-empty"><Search size={22}/><b>Предметы не найдены</b><span>Попробуй изменить запрос или фильтры.</span><button type="button" onClick={() => { setPlayerQuery(''); setPlayerStage('all'); setPlayerStatus('all'); setPlayerCategory('all') }}>Сбросить фильтры</button></div>}
 
@@ -447,7 +422,7 @@ export default function App() {
             </div>
           </section>
         </>}
-        {tab === 'accessories' && <AccessoryBuilds items={catalogItems}/>}
+        {tab === 'accessories' && <AccessoryBuilds items={catalogItems} onOpenCraft={setCraftModalItem}/>}
         {tab === 'progression' && <>
           <section className="progression-overview">
             <div className="progression-overview-heading">
@@ -484,6 +459,7 @@ export default function App() {
                   items={stageItems}
                   statusForItem={itemId => statusForPlayer(player.id, itemId)}
                   onStatus={setStatus}
+                  onCraft={setCraftModalItem}
                   disabled={isRemoteMode && selected !== session?.player.id}
                 />
               )}</div>
@@ -508,9 +484,9 @@ export default function App() {
           {isRemoteMode && <div className="item-grid">{remoteInventory.map(row => {
             const item = catalogItems.find(x => x.id === row.itemId)
             const owner = currentPlayers.find(x => x.id === row.playerId)
-            return <div className="item-card" key={row.id}><ItemArtwork item={item || { icon: '📦' }} className="item-art"/><div className="item-details"><b>{item?.name || row.itemId}</b><small>{owner?.name || 'Участник'} · резерв: {row.reservedQuantity}</small><span className="state owned">Количество: {row.quantity}</span></div></div>
+            return <div className="item-card" key={row.id}><ItemArtwork item={item || { icon: '📦' }} className="item-art"/><div className="item-details"><b>{item ? <button type="button" className="item-recipe-link" onClick={() => setCraftModalItem(item)}>{item.name}<GitBranch size={13}/></button> : row.itemId}</b><small>{owner?.name || 'Участник'} · резерв: {row.reservedQuantity}</small><span className="state owned">Количество: {row.quantity}</span></div></div>
           })}</div>}
-          {!isRemoteMode && <div className="item-grid">{catalogItems.filter(i => i.category !== 'material' && statuses[i.id] === 'owned').map(i => <div className="item-card" key={i.id}><ItemArtwork item={i} className="item-art"/><div className="item-details"><b>{i.name}</b><small>{i.gameClass.join(', ')}</small><span className="state owned">Есть в команде</span></div></div>)}</div>}
+          {!isRemoteMode && <div className="item-grid">{catalogItems.filter(i => i.category !== 'material' && statuses[i.id] === 'owned').map(i => <div className="item-card" key={i.id}><ItemArtwork item={i} className="item-art"/><div className="item-details"><b><button type="button" className="item-recipe-link" onClick={() => setCraftModalItem(i)}>{i.name}<GitBranch size={13}/></button></b><small>{i.gameClass.join(', ')}</small><span className="state owned">Есть в команде</span></div></div>)}</div>}
         </>}
         {tab === 'bosses' && <>
           <div className="notice"><Skull size={18}/> Boss Gates: отметка босса открывает последующие этапы. В демо используются примерные связи — перед production их нужно сверить с игровыми условиями 1.4.5.x.</div>
@@ -523,7 +499,7 @@ export default function App() {
             </section>
             <section className="panel tree-panel"><div className="panel-head"><div><h2>{current?.name || 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {tree?.station || current?.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
               {(current?.recipes?.length || 0) > 1 && <label className="recipe-select">Вариант рецепта<select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>{current.recipes?.map((recipe, index) => <option value={index} key={recipe.id}>{recipe.station || 'Без станции'} · {recipe.version || 'Все версии'} · ×{recipe.amount}</option>)}</select></label>}
-              <div className="tree-root">{tree && <TreeNode node={tree} statuses={statuses}/>}</div>
+              <div className="tree-root">{tree && <TreeNode node={tree} statuses={statuses} onOpenItem={setCraftModalItem}/>}</div>
               <div className="notice compact"><Sparkles size={16}/> Рецепты загружаются из Terraria Wiki. Проверьте версию игры и доступность конкретного рецепта для вашей платформы.</div>
             </section>
           </div>
@@ -557,12 +533,20 @@ export default function App() {
             </div>
           </section>
           {filtered.length
-            ? <div className="catalog-grid">{filtered.map(item => <CatalogItemCard key={item.id} item={item} status={statuses[item.id] || 'missing'} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
+            ? <div className="catalog-grid">{filtered.map(item => <CatalogItemCard key={item.id} item={item} status={statuses[item.id] || 'missing'} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
             : <div className="catalog-empty"><Search size={25}/><b>Ничего не найдено</b><span>Измени запрос или сбрось фильтры.</span><button onClick={resetCatalogFilters}>Сбросить фильтры</button></div>}
         </>}
         <footer>TERRARIA PROGRESS TRACKER <span>НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · {isRemoteMode ? "REMOTE DATA" : "DEMO DATA"}</span></footer>
       </div>
     </main>
+    {craftModalItem && <RecipeModal
+      key={craftModalItem.id}
+      item={craftModalItem}
+      catalogItems={catalogItems}
+      statuses={statuses}
+      onClose={() => setCraftModalItem(null)}
+      onOpenItem={setCraftModalItem}
+    />}
   </div>
 }
 
@@ -637,13 +621,14 @@ function classLabel(gameClass: GameClass) {
   return labels[gameClass]
 }
 
-function PlayerArmorSetCard({ set, items, allItems, matchedCount, statusForItem, onStatus, disabled = false }: {
+function PlayerArmorSetCard({ set, items, allItems, matchedCount, statusForItem, onStatus, onCraft, disabled = false }: {
   set: ReturnType<typeof armorSetsForClass>[number]
   items: Item[]
   allItems: Item[]
   matchedCount: number
   statusForItem: (itemId: string) => ItemStatus
   onStatus: (id: string, status: ItemStatus) => void
+  onCraft: (item: Item) => void
   disabled?: boolean
 }) {
   const labels: Record<ItemStatus, string> = {
@@ -688,7 +673,7 @@ function PlayerArmorSetCard({ set, items, allItems, matchedCount, statusForItem,
           <ItemArtwork item={item} className="player-armor-piece-art"/>
           <div className="player-armor-piece-info">
             <span className="player-armor-piece-slot">{piece.slot}</span>
-            <b>{item.name}</b>
+            <button type="button" className="item-recipe-link armor-recipe-link" onClick={() => onCraft(item)} title="Открыть дерево крафта">{item.name}<GitBranch size={12}/></button>
             {effect && <small>{effect}</small>}
             <span className={'state ' + status}>{labels[status]}</span>
           </div>
@@ -710,11 +695,12 @@ function WeakerGearToggle({ checked, onChange }: { checked: boolean; onChange: (
   </label>
 }
 
-function ProgressionStageCard({ stage, items, statusForItem, onStatus, disabled }: {
+function ProgressionStageCard({ stage, items, statusForItem, onStatus, onCraft, disabled }: {
   stage: string
   items: Item[]
   statusForItem: (itemId: string) => ItemStatus
   onStatus: (id: string, status: ItemStatus) => void
+  onCraft: (item: Item) => void
   disabled: boolean
 }) {
   const activeItems = items.filter(item => statusForItem(item.id) !== 'skipped')
@@ -734,16 +720,18 @@ function ProgressionStageCard({ stage, items, statusForItem, onStatus, disabled 
         item={item}
         status={statusForItem(item.id)}
         onStatus={onStatus}
+        onCraft={onCraft}
         disabled={disabled}
       />)}
     </div>
   </details>
 }
 
-function PlayerGearCard({ item, status, onStatus, disabled = false }: {
+function PlayerGearCard({ item, status, onStatus, onCraft, disabled = false }: {
   item: Item
   status: ItemStatus
   onStatus: (id: string, status: ItemStatus) => void
+  onCraft: (item: Item) => void
   disabled?: boolean
 }) {
   const labels: Record<ItemStatus, string> = {
@@ -754,7 +742,7 @@ function PlayerGearCard({ item, status, onStatus, disabled = false }: {
     <ItemArtwork item={item} className="player-gear-art"/>
     <div className="player-gear-main">
       <div className="player-gear-tags"><span>{categoryLabel(item.category)}</span><span>{stageLabel(item.stage)}</span></div>
-      <h3>{item.name}</h3>
+      <h3><button type="button" className="item-recipe-link" onClick={() => onCraft(item)} title="Открыть дерево крафта">{item.name}<GitBranch size={12}/></button></h3>
       {item.ru && item.ru !== item.name && <p className="player-gear-ru">{item.ru}</p>}
       {(item.equipmentEffect || item.description)?.trim() && <p className="player-gear-description">{item.equipmentEffect || item.description}</p>}
       <div className="player-gear-highlights">
@@ -802,10 +790,11 @@ function stageLabel(stage: string) {
   return 'Этап не указан'
 }
 
-function CatalogItemCard({ item, status, onStatus, disabled = false }: {
+function CatalogItemCard({ item, status, onStatus, onCraft, disabled = false }: {
   item: Item
   status: ItemStatus
   onStatus: (id: string, status: ItemStatus) => void
+  onCraft: (item: Item) => void
   disabled?: boolean
 }) {
   const labels: Record<ItemStatus, string> = {
@@ -818,7 +807,7 @@ function CatalogItemCard({ item, status, onStatus, disabled = false }: {
       <div className="catalog-card-tags"><span>{categoryLabel(item.category)}</span><span>{stageLabel(item.stage)}</span></div>
     </div>
     <div className="catalog-card-body">
-      <h3>{item.name}</h3>
+      <h3><button type="button" className="item-recipe-link" onClick={() => onCraft(item)} title="Открыть дерево крафта">{item.name}<GitBranch size={13}/></button></h3>
       {item.ru && item.ru !== item.name && <p className="catalog-card-ru">{item.ru}</p>}
       {item.description?.trim() && <p className="catalog-card-description">{item.description}</p>}
       <div className="catalog-card-classes">{item.gameClass.map(gameClass => <span key={gameClass}>{({Melee:'Melee',Ranger:'Ranger',Mage:'Mage',Summoner:'Summoner'})[gameClass]}</span>)}</div>
@@ -835,9 +824,80 @@ function CatalogItemCard({ item, status, onStatus, disabled = false }: {
 function Stat({ label, value }: { label: string; value: string }) {
   return <div className="stat-card"><small>{label}</small><b>{value}</b></div>
 }
-function TreeNode({ node, statuses }: { node: any; statuses: Record<string, ItemStatus> }) {
+function buildRecipeTree(id: string, catalogItems: Item[], rootRecipeIndex = 0, depth = 0, seen: string[] = []): any {
+  const item = catalogItems.find(entry => entry.id === id)
+  if (!item || depth > 20) return null
+  const cycle = seen.includes(id)
+  const recipes = item.recipes || []
+  const selectedRecipe = recipes[depth === 0 ? rootRecipeIndex : 0] || recipes[0]
+  const ingredients = selectedRecipe?.ingredients || item.recipe || []
+  const children = cycle ? [] : ingredients.map(ingredient => {
+    const child = buildRecipeTree(ingredient.itemId, catalogItems, 0, depth + 1, [...seen, id])
+    if (child) return { qty: ingredient.qty, alternatives: ingredient.alternatives || [], ...child }
+    return {
+      it: { id: ingredient.itemId, name: ingredient.name || ingredient.itemId, icon: '◇', imageUrl: null } as Item,
+      missingCatalog: true, depth: depth + 1, cycle: false, station: null, children: [],
+      qty: ingredient.qty, alternatives: ingredient.alternatives || [],
+    }
+  })
+  return { it: item, depth, cycle, station: selectedRecipe?.station || item.station, children }
+}
+
+function RecipeModal({ item, catalogItems, statuses, onClose, onOpenItem }: {
+  item: Item
+  catalogItems: Item[]
+  statuses: Record<string, ItemStatus>
+  onClose: () => void
+  onOpenItem: (item: Item) => void
+}) {
+  const [recipeIndex, setRecipeIndex] = useState(0)
+  const tree = useMemo(() => buildRecipeTree(item.id, catalogItems, recipeIndex), [item.id, catalogItems, recipeIndex])
+  const hasRecipe = Boolean(item.recipe?.length || item.recipes?.some(recipe => recipe.ingredients.length))
+  const variants = item.recipes || []
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+  return <div className="recipe-modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
+    <section className="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="recipe-modal-title">
+      <header className="recipe-modal-header">
+        <div className="recipe-modal-item">
+          <ItemArtwork item={item} className="recipe-modal-art"/>
+          <div><span className="eyebrow">ДЕРЕВО КРАФТА · {categoryLabel(item.category)}</span><h2 id="recipe-modal-title">{item.name}</h2><small>{stageLabel(item.stage)}{tree?.station ? ` · ${tree.station}` : ''}</small></div>
+        </div>
+        <button type="button" className="recipe-modal-close" onClick={onClose} aria-label="Закрыть"><X size={20}/></button>
+      </header>
+      {variants.length > 1 && <label className="recipe-modal-variant"><span>Вариант рецепта</span><select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>
+        {variants.map((recipe, index) => <option value={index} key={recipe.id}>{recipe.station || 'Без станции'} · {recipe.version || 'Все версии'} · ×{recipe.amount}</option>)}
+      </select></label>}
+      <div className="recipe-modal-body">
+        {tree && <div className="tree-root"><TreeNode node={tree} statuses={statuses} onOpenItem={onOpenItem}/></div>}
+        {!hasRecipe && <div className="recipe-modal-empty"><b>Рецепт не найден в каталоге</b><p>{item.source || 'Для этого предмета пока не указаны компоненты крафта.'}</p></div>}
+        {hasRecipe && tree?.children.length === 0 && <div className="recipe-modal-empty"><b>Компоненты рецепта не удалось связать с каталогом</b><p>{item.source || 'Попробуй проверить предметы в каталоге.'}</p></div>}
+      </div>
+      <footer className="recipe-modal-footer"><span>{item.source || 'Источник получения не указан'}</span>{item.station && <small>Станция: {item.station}</small>}</footer>
+    </section>
+  </div>
+}
+
+function TreeNode({ node, statuses, onOpenItem }: {
+  node: any
+  statuses: Record<string, ItemStatus>
+  onOpenItem?: (item: Item) => void
+}) {
   const [open, setOpen] = useState(true)
-  return <div className="tree-node"><div className={'tree-item ' + (statuses[node.it.id] === 'owned' ? 'has-item' : '')}>
-    <button onClick={() => setOpen(!open)}>{node.children.length ? (open ? '−' : '+') : '·'}</button><ItemArtwork item={node.it} className="tree-item-art"/><b>{node.it.name}</b><small>{statuses[node.it.id] === 'owned' ? 'Есть' : 'Нужно проверить'}{node.qty ? ` · ×${node.qty}` : ''}</small>{node.alternatives?.length > 0 && <small>Альтернативы: {node.alternatives.map((option: { name: string }) => option.name).join(' / ')}</small>}
-  </div>{open && node.children.length > 0 && <div className="tree-children">{node.children.map((child: any, i: number) => <div className="tree-branch" key={i}><TreeNode node={child} statuses={statuses}/></div>)}</div>}</div>
+  const status = node.it ? statuses[node.it.id] : undefined
+  return <div className="tree-node">
+    <div className={'tree-item ' + (status === 'owned' ? 'has-item' : '')}>
+      <button type="button" onClick={() => setOpen(!open)} aria-label={open ? 'Свернуть компоненты' : 'Развернуть компоненты'}>{node.children.length ? (open ? '−' : '+') : '·'}</button>
+      {node.it && <ItemArtwork item={node.it} className="tree-item-art"/>}
+      {node.it && !node.missingCatalog
+        ? <button type="button" className="tree-recipe-link" onClick={() => onOpenItem?.(node.it)} title="Открыть дерево крафта">{node.it.name}<GitBranch size={12}/></button>
+        : <b>{node.it?.name || 'Неизвестный компонент'}</b>}
+      <small>{status === 'owned' ? 'Есть' : 'Нужно проверить'}{node.qty ? ` · ×${node.qty}` : ''}</small>
+      {node.alternatives?.length > 0 && <small>Альтернативы: {node.alternatives.map((option: { name: string }) => option.name).join(' / ')}</small>}
+    </div>
+    {open && node.children.length > 0 && <div className="tree-children">{node.children.map((child: any, i: number) => <div className="tree-branch" key={i}><TreeNode node={child} statuses={statuses} onOpenItem={onOpenItem}/></div>)}</div>}
+  </div>
 }
