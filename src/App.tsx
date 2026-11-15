@@ -50,6 +50,10 @@ export default function App() {
     const previousStatus = statuses[id] || 'missing'
     const next = { ...statuses, [id]: status }
     setStatuses(next)
+    if (isRemoteMode && session && selected !== session.player.id) {
+      setSyncError('Можно редактировать только собственный прогресс. Чужой прогресс доступен для просмотра.')
+      return
+    }
     if (isRemoteMode && session) {
       trackerApi.setProgress(session.token,{itemId:id,status,quantity:status === 'owned' ? 1 : 0})
         .then(record => setRemoteProgress(current => [...current.filter(x => !(x.playerId === record.playerId && x.itemId === record.itemId)),record]))
@@ -218,7 +222,7 @@ export default function App() {
             <div className="profile-percent"><b>{total}%</b><small>прогресс класса</small></div>
           </div>
           <div className="section-title"><h2>Предметы персонажа</h2><span className="muted">{classItems.length} в каталоге</span></div>
-          <div className="item-grid">{classItems.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus}/>)}</div>
+          <div className="item-grid">{classItems.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
         </>}
         {tab === 'progression' && <>
           <div className="class-tabs">{(['Melee', 'Ranger', 'Mage', 'Summoner'] as GameClass[]).map(c =>
@@ -326,10 +330,10 @@ function AuthScreen({ onSession }: { onSession: (session: TrackerSession) => voi
   </form></div>
 }
 
-function ItemCard({ item, status, onStatus }: { item: any; status: ItemStatus; onStatus: (id: string, s: ItemStatus) => void }) {
+function ItemCard({ item, status, onStatus, disabled = false }: { item: any; status: ItemStatus; onStatus: (id: string, s: ItemStatus) => void; disabled?: boolean }) {
   const labels: Record<ItemStatus, string> = { owned: 'Получен', planned: 'В планах', crafting: 'В работе', missing: 'Не получен', skipped: 'Пропущен' }
   return <article className="item-card"><div className="item-art">{item.icon}</div><div className="item-details"><b>{item.name}</b><small>{item.ru} · {item.stage}</small><small>{item.source}</small><span className={'state ' + status}>{labels[status]}</span></div>
-    <select value={status} onChange={e => onStatus(item.id, e.target.value as ItemStatus)} aria-label={'Статус ' + item.name}><option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option></select>
+    <select value={status} disabled={disabled} onChange={e => onStatus(item.id, e.target.value as ItemStatus)} aria-label={'Статус ' + item.name}><option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option></select>
   </article>
 }
 function Stat({ label, value }: { label: string; value: string }) {
