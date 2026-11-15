@@ -62,4 +62,4 @@ Use a test world before entering a real group's progress. Never send database pa
 - **Inventory transfers:** executed inside one PostgreSQL transaction, guarded by an idempotency key. A failed transfer rolls back all its database changes.
 - **Browser key:** only the publishable key is used. Table access is revoked for `anon` and `authenticated`; RLS is enabled, and only the RPC methods are granted.
 
-The app currently refreshes server data when the session loads and after local operations. It does not yet use Supabase Realtime push notifications, so another player's changes may require a page refresh to appear in an already-open tab.
+The app refreshes shared server data every 10 seconds. It does not yet use Supabase Realtime push notifications, so updates can appear with a short delay.
