@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type {
-  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, JoinWorldInput,
+  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, Item, JoinWorldInput,
   ProgressRecord, TrackerApi, TrackerPlayer, TrackerSession, TrackerWorld,
 } from './api'
 import { ApiError } from './api'
@@ -58,6 +58,10 @@ export class SupabaseTrackerApi implements TrackerApi {
 
   health() {
     return this.rpc<{ status: 'ok'; apiVersion: string }>('tracker_health')
+  }
+
+  getCatalog(token: string) {
+    return this.rpc<Item[]>('tracker_catalog_list', { p_token: token })
   }
 
   createWorld(input: CreateWorldInput) {
