@@ -19,6 +19,17 @@ class WikiTextSanitizationTests(unittest.TestCase):
             "Allows flight and slow fall",
         )
 
+    def test_classified_item_stores_plain_description_and_effect(self):
+        item = classify_item({
+            "itemid": "7010",
+            "name": "Test Accessory",
+            "type": "Accessory",
+            "description": '<span class="gameText">Grants flight</span>',
+            "bonus": '<span class="gameText">Increases movement speed</span>',
+        })
+        self.assertEqual(item["description"], "Grants flight")
+        self.assertEqual(item["equipment_effect"], "Increases movement speed")
+
     def test_decodes_escaped_html_and_entities(self):
         self.assertEqual(
             clean_wiki_text('&lt;span class=&quot;gameText&quot;&gt;Deals &amp; burns&lt;/span&gt;'),
