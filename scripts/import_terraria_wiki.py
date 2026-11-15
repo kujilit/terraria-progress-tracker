@@ -278,7 +278,7 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
     categories: list[str] = []
     damage_flags = any(parse_bool(get(row, field)) for field in CLASS_FIELDS)
     damage_type = str(get(row, "damagetype", "damage_type", default="") or "").strip()
-    typed_weapon = bool(re.search(r"\\bweapon\\b", item_type))
+    typed_weapon = bool(re.search(r"\bweapon\b", item_type))
     if typed_weapon or (damage is not None and damage > 0 and (damage_flags or damage_type)):
         categories.append("weapon")
     elif damage_flags and any(parse_bool(get(row, flag)) for flag in ("summon", "sentry")):
