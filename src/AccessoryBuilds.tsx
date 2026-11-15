@@ -48,7 +48,7 @@ export function AccessoryBuilds({ items }: { items: Item[] }) {
       </div>
       <div className="accessory-intro-stat">
         <Shield size={19}/>
-        <b>1.4.5.7</b>
+        <b>1.4.5.8</b>
         <small>актуальная версия</small>
       </div>
     </section>
