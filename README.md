@@ -25,7 +25,7 @@ npm run dev
    ```
 3. Пересоберите и разверните frontend.
 
-Не добавляйте `PIN_PEPPER` или другие серверные секреты в Vite env: всё с префиксом `VITE_` попадает в клиентский bundle.
+Не добавляйте `PIN_PEPPER` или другие серверные секреты в Vite env: всё с префиксом `VITE_` попадает в клиентский bundle. Для GitHub Pages задайте в Settings → Secrets and variables → Actions → Variables значения `VITE_API_MODE=remote` и `VITE_API_BASE_URL` (URL Web App, заканчивается на `/exec`), затем повторно запустите workflow. Если переменные не заданы, сборка остаётся в локальном demo mode.
 
 ## GitHub Pages
 
