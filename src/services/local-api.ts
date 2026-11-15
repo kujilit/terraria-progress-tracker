@@ -69,16 +69,16 @@ export const localApi: TrackerApi = {
     state.bosses=state.bosses.filter(x=>x.bossId!==input.bossId);state.bosses.push(next);write(state);return next
   },
   async listInventory(_token: string) { return read().inventory },
-  async setInventory(_token, input) {
+  async setInventory(token, input) {
     const state=read()
-    const player=state.players[0]
+    const player=state.players.find(p=>p.id===token) || state.players[0]
     const current=state.inventory.find(x=>x.playerId===player.id&&x.itemId===input.itemId)
     const next:InventoryRecord={id:current?.id||input.itemId,worldId:state.world.id,playerId:player.id,itemId:input.itemId,quantity:input.quantity,reservedQuantity:current?.reservedQuantity||0,updatedAt:new Date().toISOString()}
     state.inventory=state.inventory.filter(x=>!(x.playerId===player.id&&x.itemId===input.itemId));state.inventory.push(next);write(state);return next
   },
-  async transferInventory(_token, input) {
+  async transferInventory(token, input) {
     const state=read()
-    const from=state.inventory.find(x=>x.playerId===state.players[0].id&&x.itemId===input.itemId)
+    const from=state.inventory.find(x=>x.playerId===(state.players.find(p=>p.id===token)?.id || state.players[0].id)&&x.itemId===input.itemId)
     if(!from||from.quantity-from.reservedQuantity<input.quantity) throw new Error('Недостаточно предметов для передачи')
     const to=state.inventory.find(x=>x.playerId===input.toPlayerId&&x.itemId===input.itemId)
     from.quantity-=input.quantity
