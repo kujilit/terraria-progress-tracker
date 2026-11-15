@@ -281,9 +281,6 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
     typed_weapon = bool(re.search(r"\bweapon\b", item_type))
     if typed_weapon or (damage is not None and damage > 0 and (damage_flags or damage_type)):
         categories.append("weapon")
-    elif damage_flags and any(parse_bool(get(row, flag)) for flag in ("summon", "sentry")):
-        # Some summon and sentry weapons have an unusual or absent damage field.
-        categories.append("weapon")
 
     armor_slots = {
         "head": head_slot,
