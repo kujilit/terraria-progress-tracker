@@ -19,3 +19,11 @@
 .logout-button{border:1px solid #53626b;background:#223541;color:#b8c6c8;padding:6px 9px;font-size:10px}
 .sync-error{border-color:#9b5e4e;color:#f0b9a8}
 @media(max-width:480px){.auth-card{padding:22px 18px}.auth-card h1{font-size:24px}}
+
+.inventory-controls{margin-bottom:16px}
+.inventory-form{display:grid;grid-template-columns:minmax(160px,1fr) minmax(100px,150px) auto;align-items:end;gap:10px;margin:10px 0}
+.inventory-form label{font-size:11px;color:#9eb0b7}
+.inventory-form input,.inventory-form select{display:block;width:100%;margin-top:5px;padding:8px;background:#101f29;border:1px solid #455c68;color:#e5dfd2}
+.inventory-form .small-button{height:35px;white-space:nowrap}
+.transfer-form{border-top:1px solid #344955;padding-top:12px}
+@media(max-width:700px){.inventory-form{grid-template-columns:1fr 1fr}.inventory-form button{grid-column:1/-1}}
