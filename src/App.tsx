@@ -41,6 +41,7 @@ export default function App() {
   })
   const [query, setQuery] = useState('')
   const [target, setTarget] = useState('terra_blade')
+  const [recipeIndex, setRecipeIndex] = useState(0)
   const classColors: Record<GameClass, string> = { Melee:'#d98d54', Ranger:'#79a8d8', Mage:'#a88add', Summoner:'#76b98c' }
   const currentPlayers: Player[] = isRemoteMode
     ? (remotePlayers.length ? remotePlayers : session ? [session.player] : []).map(p => ({...p,color:classColors[p.gameClass]}))
@@ -161,7 +162,7 @@ export default function App() {
       .filter(i => owned(i.id)).length /
     Math.max(catalogItems.filter(i => i.category !== 'material' && i.gameClass.includes(player.gameClass) && statuses[i.id] !== 'skipped').length, 1) * 100,
   )
-  const teamCount = catalogItems.filter(i => isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id))).length
+  const teamCount = catalogItems.filter(i => i.category !== 'material' && (isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)))).length
   const filtered = useMemo(() => catalogItems.filter(i => (i.name + ' ' + i.ru).toLowerCase().includes(query.toLowerCase())), [query, catalogItems])
   const current = catalogItems.find(i => i.id === target) || catalogItems.find(i => i.recipe?.length) || catalogItems[0]
   useEffect(() => {
@@ -175,13 +176,29 @@ export default function App() {
   }, [catalogItems, target, inventoryItemId])
   const recipeTree = (id: string, depth = 0, seen: string[] = []): any => {
     const it = catalogItems.find(x => x.id === id)
-    if (!it) return null
+    if (!it || depth > 20) return null
+    const cycle = seen.includes(id)
+    const recipesForItem = it.recipes || []
+    const selectedRecipe = recipesForItem[id === target ? recipeIndex : 0] || recipesForItem[0]
+    const ingredients = selectedRecipe?.ingredients || it.recipe || []
+    const children = cycle ? [] : ingredients.map(ingredient => {
+      const child = recipeTree(ingredient.itemId, depth + 1, [...seen, id])
+      return child ? {
+        qty: ingredient.qty,
+        alternatives: ingredient.alternatives || [],
+        ...child,
+      } : null
+    }).filter(Boolean)
     return {
-      it, depth, cycle: seen.includes(id),
-      children: it.recipe?.map(r => ({ qty: r.qty, ...recipeTree(r.itemId, depth + 1, [...seen, id]) })).filter(Boolean) || [],
+      it,
+      depth,
+      cycle,
+      station: selectedRecipe?.station || it.station,
+      children,
     }
   }
-  const tree = recipeTree(target)
+  const tree = current ? recipeTree(current.id) : null
+  useEffect(() => { setRecipeIndex(0) }, [target])
   const pageTitle = nav.find(n => n.id === tab)?.label || 'Обзор'
   if (isRemoteMode && !session) return <AuthScreen onSession={handleSession}/>
   
@@ -283,9 +300,10 @@ export default function App() {
         {tab === 'crafting' && <>
           <div className="craft-layout">
             <section className="panel craft-picker"><div className="panel-head"><h2>Целевой предмет</h2><Hammer size={17}/></div>
-              {catalogItems.filter(i => i.recipe?.length).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><span>{i.icon}</span><b>{i.name}</b><ChevronRight size={15}/></button>)}
+              {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><span>{i.icon}</span><b>{i.name}</b><ChevronRight size={15}/></button>)}
             </section>
-            <section className="panel tree-panel"><div className="panel-head"><div><h2>{current.name}</h2><small className="muted">Дерево компонентов · {current.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
+            <section className="panel tree-panel"><div className="panel-head"><div><h2>{current?.name || 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {tree?.station || current?.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
+              {(current?.recipes?.length || 0) > 1 && <label className="recipe-select">Вариант рецепта<select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>{current.recipes.map((recipe, index) => <option value={index} key={recipe.id}>{recipe.station || 'Без станции'} · {recipe.version || 'Все версии'} · ×{recipe.amount}</option>)}</select></label>}
               <div className="tree-root">{tree && <TreeNode node={tree} statuses={statuses}/>}</div>
               <div className="notice compact"><Sparkles size={16}/> Рецепты загружаются из Terraria Wiki. Проверьте версию игры и доступность конкретного рецепта для вашей платформы.</div>
             </section>
