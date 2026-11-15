@@ -100,7 +100,7 @@ create table if not exists public.tracker_catalog_recipe_ingredients (
   constraint tracker_catalog_ingredients_item_fk
     foreign key (batch_id, linked_item_key)
     references public.tracker_catalog_items (batch_id, item_key)
-    on delete set null
+    on delete cascade
 );
 
 create index if not exists tracker_catalog_recipe_ingredients_item_idx
@@ -175,14 +175,17 @@ begin
               'qty', ing.quantity
             ) order by ing.ingredient_order
           )
-          from public.tracker_catalog_recipes preferred
+          from (
+            select preferred.recipe_key
+            from public.tracker_catalog_recipes preferred
+            where preferred.batch_id = v_batch_id
+              and preferred.result_item_key = item.item_key
+            order by preferred.version nulls first, preferred.recipe_key
+            limit 1
+          ) preferred
           join public.tracker_catalog_recipe_ingredients ing
-            on ing.batch_id = preferred.batch_id
+            on ing.batch_id = v_batch_id
            and ing.recipe_key = preferred.recipe_key
-          where preferred.batch_id = v_batch_id
-            and preferred.result_item_key = item.item_key
-          order by preferred.version nulls first, preferred.recipe_key
-          limit 1
         ), '[]'::jsonb),
         'recipes', coalesce((
           select jsonb_agg(
