@@ -5,6 +5,7 @@ from import_terraria_wiki import (
     classify_item,
     parse_alternatives,
     parse_recipe_ingredients,
+    supabase_headers,
 )
 
 
@@ -136,6 +137,19 @@ class DependencyGraphTests(unittest.TestCase):
         self.assertEqual(recipes[0]["result_item_key"], "terraria_100")
         self.assertEqual(ingredients[0]["linked_item_key"], "terraria_22")
         self.assertEqual(ingredients[0]["quantity"], 10)
+
+
+class SupabaseAuthHeaderTests(unittest.TestCase):
+    def test_new_secret_key_is_only_sent_as_apikey(self):
+        headers = supabase_headers("sb_secret_example", {"Prefer": "return=minimal"})
+        self.assertEqual(headers["apikey"], "sb_secret_example")
+        self.assertNotIn("Authorization", headers)
+        self.assertEqual(headers["Prefer"], "return=minimal")
+
+    def test_legacy_service_role_jwt_uses_bearer_auth(self):
+        headers = supabase_headers("eyJlegacy.jwt.key")
+        self.assertEqual(headers["apikey"], "eyJlegacy.jwt.key")
+        self.assertEqual(headers["Authorization"], "Bearer eyJlegacy.jwt.key")
 
 
 if __name__ == "__main__":
