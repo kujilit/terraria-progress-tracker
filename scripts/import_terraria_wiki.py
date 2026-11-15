@@ -413,9 +413,10 @@ def parse_recipe_ingredients(row: dict[str, Any]) -> list[dict[str, Any]]:
                 # Some rows omit the leading/trailing Cargo delimiter.
                 cleaned = [part.strip() for part in parts if part.strip()]
                 if len(cleaned) >= 2 and parse_number(cleaned[-1]) is not None:
-                    names, quantity = cleaned[:-1], parse_number(cleaned[-1])
+                    names = [alternative for raw_name in cleaned[:-1] for alternative in parse_alternatives(raw_name)]
+                    quantity = parse_number(cleaned[-1])
                 elif cleaned:
-                    names, quantity = cleaned, 1
+                    names, quantity = [alternative for raw_name in cleaned for alternative in parse_alternatives(raw_name)], 1
             if names:
                 result.append({
                     "names": names,
