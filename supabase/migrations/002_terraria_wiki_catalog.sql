@@ -167,11 +167,18 @@ begin
         'icon', item.icon,
         'description', item.description,
         'source', coalesce(item.source_note, item.page_title, 'Terraria Wiki'),
+        'station', (
+          select r.crafting_station
+          from public.tracker_catalog_recipes r
+          where r.batch_id = v_batch_id and r.result_item_key = item.item_key
+          order by r.version nulls first, r.recipe_key
+          limit 1
+        ),
         'verified', true,
         'recipe', coalesce((
           select jsonb_agg(
             jsonb_build_object(
-              'itemId', coalesce(ing.linked_item_key, 'name:' || lower(regexp_replace(ing.ingredient_name, '[^a-zA-Z0-9]+', '-', 'g'))),
+              'itemId', coalesce(ing.linked_item_key, 'name_' || lower(regexp_replace(ing.ingredient_name, '[^a-zA-Z0-9]+', '_', 'g'))),
               'qty', ing.quantity
             ) order by ing.ingredient_order
           )
@@ -197,7 +204,7 @@ begin
               'ingredients', coalesce((
                 select jsonb_agg(
                   jsonb_build_object(
-                    'itemId', coalesce(ri.linked_item_key, 'name:' || lower(regexp_replace(ri.ingredient_name, '[^a-zA-Z0-9]+', '-', 'g'))),
+                    'itemId', coalesce(ri.linked_item_key, 'name_' || lower(regexp_replace(ri.ingredient_name, '[^a-zA-Z0-9]+', '_', 'g'))),
                     'name', ri.ingredient_name,
                     'qty', ri.quantity,
                     'alternatives', ri.alternative_names
