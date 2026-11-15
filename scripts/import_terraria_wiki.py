@@ -300,11 +300,11 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
         return True
 
     has_armor_slot = any(is_assigned_slot(value) for value in armor_slot_values.values())
-    typed_armor = bool(re.search(r"\\barmor\\b|\\barmour\\b", item_type))
+    typed_armor = bool(re.search(r"\barmor\b|\barmour\b", item_type))
     if (typed_armor or has_armor_slot) and (not vanity or (defense is not None and defense > 0)):
         categories.append("armor")
 
-    typed_accessory = bool(re.search(r"\\baccessory\\b|\\baccessories\\b", item_type))
+    typed_accessory = bool(re.search(r"\baccessory\b|\baccessories\b", item_type))
     if accessory or typed_accessory:
         categories.append("accessory")
 
