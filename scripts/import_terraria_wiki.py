@@ -341,7 +341,7 @@ def clean_wiki_text(value: Any) -> str:
     parser = _WikiTextParser()
     parser.feed(raw)
     parser.close()
-    return re.sub(r"\s+", " ", " ".join(parser.parts)).strip()
+    return re.sub(r"\s+", " ", "".join(parser.parts)).strip()
 
 
 def norm_key(value: str) -> str:
