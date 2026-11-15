@@ -1488,6 +1488,74 @@
       "setBonus": "Полный набор даёт Leaf Crystal — автоматически атакующий кристаллический лист над игроком.",
       "buffName": "Leaf Crystal",
       "buffDuration": "Пока надет полный комплект"
+    },
+    {
+      "id": "crystal-assassin",
+      "name": "Crystal Assassin Armor",
+      "classes": [
+        "Melee",
+        "Ranger",
+        "Mage",
+        "Summoner"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Crystal Assassin Hood",
+          "slot": "Голова",
+          "effect": "+5% к критическому шансу и −10% расхода маны."
+        },
+        {
+          "name": "Crystal Assassin Shirt",
+          "slot": "Тело",
+          "effect": "+5% к урону и 10% шанс сохранить боеприпас."
+        },
+        {
+          "name": "Crystal Assassin Pants",
+          "slot": "Ноги",
+          "effect": "+20% к скорости передвижения и +10% к скорости ближнего боя."
+        }
+      ],
+      "bonuses": [
+        "+15% ко всему урону",
+        "+15% к критическому шансу",
+        "+10% к скорости ближнего боя",
+        "+10% шанс сохранить боеприпасы",
+        "−10% расхода маны",
+        "+20% к скорости передвижения"
+      ],
+      "setBonus": "Позволяет совершать рывок. Дополнительно +10% к урону и +10% к критическому шансу (итого +15% каждого)."
+    },
+    {
+      "id": "forbidden",
+      "name": "Forbidden Armor",
+      "classes": [
+        "Mage",
+        "Summoner"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Forbidden Mask",
+          "slot": "Голова",
+          "effect": "Усиливает магию и призыв; полный комплект даёт +25% к магическому и summon-урону."
+        },
+        {
+          "name": "Forbidden Robes",
+          "slot": "Тело"
+        },
+        {
+          "name": "Forbidden Treads",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+25% к магическому урону",
+        "+25% к урону призыва",
+        "+80 к максимуму маны",
+        "+2 слота миньонов"
+      ],
+      "setBonus": "Призывает Forbidden Sign. Двойное нажатие вверх/вниз вызывает Ancient Storm в точке курсора за 20 маны."
     }
   ]
 }
