@@ -1,6 +1,7 @@
 import { items } from '../data'
+import type { Item } from '../types'
 import type {
-  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, Item, JoinWorldInput,
+  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, JoinWorldInput,
   ProgressRecord, TrackerApi, TrackerPlayer, TrackerSession, TrackerWorld,
 } from './api'
 
