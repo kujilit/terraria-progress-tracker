@@ -281,7 +281,7 @@ function transferInventory_(body) {
   const key = text_(body.idempotencyKey,'idempotencyKey',8,100);
   if (toPlayerId === ctx.player.id) fail_('VALIDATION_ERROR','Cannot transfer items to yourself.');
   return locked_(function() {
-    const prior = first_('InventoryTransactions',function(x){return x.worldId === ctx.world.id && x.idempotencyKey === key;});
+    const prior = first_('InventoryTransactions',function(x){return x.worldId === ctx.world.id && x.playerId === ctx.player.id && x.idempotencyKey === key;});
     if (prior) return {duplicate:true,transferId:prior.reason && prior.reason.indexOf('transfer:') === 0 ? prior.reason.slice(9) : ''};
     const targetMembership = first_('Memberships',function(x){return x.worldId === ctx.world.id && x.playerId === toPlayerId;});
     if (!targetMembership) fail_('PLAYER_NOT_FOUND','Target player is not a member of this world.');
