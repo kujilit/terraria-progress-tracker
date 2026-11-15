@@ -329,7 +329,7 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
     stage = "Hardmode" if hardmode else "Pre-Hardmode" if hardmode is False else "Not specified"
     class_damage = [name for name in CLASSES if name in classes]
 
-    slots = {key: val for key, val in armor_slots.items() if val is not None and val >= 0}
+    slots = {key: val for key, val in armor_slot_values.items() if is_assigned_slot(val)}
     return {
         "item_key": item_key(item_id, internal_name, name, page),
         "terraria_id": parse_number(item_id),
