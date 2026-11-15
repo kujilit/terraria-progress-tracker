@@ -201,7 +201,7 @@ export default function App() {
                 <div className="goal-row" key={i.id}><span className="item-icon">{i.icon}</span><div className="goal-info"><b>{i.name}</b><small>{i.source}</small></div><span className={'state ' + statuses[i.id]}>{statuses[i.id] === 'planned' ? 'В планах' : 'В работе'}</span></div>)}
             </section>
             <section className="panel"><div className="panel-head"><h2>Прогресс боссов</h2><Skull size={17}/></div>
-              {bosses.slice(0, 5).map((b, i) => <div className="boss-row" key={b.id}><span className={'boss-icon ' + (bossStatus(b.id) === 'defeated' ? 'defeated' : '')}>{bossStatus(b.id) === 'defeated' ? '✓' : '?'}</span><span>{b.name}</span><small>{bossStatus(b.id) === 'defeated' ? 'Побеждён' : 'Ожидает'}</small></div>)}
+              {bosses.slice(0, 5).map(b => <div className="boss-row" key={b.id}><span className={'boss-icon ' + (bossStatus(b.id) === 'defeated' ? 'defeated' : '')}>{bossStatus(b.id) === 'defeated' ? '✓' : '?'}</span><span>{b.name}</span><small>{bossStatus(b.id) === 'defeated' ? 'Побеждён' : 'Ожидает'}</small></div>)}
             </section>
           </div>
         </>}
@@ -246,7 +246,7 @@ export default function App() {
         </>}
         {tab === 'bosses' && <>
           <div className="notice"><Skull size={18}/> Boss Gates: отметка босса открывает последующие этапы. В демо используются примерные связи — перед production их нужно сверить с игровыми условиями 1.4.5.x.</div>
-          <div className="boss-grid">{bosses.map((b, i) => <div className="boss-card" key={b.id}><div className={'boss-portrait ' + (bossStatus(b.id) === 'defeated' ? 'won' : '')}>{bossStatus(b.id) === 'defeated' ? '☠' : '?'}</div><div><b>{b.name}</b><small>{b.stage}</small><span className={bossStatus(b.id) === 'defeated' ? 'state owned' : 'state missing'}>{bossStatus(b.id) === 'defeated' ? 'Побеждён' : b.requires.length ? 'Зависит от предыдущего этапа' : 'Доступен'}</span></div><button className="small-button" onClick={() => setBossStatus(b.id,bossStatus(b.id) === 'defeated' ? 'pending' : 'defeated')}>{bossStatus(b.id) === 'defeated' ? 'Отменить' : 'Отметить'}</button></div>)}</div>
+          <div className="boss-grid">{bosses.map(b => <div className="boss-card" key={b.id}><div className={'boss-portrait ' + (bossStatus(b.id) === 'defeated' ? 'won' : '')}>{bossStatus(b.id) === 'defeated' ? '☠' : '?'}</div><div><b>{b.name}</b><small>{b.stage}</small><span className={bossStatus(b.id) === 'defeated' ? 'state owned' : 'state missing'}>{bossStatus(b.id) === 'defeated' ? 'Побеждён' : b.requires.length ? 'Зависит от предыдущего этапа' : 'Доступен'}</span></div><button className="small-button" onClick={() => setBossStatus(b.id,bossStatus(b.id) === 'defeated' ? 'pending' : 'defeated')}>{bossStatus(b.id) === 'defeated' ? 'Отменить' : 'Отметить'}</button></div>)}</div>
         </>}
         {tab === 'crafting' && <>
           <div className="craft-layout">
