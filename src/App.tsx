@@ -590,12 +590,6 @@ function PlayerGearCard({ item, status, onStatus, disabled = false }: {
   </article>
 }
 
-function ItemCard({ item, status, onStatus, disabled = false }: { item: any; status: ItemStatus; onStatus: (id: string, s: ItemStatus) => void; disabled?: boolean }) {
-  const labels: Record<ItemStatus, string> = { owned: 'Получен', planned: 'В планах', crafting: 'В работе', missing: 'Не получен', skipped: 'Пропущен' }
-  return <article className="item-card"><ItemArtwork item={item} className="item-art"/><div className="item-details"><b>{item.name}</b><small>{item.ru} · {item.stage}</small><small>{item.source}</small><span className={'state ' + status}>{labels[status]}</span></div>
-    <select value={status} disabled={disabled} onChange={e => onStatus(item.id, e.target.value as ItemStatus)} aria-label={'Статус ' + item.name}><option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option></select>
-  </article>
-}
 function categoryKey(category: string) {
   const value = category.toLowerCase()
   if (value.includes('weapon') || value.includes('оруж')) return 'weapon'
