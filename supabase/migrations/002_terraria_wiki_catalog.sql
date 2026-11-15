@@ -118,6 +118,7 @@ revoke all privileges on table
   public.tracker_catalog_recipe_ingredients
 from public, anon, authenticated;
 
+grant usage on schema public to service_role;
 grant all privileges on table
   public.tracker_catalog_imports,
   public.tracker_catalog_items,
