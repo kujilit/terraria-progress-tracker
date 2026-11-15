@@ -1,4 +1,4 @@
-import type { GameClass, ItemStatus } from '../types'
+import type { GameClass, Item, ItemStatus } from '../types'
 
 export interface TrackerWorld {
   id: string; name: string; joinCode: string; gameVersion: string
@@ -32,6 +32,7 @@ export interface JoinWorldInput extends AuthInput { gameClass: GameClass }
 export interface TrackerApi {
   readonly mode: 'local' | 'remote'
   health(): Promise<{ status: 'ok'; apiVersion: string }>
+  getCatalog(token: string): Promise<Item[]>
   createWorld(input: CreateWorldInput): Promise<TrackerSession>
   joinWorld(input: JoinWorldInput): Promise<TrackerSession>
   login(input: AuthInput): Promise<TrackerSession>
