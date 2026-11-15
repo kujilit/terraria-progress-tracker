@@ -78,6 +78,58 @@ class ItemClassificationTests(unittest.TestCase):
         self.assertEqual(accessory["primary_category"], "accessory")
         self.assertEqual(accessory["classes"], ["Melee", "Ranger", "Mage", "Summoner"])
 
+    def test_curated_armor_set_is_assigned_to_its_class(self):
+        armor = classify_item({
+            "itemid": "2361",
+            "internalname": "BeeHeadgear",
+            "name": "Bee Headgear",
+            "type": "Armor",
+            "headSlot": "Helmet",
+            "defense": "4",
+            "hardmode": "No",
+        })
+        self.assertEqual(armor["classes"], ["Summoner"])
+        self.assertEqual(armor["class_assignment"], "curated-armor-set")
+        self.assertEqual(armor["armor_set_id"], "bee")
+        self.assertIn("+10% к урону призыва", armor["armor_set_bonus"])
+        self.assertIn("+4% к урону призыва", armor["equipment_effect"])
+
+    def test_unclassified_armor_is_not_shared_between_all_classes(self):
+        armor = classify_item({
+            "itemid": "7003",
+            "name": "Generic Armor Piece",
+            "type": "Armor",
+            "bodySlot": "Shirt",
+            "defense": "5",
+        })
+        self.assertEqual(armor["classes"], [])
+        self.assertEqual(armor["class_assignment"], "unclassified-armor")
+
+    def test_unclassified_weapon_is_not_shared_between_all_classes(self):
+        weapon = classify_item({
+            "itemid": "7004",
+            "name": "Unknown Damage Weapon",
+            "type": "Weapon",
+            "damage": "20",
+        })
+        self.assertEqual(weapon["classes"], [])
+        self.assertEqual(weapon["class_assignment"], "unclassified-weapon")
+
+    def test_equipment_buff_metadata_is_captured(self):
+        weapon = classify_item({
+            "itemid": "7005",
+            "name": "On Fire Blade",
+            "type": "Weapon",
+            "damage": "20",
+            "melee": "1",
+            "buffName": "On Fire!",
+            "buffDuration": "3 seconds",
+            "bonus": "Burns enemies",
+        })
+        self.assertEqual(weapon["buff_name"], "On Fire!")
+        self.assertEqual(weapon["buff_duration"], "3 seconds")
+        self.assertIn("Burns enemies", weapon["equipment_effect"])
+
     def test_class_specific_armor_and_accessory(self):
         armor = classify_item({
             "itemid": "7001",
