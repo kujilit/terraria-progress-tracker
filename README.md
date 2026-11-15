@@ -29,9 +29,9 @@ npm run dev
 
 ## Каталог Terraria Wiki
 
-Каталог предметов и рецептов импортируется с официальной Terraria Wiki через Cargo API. Схема базы данных: [002_terraria_wiki_catalog.sql](supabase/migrations/002_terraria_wiki_catalog.sql). Импортёр: [scripts/import_terraria_wiki.py](scripts/import_terraria_wiki.py).
+Каталог предметов, рецептов и изображений импортируется с официальной Terraria Wiki через Cargo API и MediaWiki `imageinfo`. Схема базы данных: [002_terraria_wiki_catalog.sql](supabase/migrations/002_terraria_wiki_catalog.sql) и [003_catalog_item_images.sql](supabase/migrations/003_catalog_item_images.sql). Импортёр: [scripts/import_terraria_wiki.py](scripts/import_terraria_wiki.py).
 
-1. Один раз выполни миграцию `002_terraria_wiki_catalog.sql` после `001_initial_schema.sql` в Supabase SQL Editor.
+1. Выполни `002_terraria_wiki_catalog.sql` после `001_initial_schema.sql`, затем `003_catalog_item_images.sql` в Supabase SQL Editor.
 2. В GitHub → Settings → Secrets and variables → Actions → **Secrets** добавь `SUPABASE_SECRET_KEY`. Используй Supabase Secret API key (`sb_secret_...`) или legacy `service_role` key. Никогда не используй этот ключ как `VITE_*` и не добавляй его в Variables.
 3. Уже сохранённая переменная `VITE_SUPABASE_URL` используется workflow как адрес проекта.
 4. Открой Actions → **Import Terraria Wiki catalog**. Сначала запусти с `dry_run=true` для проверки статистики, затем с `dry_run=false` для публикации в базу.
@@ -39,6 +39,8 @@ npm run dev
 Workflow также запускается автоматически раз в месяц. Каждый запуск создаёт отдельный снимок; приложение продолжает читать предыдущий опубликованный каталог, пока новый снимок не загружен полностью.
 
 В импорт входят оружие, броня, аксессуары, боеприпасы и рекурсивные материалы, необходимые для рецептов этой экипировки. Альтернативные рецепты и ингредиенты сохраняются отдельно. Неизвестные/непривязанные ингредиенты не теряются: они сохраняются как material-записи с исходным названием и ссылкой на Wiki.
+
+Для предметов Cargo `imagefile` разрешается в прямой thumbnail URL через MediaWiki `imageinfo`. В Supabase хранятся `image_file`, `image_url`, `image_original_url` и `image_page_url`; интерфейс использует thumbnail и показывает прежнюю иконку при отсутствии изображения.
 
 Импорт сохраняет английские названия, Cargo-поля и ссылки на Wiki. Русские переводы и тонкие этапы прогрессии не синтезируются автоматически; при необходимости их можно добавить отдельным локализационным слоем.
 
