@@ -105,6 +105,28 @@ class ItemClassificationTests(unittest.TestCase):
         self.assertEqual(armor["classes"], [])
         self.assertEqual(armor["class_assignment"], "unclassified-armor")
 
+    def test_shared_armor_piece_merges_class_variants(self):
+        armor = classify_item({
+            "itemid": "7006",
+            "name": "Cobalt Breastplate",
+            "type": "Armor",
+            "bodySlot": "Shirt",
+            "defense": "10",
+        })
+        self.assertEqual(armor["classes"], ["Melee", "Ranger", "Mage"])
+        self.assertEqual(armor["class_assignment"], "curated-armor-set")
+
+    def test_hallowed_hood_is_summoner_specific(self):
+        armor = classify_item({
+            "itemid": "7007",
+            "name": "Hallowed Hood",
+            "type": "Armor",
+            "headSlot": "Helmet",
+            "defense": "5",
+        })
+        self.assertEqual(armor["classes"], ["Summoner"])
+        self.assertIn("Holy Protection", armor["buff_name"])
+
     def test_unclassified_weapon_is_not_shared_between_all_classes(self):
         weapon = classify_item({
             "itemid": "7004",
