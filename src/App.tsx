@@ -625,7 +625,7 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
       <span className="player-armor-set-count">{items.length}/{set.pieces.length} <small>частей</small></span>
     </header>
     {set.bonuses.length > 0 && <div className="player-armor-bonuses">
-      <span className="player-armor-block-label">Пассивные характеристики полного набора</span>
+      <span className="player-armor-block-label">Суммарные бонусы частей комплекта</span>
       <div>{set.bonuses.map(bonus => <span className="player-armor-bonus" key={bonus}>{bonus}</span>)}</div>
     </div>}
     <div className="player-armor-set-bonus">
@@ -686,7 +686,7 @@ function PlayerGearCard({ item, status, onStatus, disabled = false }: {
         {item.damage !== null && item.damage !== undefined && <span>{item.damage} урона</span>}
         {item.defense !== null && item.defense !== undefined && item.defense > 0 && <span>{item.defense} защиты</span>}
         {item.damageType && <span>{item.damageType}</span>}
-        {item.buffName && <span className="player-gear-buff"><Sparkles size={11}/> {item.buffName}{item.buffDuration ? ` · ${item.buffDuration}` : ''}</span>}
+        {item.buffName && <span className="player-gear-buff"><Sparkles size={11}/> Эффект: {item.buffName}{item.buffDuration ? ` · ${item.buffDuration}` : ''}</span>}
       </div>
       <small className="player-gear-source">{item.source}</small>
       <div className="player-gear-status">
