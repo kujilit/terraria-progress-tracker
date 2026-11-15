@@ -525,7 +525,7 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
         "damage_type": ", ".join(class_damage) if primary_category == "weapon" else None,
         "defense": defense,
         "equipment_effect": (
-            armor_meta.get("piece_effect")
+            (armor_meta or {}).get("piece_effect")
             or str(get(row, "bonus", "effect", "tooltip", "ToolTip", "description", default="") or "")
         ),
         "armor_set_id": armor_meta.get("set_id") if armor_meta else None,
