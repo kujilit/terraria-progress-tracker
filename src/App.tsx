@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Swords, Users, Backpack, Skull, GitBranch, Target, BookOpen, Settings, Globe, Search, ChevronRight, Hammer, Sparkles } from 'lucide-react'
 import { items, players, bosses } from './data'
 import type { GameClass, ItemStatus, Player } from './types'
-import type { BossRecord, ProgressRecord, TrackerPlayer, TrackerSession } from './services/api'
+import type { BossRecord, InventoryRecord, ProgressRecord, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 
 type Tab = 'overview' | 'players' | 'progression' | 'inventory' | 'bosses' | 'crafting' | 'catalog'
@@ -27,6 +27,11 @@ export default function App() {
   const [remotePlayers, setRemotePlayers] = useState<TrackerPlayer[]>([])
   const [remoteProgress, setRemoteProgress] = useState<ProgressRecord[]>([])
   const [remoteBosses, setRemoteBosses] = useState<BossRecord[]>([])
+  const [remoteInventory, setRemoteInventory] = useState<InventoryRecord[]>([])
+  const [inventoryItemId, setInventoryItemId] = useState(items[0].id)
+  const [inventoryQty, setInventoryQty] = useState('1')
+  const [transferTarget, setTransferTarget] = useState('')
+  const [transferQty, setTransferQty] = useState('1')
   const [syncError, setSyncError] = useState('')
   const [selected, setSelected] = useState(() => loadSession()?.player.id || 'p1')
   const [statuses, setStatuses] = useState<Record<string, ItemStatus>>(() => {
@@ -61,11 +66,13 @@ export default function App() {
       trackerApi.listPlayers(session.token),
       trackerApi.getProgress(session.token),
       trackerApi.listBosses(session.token),
-    ]).then(([members, progressRows, bossRows]) => {
+      trackerApi.listInventory(session.token),
+    ]).then(([members, progressRows, bossRows, inventoryRows]) => {
       if (!active) return
       setRemotePlayers(members)
       setRemoteProgress(progressRows)
       setRemoteBosses(bossRows)
+      setRemoteInventory(inventoryRows)
       if (!members.some(member => member.id === selected)) setSelected(session.player.id)
     }).catch(error => {
       if (active) setSyncError(error instanceof Error ? error.message : 'Ошибка синхронизации')
@@ -83,6 +90,24 @@ export default function App() {
       const saved = JSON.parse(localStorage.getItem('terraria-bosses') || '{}') as Record<string,string>
       return saved[bossId] || (bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending')
     } catch { return bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending' }
+  }
+  const saveInventoryQuantity = async () => {
+    try {
+      const row = await trackerApi.setInventory(session?.token || selected,{itemId:inventoryItemId,quantity:Number(inventoryQty)})
+      setRemoteInventory(current => [...current.filter(x => !(x.playerId === row.playerId && x.itemId === row.itemId)),row])
+      setSyncError('')
+    } catch (error) { setSyncError(error instanceof Error ? error.message : 'Не удалось сохранить инвентарь') }
+  }
+  const transferInventory = async () => {
+    if (!transferTarget) { setSyncError('Выбери получателя передачи'); return }
+    try {
+      const result = await trackerApi.transferInventory(session?.token || selected,{
+        toPlayerId:transferTarget,itemId:inventoryItemId,quantity:Number(transferQty),idempotencyKey:crypto.randomUUID(),
+      })
+      const rows = await trackerApi.listInventory(session?.token || selected)
+      setRemoteInventory(rows)
+      setSyncError(result.duplicate ? 'Этот запрос передачи уже был обработан.' : 'Предметы переданы.')
+    } catch (error) { setSyncError(error instanceof Error ? error.message : 'Не удалось передать предметы') }
   }
   const setBossStatus = (bossId: string, status: 'defeated'|'pending') => {
     if (isRemoteMode && session) {
@@ -103,7 +128,7 @@ export default function App() {
   const handleLogout = async () => {
     if (session) { try { await trackerApi.logout(session.token) } catch { /* local session is still cleared */ } }
     sessionStorage.removeItem('terraria-tracker-session')
-    setSession(null); setRemotePlayers([]); setRemoteProgress([]); setRemoteBosses([])
+    setSession(null); setRemotePlayers([]); setRemoteProgress([]); setRemoteBosses([]); setRemoteInventory([])
   }
 
   const classItems = items.filter(i => i.gameClass.includes(player.gameClass))
@@ -197,9 +222,27 @@ export default function App() {
           </div>
         </>}
         {tab === 'inventory' && <>
+          {isRemoteMode && session && <section className="panel inventory-controls">
+            <div className="panel-head"><h2>Управление количеством</h2><Backpack size={17}/></div>
+            <div className="inventory-form">
+              <label>Предмет<select value={inventoryItemId} onChange={e=>setInventoryItemId(e.target.value)}>{items.map(item=><option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
+              <label>Количество<input type="number" min="0" max="99999" value={inventoryQty} onChange={e=>setInventoryQty(e.target.value)}/></label>
+              <button className="small-button" onClick={saveInventoryQuantity}>Сохранить у себя</button>
+            </div>
+            <div className="inventory-form transfer-form">
+              <label>Получатель<select value={transferTarget} onChange={e=>setTransferTarget(e.target.value)}><option value="">Выбрать игрока</option>{currentPlayers.filter(p=>p.id!==session.player.id).map(p=><option value={p.id} key={p.id}>{p.name}</option>)}</select></label>
+              <label>Количество<input type="number" min="1" max="99999" value={transferQty} onChange={e=>setTransferQty(e.target.value)}/></label>
+              <button className="small-button" onClick={transferInventory}>Передать</button>
+            </div>
+          </section>}
           <div className="notice"><Backpack size={18}/> Командный инвентарь в демо-режиме агрегирует отмеченные предметы. Синхронизация между игроками появится после подключения Apps Script.</div>
           <div className="stats-row"><Stat label="Предметов в команде" value={String(teamCount)}/><Stat label="Игроков" value="4"/><Stat label="Активных целей" value={String(items.filter(i => statuses[i.id] === 'planned' || statuses[i.id] === 'crafting').length)}/></div>
-          <div className="item-grid">{items.filter(i => statuses[i.id] === 'owned').map(i => <div className="item-card" key={i.id}><div className="item-art">{i.icon}</div><div className="item-details"><b>{i.name}</b><small>{i.gameClass.join(', ')}</small><span className="state owned">Есть в команде</span></div></div>)}</div>
+          {isRemoteMode && <div className="item-grid">{remoteInventory.map(row => {
+            const item = items.find(x => x.id === row.itemId)
+            const owner = currentPlayers.find(x => x.id === row.playerId)
+            return <div className="item-card" key={row.id}><div className="item-art">{item?.icon || '📦'}</div><div className="item-details"><b>{item?.name || row.itemId}</b><small>{owner?.name || 'Участник'} · резерв: {row.reservedQuantity}</small><span className="state owned">Количество: {row.quantity}</span></div></div>
+          })}</div>}
+          {!isRemoteMode && <div className="item-grid">{items.filter(i => statuses[i.id] === 'owned').map(i => <div className="item-card" key={i.id}><div className="item-art">{i.icon}</div><div className="item-details"><b>{i.name}</b><small>{i.gameClass.join(', ')}</small><span className="state owned">Есть в команде</span></div></div>)}</div>}
         </>}
         {tab === 'bosses' && <>
           <div className="notice"><Skull size={18}/> Boss Gates: отметка босса открывает последующие этапы. В демо используются примерные связи — перед production их нужно сверить с игровыми условиями 1.4.5.x.</div>
