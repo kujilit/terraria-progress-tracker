@@ -235,7 +235,7 @@ export default function App() {
               <button className="small-button" onClick={transferInventory}>Передать</button>
             </div>
           </section>}
-          <div className="notice"><Backpack size={18}/> Командный инвентарь в демо-режиме агрегирует отмеченные предметы. Синхронизация между игроками появится после подключения Apps Script.</div>
+          <div className="notice"><Backpack size={18}/> {isRemoteMode ? "Инвентарь синхронизируется через Apps Script. Передача работает только в пределах текущего мира." : "В демо-режиме инвентарь показывает предметы, отмеченные как полученные."}</div>
           <div className="stats-row"><Stat label="Предметов в команде" value={String(teamCount)}/><Stat label="Игроков" value="4"/><Stat label="Активных целей" value={String(items.filter(i => statuses[i.id] === 'planned' || statuses[i.id] === 'crafting').length)}/></div>
           {isRemoteMode && <div className="item-grid">{remoteInventory.map(row => {
             const item = items.find(x => x.id === row.itemId)
