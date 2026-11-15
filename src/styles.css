@@ -274,7 +274,7 @@
 
 
 /* Class-specific armor sets: grouped pieces and highlighted full-set effect */
-.player-armor-sets{display:grid;gap:12px;margin:16px 0 18px}
+.player-armor-sets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:12px;margin:16px 0 18px}
 .player-armor-set-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .player-armor-set-section-title h3{margin:0;color:#f0e3cc;font-size:15px}
 .player-armor-set-section-title span{color:#8ca3ac;font-size:10px}
@@ -323,3 +323,10 @@
   .player-armor-piece select{max-width:82px;min-width:70px}
   .player-gear-buff small{margin-left:0}
 }
+
+.player-armor-toggle{display:flex;align-items:center;gap:8px;width:100%;padding:9px 13px;background:#192c36;border:0;border-top:1px solid #3d515a;color:#d6c49d;text-align:left;font-size:10px}
+.player-armor-toggle span{flex:1}
+.player-armor-toggle b{color:#8fa5ad;font-size:9px;font-weight:500}
+.player-armor-toggle svg{color:#d7b36e;transition:transform .15s}
+.player-armor-toggle svg.expanded{transform:rotate(90deg)}
+@media(max-width:1050px){.player-armor-sets{grid-template-columns:1fr}}
