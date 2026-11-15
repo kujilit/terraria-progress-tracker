@@ -62,23 +62,28 @@ export default function App() {
   useEffect(() => {
     if (!isRemoteMode || !session) return
     let active = true
-    setSyncError('')
-    Promise.all([
-      trackerApi.listPlayers(session.token),
-      trackerApi.getProgress(session.token),
-      trackerApi.listBosses(session.token),
-      trackerApi.listInventory(session.token),
-    ]).then(([members, progressRows, bossRows, inventoryRows]) => {
-      if (!active) return
-      setRemotePlayers(members)
-      setRemoteProgress(progressRows)
-      setRemoteBosses(bossRows)
-      setRemoteInventory(inventoryRows)
-      if (!members.some(member => member.id === selected)) setSelected(session.player.id)
-    }).catch(error => {
-      if (active) setSyncError(error instanceof Error ? error.message : 'Ошибка синхронизации')
-    })
-    return () => { active = false }
+    const refresh = async () => {
+      try {
+        const [members, progressRows, bossRows, inventoryRows] = await Promise.all([
+          trackerApi.listPlayers(session.token),
+          trackerApi.getProgress(session.token),
+          trackerApi.listBosses(session.token),
+          trackerApi.listInventory(session.token),
+        ])
+        if (!active) return
+        setRemotePlayers(members)
+        setRemoteProgress(progressRows)
+        setRemoteBosses(bossRows)
+        setRemoteInventory(inventoryRows)
+        setSyncError('')
+        if (!members.some(member => member.id === selected)) setSelected(session.player.id)
+      } catch (error) {
+        if (active) setSyncError(error instanceof Error ? error.message : 'Ошибка синхронизации')
+      }
+    }
+    void refresh()
+    const intervalId = window.setInterval(() => { void refresh() }, 10000)
+    return () => { active = false; window.clearInterval(intervalId) }
   }, [session])
   useEffect(() => {
     if (!isRemoteMode || !session) return
@@ -163,7 +168,7 @@ export default function App() {
         <n.icon size={17}/>{n.label}{n.id === 'inventory' || n.id === 'crafting' ? <span className="new-dot"/> : null}
       </button>)}
       <div className="sidebar-bottom">
-        <div className="connection"><span className="status-dot"/> {isRemoteMode ? 'REMOTE API' : 'DEMO MODE'} <small>{isRemoteMode ? 'Apps Script · синхронизация' : 'Локальное сохранение'}</small></div>
+        <div className="connection"><span className="status-dot"/> {isRemoteMode ? 'REMOTE API' : 'DEMO MODE'} <small>{isRemoteMode ? 'Supabase · синхронизация' : 'Локальное сохранение'}</small></div>
         <button className="nav-item"><Settings size={17}/>Настройки</button>
       </div>
     </aside>
