@@ -612,6 +612,7 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
   const classNames: Record<GameClass, string> = {
     Melee: 'Ближний бой', Ranger: 'Стрелок', Mage: 'Маг', Summoner: 'Призыватель',
   }
+  const [expanded, setExpanded] = useState(false)
   return <article className="player-armor-set-card">
     <header className="player-armor-set-head">
       <div>
@@ -630,7 +631,12 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
       <p>{set.setBonus}</p>
       {set.buffName && <div className="player-gear-buff"><Sparkles size={13}/> Бафф: <b>{set.buffName}</b>{set.buffDuration && <small>{set.buffDuration}</small>}</div>}
     </div>
-    <div className="player-armor-pieces">
+    <button type="button" className="player-armor-toggle" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>
+      <span>{expanded ? 'Скрыть части' : 'Показать части комплекта'}</span>
+      <b>{set.pieces.length} предмета</b>
+      <ChevronRight className={expanded ? 'expanded' : ''} size={15}/>
+    </button>
+    {expanded && <div className="player-armor-pieces">
       {set.pieces.map(piece => {
         const item = items.find(entry => entry.name === piece.name)
         if (!item) return <div className="player-armor-piece unavailable" key={piece.name}>
@@ -652,8 +658,8 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
           </select>
         </div>
       })}
-    </div>
-    {matchedCount < items.length && <small className="player-armor-filter-note">Показан весь комплект: фильтр совпал с {matchedCount} из {items.length} доступных частей.</small>}
+    </div>}
+    {expanded && matchedCount < items.length && <small className="player-armor-filter-note">Показан весь комплект: фильтр совпал с {matchedCount} из {items.length} доступных частей.</small>}
   </article>
 }
 
