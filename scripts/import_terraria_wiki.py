@@ -674,8 +674,8 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
     catalog_items = [all_items[key] for key in sorted(needed_keys)]
     return catalog_items, catalog_recipes, catalog_ingredients
 
-def supabase_request(method: str, url: str, key: str, **kwargs: Any) -> requests.Response:
-    headers = kwargs.pop("headers", {})
+def supabase_headers(key: str, extra: dict[str, str] | None = None) -> dict[str, str]:
+    headers = dict(extra or {})
     headers.update({
         "apikey": key,
         "Content-Type": "application/json",
@@ -684,6 +684,13 @@ def supabase_request(method: str, url: str, key: str, **kwargs: Any) -> requests
     # apikey. Legacy service_role keys are JWTs and still need Bearer auth.
     if key.startswith("eyJ"):
         headers["Authorization"] = f"Bearer {key}"
+    else:
+        headers.pop("Authorization", None)
+    return headers
+
+
+def supabase_request(method: str, url: str, key: str, **kwargs: Any) -> requests.Response:
+    headers = supabase_headers(key, kwargs.pop("headers", {}))
     response = requests.request(method, url, headers=headers, timeout=90, **kwargs)
     if response.status_code >= 400:
         raise RuntimeError(
