@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { Swords, Users, Backpack, Skull, GitBranch, Target, BookOpen, Settings, Globe, Search, ChevronRight, Hammer, Sparkles } from 'lucide-react'
+import { Swords, Users, Backpack, Skull, GitBranch, Target, BookOpen, Settings, Globe, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw } from 'lucide-react'
+import { AccessoryBuilds } from './AccessoryBuilds'
 import { items, players, bosses } from './data'
 import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 
-type Tab = 'overview' | 'players' | 'progression' | 'inventory' | 'bosses' | 'crafting' | 'catalog'
+type Tab = 'overview' | 'players' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog'
 const nav: { id: Tab; label: string; icon: typeof Globe }[] = [
   { id: 'overview', label: 'Обзор мира', icon: Globe },
   { id: 'players', label: 'Игроки', icon: Users },
   { id: 'progression', label: 'Прогресс классов', icon: Swords },
+  { id: 'accessories', label: 'Аксессуары и билды', icon: Shield },
   { id: 'inventory', label: 'Командный инвентарь', icon: Backpack },
   { id: 'bosses', label: 'Боссы и этапы', icon: Skull },
   { id: 'crafting', label: 'Дерево крафта', icon: GitBranch },
@@ -40,6 +42,11 @@ export default function App() {
     catch { return initial }
   })
   const [query, setQuery] = useState('')
+  const [catalogClassFilter, setCatalogClassFilter] = useState<GameClass | 'all'>('all')
+  const [catalogCategoryFilter, setCatalogCategoryFilter] = useState('all')
+  const [catalogStageFilter, setCatalogStageFilter] = useState('all')
+  const [catalogStatusFilter, setCatalogStatusFilter] = useState('all')
+  const [catalogSort, setCatalogSort] = useState<'name' | 'stage' | 'status'>('name')
   const [target, setTarget] = useState('terra_blade')
   const [recipeIndex, setRecipeIndex] = useState(0)
   const classColors: Record<GameClass, string> = { Melee:'#d98d54', Ranger:'#79a8d8', Mage:'#a88add', Summoner:'#76b98c' }
@@ -163,7 +170,30 @@ export default function App() {
     Math.max(catalogItems.filter(i => i.category !== 'material' && i.gameClass.includes(player.gameClass) && statuses[i.id] !== 'skipped').length, 1) * 100,
   )
   const teamCount = catalogItems.filter(i => i.category !== 'material' && (isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)))).length
-  const filtered = useMemo(() => catalogItems.filter(i => (i.name + ' ' + i.ru).toLowerCase().includes(query.toLowerCase())), [query, catalogItems])
+  const filtered = useMemo(() => {
+    const statusOrder: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
+    const stageOrder: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Not specified': 2 }
+    return catalogItems
+      .filter(item => (item.name + ' ' + item.ru + ' ' + item.description).toLowerCase().includes(query.trim().toLowerCase()))
+      .filter(item => catalogClassFilter === 'all' || item.gameClass.includes(catalogClassFilter))
+      .filter(item => catalogCategoryFilter === 'all' || categoryKey(item.category) === catalogCategoryFilter)
+      .filter(item => catalogStageFilter === 'all' || item.stage === catalogStageFilter)
+      .filter(item => catalogStatusFilter === 'all' || (statuses[item.id] || 'missing') === catalogStatusFilter)
+      .sort((a, b) => {
+        if (catalogSort === 'stage') return (stageOrder[a.stage] ?? 3) - (stageOrder[b.stage] ?? 3) || a.name.localeCompare(b.name)
+        if (catalogSort === 'status') return statusOrder[statuses[a.id] || 'missing'] - statusOrder[statuses[b.id] || 'missing'] || a.name.localeCompare(b.name)
+        return a.name.localeCompare(b.name)
+      })
+  }, [catalogItems, query, catalogClassFilter, catalogCategoryFilter, catalogStageFilter, catalogStatusFilter, catalogSort, statuses])
+  const catalogFiltersActive = catalogClassFilter !== 'all' || catalogCategoryFilter !== 'all' || catalogStageFilter !== 'all' || catalogStatusFilter !== 'all' || query.trim() !== ''
+  const resetCatalogFilters = () => {
+    setQuery('')
+    setCatalogClassFilter('all')
+    setCatalogCategoryFilter('all')
+    setCatalogStageFilter('all')
+    setCatalogStatusFilter('all')
+    setCatalogSort('name')
+  }
   const current = catalogItems.find(i => i.id === target) || catalogItems.find(i => i.recipe?.length) || catalogItems[0] || items[0]
   useEffect(() => {
     if (!catalogItems.length) return
@@ -263,6 +293,7 @@ export default function App() {
           <div className="section-title"><h2>Предметы персонажа</h2><span className="muted">{classItems.length} в каталоге</span></div>
           <div className="item-grid">{classItems.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
         </>}
+        {tab === 'accessories' && <AccessoryBuilds items={catalogItems}/>}
         {tab === 'progression' && <>
           <div className="class-tabs">{(['Melee', 'Ranger', 'Mage', 'Summoner'] as GameClass[]).map(c =>
             <button className={player.gameClass === c ? 'selected' : ''} onClick={() => { const p = currentPlayers.find(x => x.gameClass === c); if (p) setSelected(p.id) }} key={c}>{c}</button>)}</div>
@@ -310,9 +341,36 @@ export default function App() {
           </div>
         </>}
         {tab === 'catalog' && <>
-          <div className="search-bar"><Search size={18}/><input placeholder="Поиск предмета на русском или английском..." value={query} onChange={e => setQuery(e.target.value)}/></div>
-          <div className="filter-row"><span>{filtered.length} предметов</span><span>Vanilla · 1.4.5.x</span></div>
-          <div className="item-grid">{filtered.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
+          <section className="catalog-toolbar">
+            <div className="catalog-toolbar-top">
+              <div className="catalog-search"><Search size={18}/><input placeholder="Название, описание или эффект предмета..." value={query} onChange={e => setQuery(e.target.value)}/></div>
+              <label className="catalog-sort"><span>Сортировка</span><select value={catalogSort} onChange={e => setCatalogSort(e.target.value as 'name' | 'stage' | 'status')}><option value="name">По названию</option><option value="stage">По этапу игры</option><option value="status">По статусу</option></select></label>
+            </div>
+            <div className="catalog-filter-group">
+              <span className="catalog-filter-label"><SlidersHorizontal size={14}/> Класс</span>
+              <div className="catalog-filter-chips">
+                <button className={catalogClassFilter === 'all' ? 'active' : ''} onClick={() => setCatalogClassFilter('all')}>Все классы</button>
+                {(['Melee', 'Ranger', 'Mage', 'Summoner'] as GameClass[]).map(gameClass => <button key={gameClass} className={catalogClassFilter === gameClass ? 'active' : ''} onClick={() => setCatalogClassFilter(gameClass)}>{({Melee:'Ближний бой',Ranger:'Стрелок',Mage:'Маг',Summoner:'Призыватель'})[gameClass]}</button>)}
+              </div>
+            </div>
+            <div className="catalog-filter-group">
+              <span className="catalog-filter-label">Тип предмета</span>
+              <div className="catalog-filter-chips">
+                {[
+                  ['all','Все типы'],['weapon','Оружие'],['armor','Броня'],['accessory','Аксессуары'],['ammo','Боеприпасы'],['material','Материалы'],
+                ].map(([value,label]) => <button key={value} className={catalogCategoryFilter === value ? 'active' : ''} onClick={() => setCatalogCategoryFilter(value)}>{label}</button>)}
+              </div>
+            </div>
+            <div className="catalog-select-row">
+              <label><span>Этап игры</span><select value={catalogStageFilter} onChange={e => setCatalogStageFilter(e.target.value)}><option value="all">Все этапы</option><option value="Pre-Hardmode">Pre-Hardmode</option><option value="Hardmode">Hardmode</option><option value="Not specified">Не указан</option></select></label>
+              <label><span>Мой статус</span><select value={catalogStatusFilter} onChange={e => setCatalogStatusFilter(e.target.value)}><option value="all">Любой статус</option><option value="owned">Получен</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Не получен</option><option value="skipped">Пропущен</option></select></label>
+              <div className="catalog-results"><b>{filtered.length.toLocaleString('ru-RU')}</b><span>из {catalogItems.length.toLocaleString('ru-RU')} предметов</span></div>
+              {catalogFiltersActive && <button className="catalog-reset" onClick={resetCatalogFilters}><RotateCcw size={13}/> Сбросить</button>}
+            </div>
+          </section>
+          {filtered.length
+            ? <div className="catalog-grid">{filtered.map(item => <CatalogItemCard key={item.id} item={item} status={statuses[item.id] || 'missing'} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
+            : <div className="catalog-empty"><Search size={25}/><b>Ничего не найдено</b><span>Измени запрос или сбрось фильтры.</span><button onClick={resetCatalogFilters}>Сбросить фильтры</button></div>}
         </>}
         <footer>TERRARIA PROGRESS TRACKER <span>НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · {isRemoteMode ? "REMOTE DATA" : "DEMO DATA"}</span></footer>
       </div>
@@ -386,6 +444,60 @@ function ItemCard({ item, status, onStatus, disabled = false }: { item: any; sta
     <select value={status} disabled={disabled} onChange={e => onStatus(item.id, e.target.value as ItemStatus)} aria-label={'Статус ' + item.name}><option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option></select>
   </article>
 }
+function categoryKey(category: string) {
+  const value = category.toLowerCase()
+  if (value.includes('weapon') || value.includes('оруж')) return 'weapon'
+  if (value.includes('armor') || value.includes('брон')) return 'armor'
+  if (value.includes('accessory') || value.includes('аксесс')) return 'accessory'
+  if (value.includes('ammo') || value.includes('боеприп')) return 'ammo'
+  if (value.includes('material') || value.includes('материал')) return 'material'
+  return value
+}
+
+function categoryLabel(category: string) {
+  const labels: Record<string, string> = {
+    weapon: 'Оружие', armor: 'Броня', accessory: 'Аксессуар',
+    ammo: 'Боеприпасы', material: 'Материал',
+  }
+  return labels[categoryKey(category)] || category
+}
+
+function stageLabel(stage: string) {
+  if (stage === 'Pre-Hardmode') return 'Pre-Hardmode'
+  if (stage === 'Hardmode') return 'Hardmode'
+  return 'Этап не указан'
+}
+
+function CatalogItemCard({ item, status, onStatus, disabled = false }: {
+  item: Item
+  status: ItemStatus
+  onStatus: (id: string, status: ItemStatus) => void
+  disabled?: boolean
+}) {
+  const labels: Record<ItemStatus, string> = {
+    owned: 'Получен', planned: 'В планах', crafting: 'В работе',
+    missing: 'Не получен', skipped: 'Пропущен',
+  }
+  return <article className="catalog-card">
+    <div className="catalog-card-top">
+      <ItemArtwork item={item} className="catalog-card-art"/>
+      <div className="catalog-card-tags"><span>{categoryLabel(item.category)}</span><span>{stageLabel(item.stage)}</span></div>
+    </div>
+    <div className="catalog-card-body">
+      <h3>{item.name}</h3>
+      {item.ru && item.ru !== item.name && <p className="catalog-card-ru">{item.ru}</p>}
+      {item.description?.trim() && <p className="catalog-card-description">{item.description}</p>}
+      <div className="catalog-card-classes">{item.gameClass.map(gameClass => <span key={gameClass}>{({Melee:'Melee',Ranger:'Ranger',Mage:'Mage',Summoner:'Summoner'})[gameClass]}</span>)}</div>
+    </div>
+    <div className="catalog-card-footer">
+      <span className={'state ' + status}>{labels[status]}</span>
+      <select value={status} disabled={disabled} onChange={event => onStatus(item.id, event.target.value as ItemStatus)} aria-label={'Статус ' + item.name}>
+        <option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option>
+      </select>
+    </div>
+  </article>
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return <div className="stat-card"><small>{label}</small><b>{value}</b></div>
 }
