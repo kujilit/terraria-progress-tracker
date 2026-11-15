@@ -678,9 +678,12 @@ def supabase_request(method: str, url: str, key: str, **kwargs: Any) -> requests
     headers = kwargs.pop("headers", {})
     headers.update({
         "apikey": key,
-        "Authorization": f"Bearer {key}",
         "Content-Type": "application/json",
     })
+    # New sb_secret_* API keys are opaque keys, not JWTs: send them only as
+    # apikey. Legacy service_role keys are JWTs and still need Bearer auth.
+    if key.startswith("eyJ"):
+        headers["Authorization"] = f"Bearer {key}"
     response = requests.request(method, url, headers=headers, timeout=90, **kwargs)
     if response.status_code >= 400:
         raise RuntimeError(
