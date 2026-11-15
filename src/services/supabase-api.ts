@@ -1,9 +1,10 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type {
-  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, Item, JoinWorldInput,
+  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, JoinWorldInput,
   ProgressRecord, TrackerApi, TrackerPlayer, TrackerSession, TrackerWorld,
 } from './api'
 import { ApiError } from './api'
+import type { Item } from '../types'
 
 type RpcEnvelope<T> = {
   success: boolean
