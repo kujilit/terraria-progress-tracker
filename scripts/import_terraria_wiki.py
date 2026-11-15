@@ -394,8 +394,9 @@ def extract_class_tags(row: dict[str, Any], categories: list[str]) -> tuple[list
     if tags:
         return [name for name in CLASSES if name in tags], "wiki-set-bonus-text"
 
-    # Accessories and armor without explicit class data are usable across classes.
-    return list(CLASSES), "shared-equipment-default"
+    # Do not guess that an untagged weapon or armor piece belongs to all
+    # classes. Generic accessories are handled as shared equipment below.
+    return [], "unclassified"
 
 
 def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
@@ -480,7 +481,9 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
     primary_category = next(category for category in priority if category in categories)
     hardmode_value = get(row, "hardmode")
     hardmode = None if str(hardmode_value).strip() == "" else parse_bool(hardmode_value)
-    stage = "Hardmode" if hardmode else "Pre-Hardmode" if hardmode is False else "Not specified"
+    stage = (armor_meta.get("stage") if armor_meta else None) or (
+        "Hardmode" if hardmode else "Pre-Hardmode" if hardmode is False else "Not specified"
+    )
     class_damage = [name for name in CLASSES if name in classes]
 
     slots = {key: val for key, val in armor_slot_values.items() if is_assigned_slot(val)}
