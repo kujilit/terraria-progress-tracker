@@ -23,8 +23,8 @@ export interface InventoryRecord {
   quantity: number; reservedQuantity: number; updatedAt: string
 }
 export interface AuthInput { joinCode: string; playerName: string; pin: string }
-export interface CreateWorldInput extends AuthInput {
-  worldName: string; gameClass: GameClass; gameVersion?: string
+export interface CreateWorldInput {
+  worldName: string; playerName: string; pin: string; gameClass: GameClass; gameVersion?: string
   difficulty?: string; evilBiome?: string; seed?: string
 }
 export interface JoinWorldInput extends AuthInput { gameClass: GameClass }
