@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Swords, Users, Backpack, Skull, GitBranch, Target, BookOpen, Settings, Globe, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw } from 'lucide-react'
 import { AccessoryBuilds } from './AccessoryBuilds'
+import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
 import { items, players, bosses } from './data'
 import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TrackerPlayer, TrackerSession } from './services/api'
@@ -170,11 +171,13 @@ export default function App() {
 
   const statusForPlayer = (playerId: string, itemId: string): ItemStatus => {
     if (isRemoteMode) {
-      return remoteProgress.find(row => row.playerId === playerId && row.itemId === itemId)?.status || 'missing'
+      const remoteStatus = remoteProgress.find(row => row.playerId === playerId && row.itemId === itemId)?.status
+      if (remoteStatus) return remoteStatus
+      return playerId === selected ? (statuses[itemId] || 'missing') : 'missing'
     }
     return statuses[`${playerId}:${itemId}`] || statuses[itemId] || 'missing'
   }
-  const classItems = catalogItems.filter(i => categoryKey(i.category) !== 'material' && i.gameClass.includes(player.gameClass))
+  const classItems = catalogItems.filter(i => categoryKey(i.category) !== 'material' && isItemUsefulForClass(i, player.gameClass))
   const playerStatusCounts = classItems.reduce<Record<ItemStatus, number>>((counts, item) => {
     counts[statusForPlayer(player.id, item.id)] += 1
     return counts
@@ -183,17 +186,38 @@ export default function App() {
     .filter(item => playerCategory === 'all' || categoryKey(item.category) === playerCategory)
     .filter(item => playerStatus === 'all' || statusForPlayer(player.id, item.id) === playerStatus)
     .filter(item => playerStage === 'all' || item.stage === playerStage)
-    .filter(item => (item.name + ' ' + item.ru + ' ' + item.description).toLowerCase().includes(playerQuery.trim().toLowerCase()))
+    .filter(item => {
+      const setText = armorSetForItemName(item.name, player.gameClass)
+        .map(set => [set.name, ...set.bonuses, set.setBonus, set.buffName || ''].join(' '))
+        .join(' ')
+      const searchable = [
+        item.name, item.ru, item.description, item.equipmentEffect, item.armorSetName,
+        item.armorSetBonus, item.buffName, item.damageType, item.damage, item.defense, setText,
+      ].join(' ').toLowerCase()
+      return searchable.includes(playerQuery.trim().toLowerCase())
+    })
     .sort((a, b) => {
       if (playerSort === 'name') return a.name.localeCompare(b.name)
       if (playerSort === 'status') {
         const order: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
         return order[statusForPlayer(player.id, a.id)] - order[statusForPlayer(player.id, b.id)] || a.name.localeCompare(b.name)
       }
-      const order: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Not specified': 2 }
+      const order: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Post-Mechanical': 2, 'Post-Plantera': 3, 'Post-Golem': 4, 'Post-Moon Lord': 5, 'Not specified': 6 }
       return (order[a.stage] ?? 3) - (order[b.stage] ?? 3) || a.name.localeCompare(b.name)
     })
-  const visiblePlayerItems = playerFilteredItems.slice(0, playerVisibleCount)
+  const playerArmorSets = armorSetsForClass(player.gameClass)
+    .map(set => ({
+      set,
+      items: set.pieces
+        .map(piece => classItems.find(item => item.name === piece.name))
+        .filter((item): item is Item => Boolean(item)),
+      matched: playerFilteredItems.filter(item => set.pieces.some(piece => piece.name === item.name)).length,
+    }))
+    .filter(group => group.items.length > 0 && group.matched > 0)
+  const groupedArmorNames = new Set(playerArmorSets.flatMap(group => group.items.map(item => item.name)))
+  const standalonePlayerItems = playerFilteredItems.filter(item => !groupedArmorNames.has(item.name))
+  const visiblePlayerItems = standalonePlayerItems.slice(0, playerVisibleCount)
+  const visibleGearCount = visiblePlayerItems.length + playerArmorSets.reduce((sum, group) => sum + group.items.length, 0)
   const categoryCounts = classItems.reduce<Record<string, number>>((counts, item) => {
     const category = categoryKey(item.category)
     counts[category] = (counts[category] || 0) + 1
@@ -326,7 +350,7 @@ export default function App() {
               <span>{currentPlayers.length} {currentPlayers.length === 1 ? 'игрок' : 'игрока'}</span>
             </div>
             <div className="player-roster-grid">{currentPlayers.map(p => {
-              const gear = catalogItems.filter(item => categoryKey(item.category) !== 'material' && item.gameClass.includes(p.gameClass))
+              const gear = catalogItems.filter(item => categoryKey(item.category) !== 'material' && isItemUsefulForClass(item, p.gameClass))
               const collected = gear.filter(item => statusForPlayer(p.id, item.id) === 'owned').length
               const percent = Math.round(collected / Math.max(gear.length, 1) * 100)
               const icon = classIcon(p.gameClass)
@@ -378,7 +402,7 @@ export default function App() {
 
             <div className="player-gear-filters">
               <div className="player-gear-search"><Search size={16}/><input value={playerQuery} onChange={event => setPlayerQuery(event.target.value)} placeholder="Найти предмет или эффект..."/></div>
-              <label><span>Этап</span><select value={playerStage} onChange={event => setPlayerStage(event.target.value)}><option value="all">Все этапы</option><option value="Pre-Hardmode">Pre-Hardmode</option><option value="Hardmode">Hardmode</option><option value="Not specified">Не указан</option></select></label>
+              <label><span>Этап</span><select value={playerStage} onChange={event => setPlayerStage(event.target.value)}><option value="all">Все этапы</option><option value="Pre-Hardmode">Pre-Hardmode</option><option value="Hardmode">Hardmode</option><option value="Post-Mechanical">После механических боссов</option><option value="Post-Plantera">После Плантеры</option><option value="Post-Golem">После Голема</option><option value="Post-Moon Lord">После Лунного лорда</option><option value="Not specified">Не указан</option></select></label>
               <label><span>Сортировка</span><select value={playerSort} onChange={event => setPlayerSort(event.target.value as typeof playerSort)}><option value="stage">Сначала ранние этапы</option><option value="name">По названию</option><option value="status">По статусу</option></select></label>
             </div>
 
@@ -396,13 +420,26 @@ export default function App() {
               </button>)}
             </div>
 
-            {visiblePlayerItems.length > 0
-              ? <div className="player-gear-grid">{visiblePlayerItems.map(item => <PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id, item.id)} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
-              : <div className="player-gear-empty"><Search size={22}/><b>Предметы не найдены</b><span>Попробуй изменить запрос или фильтры.</span><button type="button" onClick={() => { setPlayerQuery(''); setPlayerStage('all'); setPlayerStatus('all'); setPlayerCategory('all') }}>Сбросить фильтры</button></div>}
+            {playerArmorSets.length > 0 && <div className="player-armor-sets">
+              <div className="player-armor-set-section-title"><h3>Комплекты брони</h3><span>{playerArmorSets.length} подходящих вариантов</span></div>
+              {playerArmorSets.map(({ set, items: setItems, matched }) => <PlayerArmorSetCard
+                key={set.id}
+                set={set}
+                items={setItems}
+                matchedCount={matched}
+                statusForItem={itemId => statusForPlayer(player.id, itemId)}
+                onStatus={setStatus}
+                disabled={isRemoteMode && selected !== session?.player.id}
+              />)}
+            </div>}
+            {visiblePlayerItems.length > 0 && <div className="player-gear-grid">
+              {visiblePlayerItems.map(item => <PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id, item.id)} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}
+            </div>}
+            {visibleGearCount === 0 && <div className="player-gear-empty"><Search size={22}/><b>Предметы не найдены</b><span>Попробуй изменить запрос или фильтры.</span><button type="button" onClick={() => { setPlayerQuery(''); setPlayerStage('all'); setPlayerStatus('all'); setPlayerCategory('all') }}>Сбросить фильтры</button></div>}
 
             <div className="player-gear-pagination">
-              <span>Показано {visiblePlayerItems.length} из {playerFilteredItems.length}</span>
-              {visiblePlayerItems.length < playerFilteredItems.length && <button type="button" onClick={() => setPlayerVisibleCount(count => count + 60)}>Показать ещё 60</button>}
+              <span>Показано {visibleGearCount} · отдельных предметов {visiblePlayerItems.length} из {standalonePlayerItems.length}</span>
+              {visiblePlayerItems.length < standalonePlayerItems.length && <button type="button" onClick={() => setPlayerVisibleCount(count => count + 60)}>Показать ещё 60</button>}
             </div>
           </section>
         </>}
@@ -562,6 +599,72 @@ function classLabel(gameClass: GameClass) {
   return labels[gameClass]
 }
 
+function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus, disabled = false }: {
+  set: ReturnType<typeof armorSetsForClass>[number]
+  items: Item[]
+  matchedCount: number
+  statusForItem: (itemId: string) => ItemStatus
+  onStatus: (id: string, status: ItemStatus) => void
+  disabled?: boolean
+}) {
+  const labels: Record<ItemStatus, string> = {
+    owned: 'Получен', planned: 'В планах', crafting: 'В работе',
+    missing: 'Не получен', skipped: 'Пропущен',
+  }
+  const classNames: Record<GameClass, string> = {
+    Melee: 'Ближний бой', Ranger: 'Стрелок', Mage: 'Маг', Summoner: 'Призыватель',
+  }
+  const [expanded, setExpanded] = useState(false)
+  return <article className="player-armor-set-card">
+    <header className="player-armor-set-head">
+      <div>
+        <span className="eyebrow">КОМПЛЕКТ БРОНИ · {stageLabel(set.stage)}</span>
+        <h3>{set.name}</h3>
+        <div className="player-armor-set-classes">{set.classes.map(gameClass => <span key={gameClass}>{classNames[gameClass]}</span>)}</div>
+      </div>
+      <span className="player-armor-set-count">{items.length}/{set.pieces.length} <small>частей</small></span>
+    </header>
+    {set.bonuses.length > 0 && <div className="player-armor-bonuses">
+      <span className="player-armor-block-label">Суммарные бонусы частей комплекта</span>
+      <div>{set.bonuses.map(bonus => <span className="player-armor-bonus" key={bonus}>{bonus}</span>)}</div>
+    </div>}
+    <div className="player-armor-set-bonus">
+      <span className="player-armor-block-label">Особый бонус комплекта</span>
+      <p>{set.setBonus}</p>
+      {set.buffName && <div className="player-gear-buff"><Sparkles size={13}/> {set.buffName.toLowerCase().includes('дебафф') ? 'Дебафф:' : 'Бафф:'} <b>{set.buffName}</b>{set.buffDuration && <small>{set.buffDuration}</small>}</div>}
+    </div>
+    <button type="button" className="player-armor-toggle" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>
+      <span>{expanded ? 'Скрыть части' : 'Показать части комплекта'}</span>
+      <b>{set.pieces.length} предмета</b>
+      <ChevronRight className={expanded ? 'expanded' : ''} size={15}/>
+    </button>
+    {expanded && <div className="player-armor-pieces">
+      {set.pieces.map(piece => {
+        const item = items.find(entry => entry.name === piece.name)
+        if (!item) return <div className="player-armor-piece unavailable" key={piece.name}>
+          <span className="player-armor-piece-slot">{piece.slot}</span>
+          <b>{piece.name}</b><small>Нет в текущем каталоге</small>
+        </div>
+        const status = statusForItem(item.id)
+        const effect = armorPieceEffect(set, piece.name) || piece.effect || item.equipmentEffect || item.description
+        return <div className="player-armor-piece" key={piece.name}>
+          <ItemArtwork item={item} className="player-armor-piece-art"/>
+          <div className="player-armor-piece-info">
+            <span className="player-armor-piece-slot">{piece.slot}</span>
+            <b>{item.name}</b>
+            {effect && <small>{effect}</small>}
+            <span className={'state ' + status}>{labels[status]}</span>
+          </div>
+          <select value={status} disabled={disabled} onChange={event => onStatus(item.id, event.target.value as ItemStatus)} aria-label={'Статус ' + item.name}>
+            <option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option>
+          </select>
+        </div>
+      })}
+    </div>}
+    {expanded && matchedCount < items.length && <small className="player-armor-filter-note">Показан весь комплект: фильтр совпал с {matchedCount} из {items.length} доступных частей.</small>}
+  </article>
+}
+
 function PlayerGearCard({ item, status, onStatus, disabled = false }: {
   item: Item
   status: ItemStatus
@@ -578,7 +681,13 @@ function PlayerGearCard({ item, status, onStatus, disabled = false }: {
       <div className="player-gear-tags"><span>{categoryLabel(item.category)}</span><span>{stageLabel(item.stage)}</span></div>
       <h3>{item.name}</h3>
       {item.ru && item.ru !== item.name && <p className="player-gear-ru">{item.ru}</p>}
-      {item.description?.trim() && <p className="player-gear-description">{item.description}</p>}
+      {(item.equipmentEffect || item.description)?.trim() && <p className="player-gear-description">{item.equipmentEffect || item.description}</p>}
+      <div className="player-gear-highlights">
+        {item.damage !== null && item.damage !== undefined && <span>{item.damage} урона</span>}
+        {item.defense !== null && item.defense !== undefined && item.defense > 0 && <span>{item.defense} защиты</span>}
+        {item.damageType && <span>{item.damageType}</span>}
+        {item.buffName && <span className="player-gear-buff"><Sparkles size={11}/> Эффект: {item.buffName}{item.buffDuration ? ` · ${item.buffDuration}` : ''}</span>}
+      </div>
       <small className="player-gear-source">{item.source}</small>
       <div className="player-gear-status">
         <span className={'state ' + status}>{labels[status]}</span>
@@ -611,6 +720,10 @@ function categoryLabel(category: string) {
 function stageLabel(stage: string) {
   if (stage === 'Pre-Hardmode') return 'Pre-Hardmode'
   if (stage === 'Hardmode') return 'Hardmode'
+  if (stage === 'Post-Mechanical') return 'После механических боссов'
+  if (stage === 'Post-Plantera') return 'После Плантеры'
+  if (stage === 'Post-Golem') return 'После Голема'
+  if (stage === 'Post-Moon Lord') return 'После Лунного лорда'
   return 'Этап не указан'
 }
 

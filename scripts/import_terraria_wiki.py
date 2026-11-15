@@ -17,6 +17,7 @@ import unicodedata
 import uuid
 from collections import defaultdict, deque
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
@@ -48,6 +49,53 @@ ICONS = {
 }
 API = requests.Session()
 API.headers.update({"User-Agent": USER_AGENT, "Accept": "application/json"})
+
+ARMOR_SET_DATA_PATH = Path(__file__).resolve().parents[1] / "data" / "armor-sets.json"
+
+
+def item_lookup_key(value: Any) -> str:
+    normalized = unicodedata.normalize("NFKC", str(value or "")).casefold()
+    normalized = normalized.replace("’", "'").replace("‘", "'")
+    return re.sub(r"[^a-z0-9]+", "", normalized)
+
+
+def load_armor_set_index() -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
+    payload = json.loads(ARMOR_SET_DATA_PATH.read_text(encoding="utf-8"))
+    by_piece: dict[str, dict[str, Any]] = {}
+    by_set: dict[str, dict[str, Any]] = {}
+    for armor_set in payload.get("sets", []):
+        set_id = str(armor_set["id"])
+        by_set[set_id] = armor_set
+        for piece in armor_set.get("pieces", []):
+            key = item_lookup_key(piece["name"])
+            existing = by_piece.get(key)
+            if existing:
+                existing["classes"] = [
+                    class_name for class_name in CLASSES
+                    if class_name in set(existing["classes"]) | set(armor_set["classes"])
+                ]
+                if not existing.get("piece_effect") and piece.get("effect"):
+                    existing["piece_effect"] = piece["effect"]
+                # A common chest/leg piece can be reused by multiple class
+                # variants (e.g. Cobalt, Adamantite and Titanium armor).
+                existing.setdefault("set_ids", []).append(set_id)
+                continue
+            by_piece[key] = {
+                "set_id": set_id,
+                "set_ids": [set_id],
+                "set_name": armor_set["name"],
+                "classes": armor_set["classes"],
+                "stage": armor_set.get("stage"),
+                "set_bonus": armor_set.get("setBonus", ""),
+                "bonuses": armor_set.get("bonuses", []),
+                "piece_effect": piece.get("effect", ""),
+                "buff_name": armor_set.get("buffName", ""),
+                "buff_duration": armor_set.get("buffDuration", ""),
+            }
+    return by_piece, by_set
+
+
+ARMOR_PIECE_INDEX, ARMOR_SET_INDEX = load_armor_set_index()
 
 
 def utc_now() -> str:
@@ -360,8 +408,9 @@ def extract_class_tags(row: dict[str, Any], categories: list[str]) -> tuple[list
     if tags:
         return [name for name in CLASSES if name in tags], "wiki-set-bonus-text"
 
-    # Accessories and armor without explicit class data are usable across classes.
-    return list(CLASSES), "shared-equipment-default"
+    # Do not guess that an untagged weapon or armor piece belongs to all
+    # classes. Generic accessories are handled as shared equipment below.
+    return [], "unclassified"
 
 
 def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
@@ -426,16 +475,29 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     classes, assignment = extract_class_tags(row, categories)
-    if not classes:
-        classes = list(CLASSES)
-        assignment = "shared-equipment-default"
+    armor_meta = ARMOR_PIECE_INDEX.get(item_lookup_key(name)) if "armor" in categories else None
+    if armor_meta:
+        classes = list(armor_meta["classes"])
+        assignment = "curated-armor-set"
+    elif not classes:
+        if "weapon" in categories:
+            # A weapon without an explicit damage class is not silently assigned
+            # to every class. Keep it out of class equipment until it is reviewed.
+            assignment = "unclassified-weapon"
+        elif "armor" in categories:
+            assignment = "unclassified-armor"
+        else:
+            classes = list(CLASSES)
+            assignment = "shared-equipment-default"
 
     # Normalize item categories and keep the most useful one for the current card layout.
     priority = ("weapon", "armor", "accessory", "ammo")
     primary_category = next(category for category in priority if category in categories)
     hardmode_value = get(row, "hardmode")
     hardmode = None if str(hardmode_value).strip() == "" else parse_bool(hardmode_value)
-    stage = "Hardmode" if hardmode else "Pre-Hardmode" if hardmode is False else "Not specified"
+    stage = (armor_meta.get("stage") if armor_meta else None) or (
+        "Hardmode" if hardmode else "Pre-Hardmode" if hardmode is False else "Not specified"
+    )
     class_damage = [name for name in CLASSES if name in classes]
 
     slots = {key: val for key, val in armor_slot_values.items() if is_assigned_slot(val)}
@@ -462,6 +524,23 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
         "damage": damage,
         "damage_type": ", ".join(class_damage) if primary_category == "weapon" else None,
         "defense": defense,
+        "equipment_effect": (
+            (armor_meta or {}).get("piece_effect")
+            or str(get(row, "bonus", "effect", "tooltip", "ToolTip", "description", default="") or "")
+        ),
+        "armor_set_id": armor_meta.get("set_id") if armor_meta else None,
+        "armor_set_name": armor_meta.get("set_name") if armor_meta else None,
+        "armor_set_bonus": armor_meta.get("set_bonus") if armor_meta else None,
+        "buff_name": (
+            armor_meta.get("buff_name")
+            if armor_meta and armor_meta.get("buff_name")
+            else str(get(row, "buffName", "buffname", "buff_name", "buff", default="") or "")
+        ),
+        "buff_duration": (
+            armor_meta.get("buff_duration")
+            if armor_meta and armor_meta.get("buff_duration")
+            else str(get(row, "buffDuration", "buffduration", "buffTime", "bufftime", default="") or "")
+        ),
         "ammo_type": parse_number(get(row, "ammo")),
         "max_stack": parse_number(get(row, "maxStack", "maxstack")),
         "rarity": parse_number(get(row, "rare", "rarity")),
@@ -600,6 +679,12 @@ def make_material_stub(name: str, classes: set[str]) -> dict[str, Any]:
         "damage": None,
         "damage_type": None,
         "defense": None,
+        "equipment_effect": "",
+        "armor_set_id": None,
+        "armor_set_name": None,
+        "armor_set_bonus": None,
+        "buff_name": None,
+        "buff_duration": None,
         "ammo_type": None,
         "max_stack": None,
         "rarity": None,
