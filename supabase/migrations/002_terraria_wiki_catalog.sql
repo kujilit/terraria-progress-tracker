@@ -179,7 +179,7 @@ begin
         'recipe', coalesce((
           select jsonb_agg(
             jsonb_build_object(
-              'itemId', coalesce(ing.linked_item_key, 'name_' || lower(regexp_replace(ing.ingredient_name, '[^a-zA-Z0-9]+', '_', 'g'))),
+              'itemId', coalesce(ing.linked_item_key, 'name_' || lower(regexp_replace(ing.ingredient_name, '[^a-zA-Z0-9]+', '-', 'g'))),
               'qty', ing.quantity
             ) order by ing.ingredient_order
           )
@@ -205,7 +205,7 @@ begin
               'ingredients', coalesce((
                 select jsonb_agg(
                   jsonb_build_object(
-                    'itemId', coalesce(ri.linked_item_key, 'name_' || lower(regexp_replace(ri.ingredient_name, '[^a-zA-Z0-9]+', '_', 'g'))),
+                    'itemId', coalesce(ri.linked_item_key, 'name_' || lower(regexp_replace(ri.ingredient_name, '[^a-zA-Z0-9]+', '-', 'g'))),
                     'name', ri.ingredient_name,
                     'qty', ri.quantity,
                     'alternatives', ri.alternative_names
