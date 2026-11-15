@@ -14,7 +14,7 @@ export class AppsScriptTrackerApi implements TrackerApi {
     }
   }
 
-  private async request<T>(action: string, payload: Record<string, unknown> = {}, token?: string): Promise<T> {
+  private async request<T>(action: string, payload: object = {}, token?: string): Promise<T> {
     let response: Response
     try {
       response = await fetch(this.endpoint, {
