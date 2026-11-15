@@ -800,6 +800,8 @@ grant execute on function public.tracker_inventory_list(text) to anon, authentic
 grant execute on function public.tracker_inventory_set(text, text, integer) to anon, authenticated;
 grant execute on function public.tracker_inventory_transfer(text, uuid, text, integer, text) to anon, authenticated;
 
+grant usage on schema public to anon, authenticated;
+
 comment on schema private is 'Internal helper functions for Terraria Progress Tracker. Do not expose via Supabase Data API.';
 comment on table public.tracker_sessions is 'Only SHA-256 hashes of random session tokens are stored. Raw tokens are returned once to the player.';
 comment on table public.tracker_audit_log is 'Append-only audit trail for tracker mutations.';
