@@ -75,7 +75,7 @@ class ItemClassificationTests(unittest.TestCase):
         ammunition = classify_item({
             "itemid": "41",
             "name": "Wooden Arrow",
-            "type": "Ammo / Crafting material",
+            "type": "Ammunition/Crafting material",
             "ammo": "0",
             "notAmmo": "No",
         })
