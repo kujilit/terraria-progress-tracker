@@ -6,6 +6,8 @@ from import_terraria_wiki import (
     parse_alternatives,
     parse_recipe_ingredients,
     supabase_headers,
+    normalize_image_file,
+    image_urls_from_payload,
 )
 
 
@@ -178,6 +180,36 @@ class SupabaseAuthHeaderTests(unittest.TestCase):
         headers = supabase_headers("eyJlegacy.jwt.key")
         self.assertEqual(headers["apikey"], "eyJlegacy.jwt.key")
         self.assertEqual(headers["Authorization"], "Bearer eyJlegacy.jwt.key")
+
+
+class ImageUrlTests(unittest.TestCase):
+    def test_normalize_cargo_image_filename(self):
+        self.assertEqual(normalize_image_file("File:Terra_Blade.png"), "Terra Blade.png")
+        self.assertIsNone(normalize_image_file(""))
+        self.assertIsNone(normalize_image_file("None"))
+
+    def test_extract_direct_thumbnail_url_from_imageinfo(self):
+        payload = {
+            "query": {
+                "pages": [
+                    {
+                        "title": "File:Terra Blade.png",
+                        "imageinfo": [{
+                            "thumburl": "https://terraria.wiki.gg/images/thumb/a/ab/Terra_Blade.png/72px-Terra_Blade.png",
+                            "url": "https://terraria.wiki.gg/images/a/ab/Terra_Blade.png",
+                        }],
+                    },
+                    {"title": "File:Missing.png"},
+                ]
+            }
+        }
+        resolved = image_urls_from_payload(payload)
+        entry = resolved["terra blade.png"]
+        self.assertEqual(entry["image_url"], "https://terraria.wiki.gg/images/thumb/a/ab/Terra_Blade.png/72px-Terra_Blade.png")
+        self.assertEqual(entry["image_original_url"], "https://terraria.wiki.gg/images/a/ab/Terra_Blade.png")
+        self.assertTrue(entry["image_page_url"].startswith("https://terraria.wiki.gg/wiki/File:"))
+        self.assertNotIn("missing.png", resolved)
+
 
 
 if __name__ == "__main__":
