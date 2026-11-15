@@ -348,7 +348,7 @@ export default function App() {
               <span>{currentPlayers.length} {currentPlayers.length === 1 ? 'игрок' : 'игрока'}</span>
             </div>
             <div className="player-roster-grid">{currentPlayers.map(p => {
-              const gear = catalogItems.filter(item => categoryKey(item.category) !== 'material' && item.gameClass.includes(p.gameClass))
+              const gear = catalogItems.filter(item => categoryKey(item.category) !== 'material' && isItemUsefulForClass(item, p.gameClass))
               const collected = gear.filter(item => statusForPlayer(p.id, item.id) === 'owned').length
               const percent = Math.round(collected / Math.max(gear.length, 1) * 100)
               const icon = classIcon(p.gameClass)
