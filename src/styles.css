@@ -330,3 +330,96 @@
 .player-armor-toggle svg{color:#d7b36e;transition:transform .15s}
 .player-armor-toggle svg.expanded{transform:rotate(90deg)}
 @media(max-width:1050px){.player-armor-sets{grid-template-columns:1fr}}
+
+
+/* Armor set layout and responsive player navigation */
+.mobile-nav-toggle{display:none}
+.player-armor-set-section-title{grid-column:1 / -1;min-width:0}
+.player-armor-set-card{min-width:0}
+.player-armor-set-head>div{min-width:0}
+.player-armor-set-head h3{overflow-wrap:anywhere}
+.player-armor-pieces{grid-template-columns:repeat(3,minmax(0,1fr))}
+.player-armor-piece{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr);
+  align-content:start;
+  gap:8px;
+  min-width:0;
+}
+.player-armor-piece-info{min-width:0;overflow-wrap:anywhere}
+.player-armor-piece-info .state{white-space:normal}
+.player-armor-piece select{
+  grid-column:1 / -1;
+  width:100%;
+  max-width:none;
+  min-width:0;
+  min-height:34px;
+}
+.player-armor-piece-art{width:42px;height:42px;flex-basis:42px}
+.player-armor-piece-art img{width:38px;height:38px}
+.player-armor-filter-note{line-height:1.45}
+
+@media(max-width:1050px){
+  .player-armor-sets{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .player-armor-pieces{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:700px){
+  .sidebar:after{content:none}
+  .mobile-nav-toggle{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    margin-top:9px;
+    padding:9px 7px;
+    border:1px solid #3a4e5b;
+    background:#20333f;
+    color:#d6c49f;
+    font-size:11px;
+    text-align:left;
+    text-transform:uppercase;
+    letter-spacing:.7px;
+  }
+  .mobile-nav-toggle span{display:flex;align-items:center;gap:8px}
+  .mobile-nav-toggle>svg{transition:transform .15s}
+  .mobile-nav-toggle>svg.open{transform:rotate(90deg)}
+  .sidebar:focus-within:not(.mobile-nav-open) .nav-item{display:none}
+  .sidebar.mobile-nav-open .nav-item{
+    display:flex;
+    width:100%;
+    margin:3px 0;
+    padding:10px 9px;
+  }
+  .sidebar.mobile-nav-open{padding-bottom:12px}
+  .topbar{gap:8px}
+  .crumb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top-actions{flex:0 0 auto}
+  .player-gear-heading{align-items:flex-start;flex-direction:column;gap:7px}
+  .player-gear-total{align-items:baseline;flex-direction:row;gap:5px}
+  .player-gear-filters{grid-template-columns:1fr}
+  .player-gear-search{grid-column:auto}
+  .player-gear-pagination{align-items:flex-start;flex-direction:column}
+  .player-armor-sets{grid-template-columns:1fr;gap:10px;margin:12px 0 15px}
+  .player-armor-set-section-title{align-items:flex-start;flex-direction:column;gap:5px}
+  .player-armor-set-head{align-items:flex-start;gap:9px;padding:11px}
+  .player-armor-set-head h3{font-size:14px}
+  .player-armor-set-count{font-size:18px}
+  .player-armor-pieces{grid-template-columns:1fr;padding:9px}
+  .player-armor-piece{grid-template-columns:40px minmax(0,1fr);gap:8px;padding:9px}
+  .player-armor-piece-art{width:40px;height:40px}
+  .player-armor-piece-art img{width:36px;height:36px}
+  .player-armor-piece select{min-height:38px;font-size:11px}
+  .player-armor-bonuses,.player-armor-set-bonus{padding:10px 11px}
+  .player-armor-bonus{font-size:9px}
+  .player-armor-filter-note{padding:0 10px 10px}
+  .player-status-filters button{flex:1 1 auto;justify-content:space-between}
+}
+
+@media(max-width:400px){
+  .player-roster-grid{grid-template-columns:1fr}
+  .player-stat-grid{grid-template-columns:1fr 1fr}
+  .player-armor-set-count small{max-width:52px;text-align:right}
+  .player-armor-piece-info b{font-size:10px}
+  .player-category-tabs button{padding:7px 8px}
+}
