@@ -1,5 +1,6 @@
+import { items } from '../data'
 import type {
-  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, JoinWorldInput,
+  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, Item, JoinWorldInput,
   ProgressRecord, TrackerApi, TrackerPlayer, TrackerSession, TrackerWorld,
 } from './api'
 
@@ -37,6 +38,7 @@ function sessionFor(world: TrackerWorld, player: TrackerPlayer): TrackerSession 
 export const localApi: TrackerApi = {
   mode: 'local',
   async health() { return { status:'ok', apiVersion:'local-v1' } },
+  async getCatalog(_token: string): Promise<Item[]> { return items },
   async createWorld(input: CreateWorldInput) {
     const state=read()
     const world={...DEFAULT_WORLD,id:'local-'+Date.now(),name:input.worldName,joinCode:'LOCAL123',gameVersion:input.gameVersion||'1.4.5.x',difficulty:input.difficulty||'Master',evilBiome:input.evilBiome||'Crimson',seed:input.seed||''}
