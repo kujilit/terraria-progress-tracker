@@ -475,33 +475,78 @@ def make_material_stub(name: str, classes: set[str]) -> dict[str, Any]:
     }
 
 
+
+def make_source_material(source: dict[str, Any], classes: set[str]) -> dict[str, Any]:
+    stub = make_material_stub(source["name"], classes)
+    stub.update({
+        "item_key": source["item_key"],
+        "terraria_id": source.get("terraria_id"),
+        "internal_name": source.get("internal_name"),
+        "page_title": source.get("page_title") or source["name"],
+        "wiki_url": wiki_url(source.get("page_title") or source["name"]),
+        "source_note": f"Terraria Wiki · {source.get('page_title') or source['name']}",
+        "raw_cargo": source.get("raw_cargo") or {},
+    })
+    return stub
+
 def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, str]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    # Keep a lightweight index of ALL Cargo Items, not just gear. This matters
+    # because a material can itself be craftable and therefore have a recipe.
     all_items: dict[str, dict[str, Any]] = {}
+    source_items: dict[str, dict[str, Any]] = {}
+    source_id_index: dict[int, str] = {}
+    source_name_index: dict[str, str] = {}
+
     for row in item_rows:
-        item = classify_item(row)
-        if not item:
+        item_id = get(row, "itemid", "itemId", "id")
+        internal_name = str(get(row, "internalname", "internalName"))
+        name = str(get(row, "name", "itemname", default="")).strip()
+        page = str(get(row, "page_title", "_pageName", default="")).strip()
+        if not name:
+            name = page.split("/")[-1].replace("_", " ").strip()
+        if not name:
             continue
-        key = item["item_key"]
-        all_items[key] = choose_best(all_items[key], item) if key in all_items else item
+
+        key = item_key(item_id, internal_name, name, page)
+        source = {
+            "item_key": key,
+            "terraria_id": parse_number(item_id),
+            "internal_name": internal_name or None,
+            "name": name,
+            "page_title": page or name,
+            "raw_cargo": row,
+        }
+        if key not in source_items or (
+            source.get("internal_name") and not source_items[key].get("internal_name")
+        ):
+            source_items[key] = source
+        numeric_id = parse_number(item_id)
+        if numeric_id is not None and numeric_id > 0:
+            source_id_index[int(numeric_id)] = key
+        source_name_index[normalize_text(name)] = key
+        if internal_name:
+            source_name_index[normalize_text(internal_name)] = key
+
+        item = classify_item(row)
+        if item:
+            all_items[key] = choose_best(all_items[key], item) if key in all_items else item
 
     if not all_items:
-        raise RuntimeError("No gear items were detected in Cargo Items. Refusing to publish an empty catalog.")
+        raise RuntimeError("No gear items were detected in Cargo Items. Refusing to publish.")
 
-    id_index, name_index = build_item_indexes(all_items)
-
-    # Map all source recipe rows to canonical item keys.
+    # Build a recipe graph for every Cargo item, including raw materials and craftable
+    # intermediate ingredients. Only the recursive dependency graph of the equipment
+    # is eventually stored.
     recipes_by_result: dict[str, list[dict[str, str]]] = defaultdict(list)
-    normalized_recipes: list[tuple[str, dict[str, str]]] = []
     for row in recipe_rows:
         if str(get(row, "legacy", default="")).casefold() in {"1", "yes", "true"}:
             continue
         result_id = parse_number(get(row, "resultid"))
-        result_key = id_index.get(int(result_id)) if result_id is not None else None
+        result_key = source_id_index.get(int(result_id)) if result_id is not None else None
         if result_key is None:
-            result_key = name_index.get(normalize_text(get(row, "result")))
+            result_key = source_name_index.get(normalize_text(get(row, "result")))
         if result_key:
             recipes_by_result[result_key].append(row)
-            normalized_recipes.append((result_key, row))
 
     gear_keys = {
         key for key, item in all_items.items()
@@ -524,24 +569,22 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
             for ingredient in parse_recipe_ingredients(row):
                 for ingredient_name in ingredient["names"]:
                     normalized = normalize_text(ingredient_name)
-                    linked_key = name_index.get(normalized)
+                    linked_key = source_name_index.get(normalized)
                     if linked_key is None:
-                        stub = make_material_stub(ingredient_name, current_classes)
-                        linked_key = stub["item_key"]
-                        if linked_key in all_items:
-                            all_items[linked_key]["classes"] = [
-                                c for c in CLASSES
-                                if c in set(all_items[linked_key]["classes"]) | current_classes
-                            ]
-                        else:
-                            all_items[linked_key] = stub
-                        id_index, name_index = build_item_indexes(all_items)
+                        linked_key = next(
+                            (source_name_index.get(normalize_text(alias))
+                             for alias in parse_alternatives(ingredient_name)
+                             if source_name_index.get(normalize_text(alias))),
+                            None,
+                        )
+                    if linked_key is None:
+                        linked_key = "name:" + slugify(ingredient_name)
+                        all_items[linked_key] = make_material_stub(ingredient_name, current_classes)
+                    elif linked_key not in all_items:
+                        source = source_items[linked_key]
+                        all_items[linked_key] = make_source_material(source, current_classes)
                     else:
                         existing = all_items[linked_key]
-                        if "material" not in existing["categories"] and linked_key not in gear_keys:
-                            existing["categories"] = sorted(set(existing["categories"]) | {"material"})
-                            if existing["primary_category"] not in {"weapon", "armor", "accessory", "ammo"}:
-                                existing["primary_category"] = "material"
                         existing["classes"] = [
                             c for c in CLASSES
                             if c in set(existing["classes"]) | current_classes
@@ -550,7 +593,8 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
                     if linked_key not in processed and recipes_by_result.get(linked_key):
                         queue.append(linked_key)
 
-    # Any item included only because it is used as a recipe ingredient is marked as a material.
+    # Add every recipe ingredient material to the selected class context, while preserving
+    # any class-specific tags already inferred from the Wiki.
     for key in needed_keys:
         item = all_items[key]
         if key not in gear_keys and "material" not in item["categories"]:
@@ -558,10 +602,13 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
             item["primary_category"] = "material"
             item["icon"] = ICONS["material"]
 
-    # Rebuild name index after stubs and material classification.
-    id_index, name_index = build_item_indexes(all_items)
-
-    catalog_items = [all_items[key] for key in sorted(needed_keys)]
+    name_index = {
+        normalize_text(item["name"]): key
+        for key, item in all_items.items()
+    }
+    for key, item in all_items.items():
+        if item.get("internal_name"):
+            name_index[normalize_text(item["internal_name"])] = key
 
     catalog_recipes: list[dict[str, Any]] = []
     catalog_ingredients: list[dict[str, Any]] = []
@@ -570,12 +617,7 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
         result_name = str(get(row, "result", default=all_items[result_key]["name"]))
         source_page = str(get(row, "page_title", default=""))
         args = str(get(row, "args", default="") or "")
-        version = str(get(row, "version", default="") or "")
-        legacy = str(get(row, "legacy", default="") or "")
-        raw_recipe = {
-            key: value for key, value in row.items()
-            if key != "page_title"
-        }
+        raw_recipe = {key: value for key, value in row.items() if key != "page_title"}
         catalog_recipes.append({
             "recipe_key": recipe_key,
             "result_item_key": result_key,
@@ -583,7 +625,7 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
             "result_name": result_name,
             "result_quantity": max(1, int(parse_number(get(row, "amount")) or 1)),
             "crafting_station": str(get(row, "station", default="") or "") or None,
-            "version": version or None,
+            "version": str(get(row, "version", default="") or "") or None,
             "note": str(get(row, "resulttext", default="") or "") or None,
             "source_page": source_page or None,
             "source_url": wiki_url(source_page) if source_page else None,
@@ -591,23 +633,28 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
             "raw_cargo": raw_recipe,
         })
 
-        ingredients = parse_recipe_ingredients(row)
         result_classes = set(all_items[result_key]["classes"])
-        for index, ingredient in enumerate(ingredients, start=1):
+        for index, ingredient in enumerate(parse_recipe_ingredients(row), start=1):
             alternative_keys: list[str] = []
             for ingredient_name in ingredient["names"]:
-                linked = name_index.get(normalize_text(ingredient_name))
+                normalized = normalize_text(ingredient_name)
+                linked = name_index.get(normalized) or source_name_index.get(normalized)
                 if linked is None:
-                    stub = make_material_stub(ingredient_name, result_classes)
-                    linked = stub["item_key"]
+                    linked = "name:" + slugify(ingredient_name)
                     if linked not in all_items:
-                        all_items[linked] = stub
+                        all_items[linked] = make_material_stub(ingredient_name, result_classes)
                         needed_keys.add(linked)
-                        name_index[normalize_text(ingredient_name)] = linked
+                elif linked not in all_items:
+                    all_items[linked] = make_source_material(source_items[linked], result_classes)
+                    needed_keys.add(linked)
+                else:
+                    all_items[linked]["classes"] = [
+                        c for c in CLASSES
+                        if c in set(all_items[linked]["classes"]) | result_classes
+                    ]
                 alternative_keys.append(linked)
+                name_index[normalized] = linked
 
-            # A single linked key is exposed to the current tree component. All
-            # alternatives remain in alternative_names and in the raw Cargo row.
             catalog_ingredients.append({
                 "recipe_key": recipe_key,
                 "ingredient_order": index,
@@ -620,14 +667,8 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
                 ] if len(alternative_keys) > 1 else [],
             })
 
-    # A late-created stub is extremely unusual, but include it to satisfy batch FKs.
-    serialized_keys = {item["item_key"] for item in catalog_items}
-    for key in sorted(needed_keys):
-        if key not in serialized_keys:
-            catalog_items.append(all_items[key])
-
+    catalog_items = [all_items[key] for key in sorted(needed_keys)]
     return catalog_items, catalog_recipes, catalog_ingredients
-
 
 def supabase_request(method: str, url: str, key: str, **kwargs: Any) -> requests.Response:
     headers = kwargs.pop("headers", {})
