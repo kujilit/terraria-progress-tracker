@@ -8,6 +8,8 @@ the app keeps reading the last published batch until the next batch is complete.
 from __future__ import annotations
 
 import hashlib
+import html
+from html.parser import HTMLParser
 import json
 import os
 import re
@@ -310,6 +312,38 @@ def resolve_image_urls(items: list[dict[str, Any]]) -> None:
     log(f"Item image URLs resolved: {count}/{len(items)} catalog rows")
 
 
+class _WikiTextParser(HTMLParser):
+    """Extract safe plain text from HTML fragments returned by Cargo."""
+
+    BREAK_TAGS = {"br", "div", "p", "li", "ul", "ol", "tr"}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.casefold() in self.BREAK_TAGS:
+            self.parts.append(" ")
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.casefold() in self.BREAK_TAGS:
+            self.parts.append(" ")
+
+    def handle_data(self, data: str) -> None:
+        self.parts.append(data)
+
+
+def clean_wiki_text(value: Any) -> str:
+    """Convert raw or HTML-escaped Wiki tooltip markup to readable plain text."""
+    raw = html.unescape(str(value or "")).strip()
+    if not raw:
+        return ""
+    parser = _WikiTextParser()
+    parser.feed(raw)
+    parser.close()
+    return re.sub(r"\\s+", " ", " ".join(parser.parts)).strip()
+
+
 def norm_key(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.casefold())
 
@@ -519,14 +553,14 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
         "class_assignment": assignment,
         "stage": stage,
         "icon": ICONS[primary_category],
-        "description": str(get(row, "description", "tooltip", "ToolTip", default="") or ""),
+        "description": clean_wiki_text(get(row, "description", "tooltip", "ToolTip", default="")),
         "source_note": f"Terraria Wiki · {page or name}",
         "damage": damage,
         "damage_type": ", ".join(class_damage) if primary_category == "weapon" else None,
         "defense": defense,
         "equipment_effect": (
             (armor_meta or {}).get("piece_effect")
-            or str(get(row, "bonus", "effect", "tooltip", "ToolTip", "description", default="") or "")
+            or clean_wiki_text(get(row, "bonus", "effect", "tooltip", "ToolTip", "description", default=""))
         ),
         "armor_set_id": armor_meta.get("set_id") if armor_meta else None,
         "armor_set_name": armor_meta.get("set_name") if armor_meta else None,
