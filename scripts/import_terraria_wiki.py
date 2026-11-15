@@ -67,8 +67,22 @@ def load_armor_set_index() -> tuple[dict[str, dict[str, Any]], dict[str, dict[st
         set_id = str(armor_set["id"])
         by_set[set_id] = armor_set
         for piece in armor_set.get("pieces", []):
-            by_piece[item_lookup_key(piece["name"])] = {
+            key = item_lookup_key(piece["name"])
+            existing = by_piece.get(key)
+            if existing:
+                existing["classes"] = [
+                    class_name for class_name in CLASSES
+                    if class_name in set(existing["classes"]) | set(armor_set["classes"])
+                ]
+                if not existing.get("piece_effect") and piece.get("effect"):
+                    existing["piece_effect"] = piece["effect"]
+                # A common chest/leg piece can be reused by multiple class
+                # variants (e.g. Cobalt, Adamantite and Titanium armor).
+                existing.setdefault("set_ids", []).append(set_id)
+                continue
+            by_piece[key] = {
                 "set_id": set_id,
+                "set_ids": [set_id],
                 "set_name": armor_set["name"],
                 "classes": armor_set["classes"],
                 "stage": armor_set.get("stage"),
