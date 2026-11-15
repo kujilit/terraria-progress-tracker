@@ -38,7 +38,7 @@ export class SupabaseTrackerApi implements TrackerApi {
     const { data, error } = await this.client.rpc(functionName, args)
     if (error) {
       const rawMessage = error.message || 'Supabase request failed.'
-      const match = rawMessage.match(/^([A-Z_]+):\\s*(.*)$/)
+      const match = rawMessage.match(/^([A-Z_]+):\s*(.*)$/)
       throw new ApiError(match?.[2] || rawMessage, match?.[1] || error.code || 'SUPABASE_ERROR')
     }
 
