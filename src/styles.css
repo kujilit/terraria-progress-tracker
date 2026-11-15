@@ -423,3 +423,86 @@
   .player-armor-piece-info b{font-size:10px}
   .player-category-tabs button{padding:7px 8px}
 }
+
+
+/* Hide outdated gear and show real class progression */
+.weaker-gear-toggle{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin:10px 0 14px;
+  padding:10px 12px;
+  background:#172a34;
+  border:1px solid #435965;
+  color:#d8e0db;
+  cursor:pointer;
+}
+.weaker-gear-toggle input{
+  flex:0 0 auto;
+  width:16px;
+  height:16px;
+  margin:1px 0 0;
+  accent-color:#d3a15a;
+}
+.weaker-gear-toggle span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.weaker-gear-toggle b{font-size:11px;color:#e7d4ac}
+.weaker-gear-toggle small{font-size:9px;line-height:1.4;color:#91a6ae}
+.progression-overview{
+  margin-bottom:14px;
+  padding:17px;
+  background:linear-gradient(110deg,#1d3441,#263f48);
+  border:1px solid #536872;
+}
+.progression-overview-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}
+.progression-overview-heading h2{margin:5px 0;color:#f0e5d2;font-size:20px}
+.progression-overview-heading p{margin:0;color:#9db0b5;font-size:10px;line-height:1.5}
+.progression-total{display:flex;flex-direction:column;align-items:flex-end;white-space:nowrap}
+.progression-total b{font-size:25px;color:#ecc779}
+.progression-total small{font-size:9px;color:#8fa4ad}
+.progression-counts{display:flex;flex-wrap:wrap;gap:8px 17px;margin-top:10px;color:#92a8af;font-size:10px}
+.progression-counts b{color:#e9dfce;font-size:13px;margin-right:3px}
+.progression-class-tabs{margin-bottom:10px}
+.progression-class-tabs button{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.progression-class-tabs button small{font-size:9px;color:#8fa4ad}
+.progression-class-tabs button:disabled{opacity:.4;cursor:not-allowed}
+.progression-stage-list{display:grid;gap:8px}
+.progression-stage{min-width:0;background:#192b36;border:1px solid #354d59}
+.progression-stage[open]{border-color:#8d7148}
+.progression-stage>summary{
+  display:grid;
+  grid-template-columns:minmax(150px,1fr) minmax(44px,auto) minmax(100px,.8fr) auto 18px;
+  align-items:center;
+  gap:12px;
+  padding:13px 14px;
+  cursor:pointer;
+  list-style:none;
+}
+.progression-stage>summary::-webkit-details-marker{display:none}
+.progression-stage-title{display:flex;flex-direction:column;gap:4px;min-width:0}
+.progression-stage-title b{color:#e8dfcd;font-size:13px}
+.progression-stage-title small{color:#8098a2;font-size:9px}
+.progression-stage-percent{color:#ecc779;font-weight:800;font-size:17px;text-align:right}
+.progression-stage-track{height:7px;background:#0f202a;border:1px solid #40545e;padding:1px;overflow:hidden}
+.progression-stage-track i{display:block;height:100%;background:linear-gradient(90deg,#9b6e36,#e7bd6b)}
+.progression-stage-count{color:#b8c6c4;font-size:10px;white-space:nowrap}
+.progression-stage-chevron{color:#d6b36e;transition:transform .15s}
+.progression-stage[open] .progression-stage-chevron{transform:rotate(90deg)}
+.progression-stage-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 12px 12px}
+.progression-stage-items .player-gear-card{min-width:0}
+@media(max-width:700px){
+  .progression-overview{padding:13px}
+  .progression-overview-heading h2{font-size:17px}
+  .progression-counts{gap:7px 11px}
+  .progression-stage>summary{
+    grid-template-columns:minmax(0,1fr) auto 18px;
+    gap:7px 9px;
+    padding:11px;
+  }
+  .progression-stage-title{grid-column:1}
+  .progression-stage-percent{grid-column:2}
+  .progression-stage-track{grid-column:1 / 3;grid-row:2}
+  .progression-stage-count{grid-column:1;grid-row:3}
+  .progression-stage-chevron{grid-column:3;grid-row:1}
+  .progression-stage-items{grid-template-columns:1fr;padding:0 8px 8px}
+  .weaker-gear-toggle{padding:9px}
+}
