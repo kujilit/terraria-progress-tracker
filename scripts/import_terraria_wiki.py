@@ -282,16 +282,30 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
     if typed_weapon or (damage is not None and damage > 0 and (damage_flags or damage_type)):
         categories.append("weapon")
 
-    armor_slots = {
-        "head": head_slot,
-        "body": body_slot,
-        "legs": leg_slot,
+    armor_slot_values = {
+        "head": get(row, "headSlot", "headslot"),
+        "body": get(row, "bodySlot", "bodyslot"),
+        "legs": get(row, "legSlot", "legslot"),
     }
-    has_armor_slot = any(slot is not None and slot >= 0 for slot in armor_slots.values())
-    if has_armor_slot and (not vanity or (defense is not None and defense > 0)):
+
+    def is_assigned_slot(value: Any) -> bool:
+        raw = str(value or "").strip().casefold()
+        if not raw or raw in {"-1", "0", "none", "false", "no", "n/a"}:
+            return False
+        number = parse_number(raw)
+        if number is not None:
+            return number > 0
+        # Cargo stores Iteminfo slot values as human-readable text on some
+        # rows, e.g. "Helmet", "Shirt", "Pants", "social shirt".
+        return True
+
+    has_armor_slot = any(is_assigned_slot(value) for value in armor_slot_values.values())
+    typed_armor = bool(re.search(r"\barmor\b|\barmour\b", item_type))
+    if (typed_armor or has_armor_slot) and (not vanity or (defense is not None and defense > 0)):
         categories.append("armor")
 
-    if accessory:
+    typed_accessory = bool(re.search(r"\baccessory\b|\baccessories\b", item_type))
+    if accessory or typed_accessory:
         categories.append("accessory")
 
     # The Cargo "ammo" field on weapons is often the ammo ID they consume.
@@ -315,7 +329,7 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
     stage = "Hardmode" if hardmode else "Pre-Hardmode" if hardmode is False else "Not specified"
     class_damage = [name for name in CLASSES if name in classes]
 
-    slots = {key: val for key, val in armor_slots.items() if val is not None and val >= 0}
+    slots = {key: val for key, val in armor_slot_values.items() if is_assigned_slot(val)}
     return {
         "item_key": item_key(item_id, internal_name, name, page),
         "terraria_id": parse_number(item_id),
