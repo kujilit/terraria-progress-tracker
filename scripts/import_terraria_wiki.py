@@ -296,7 +296,7 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
 
     # The Cargo "ammo" field on weapons is often the ammo ID they consume.
     # Actual ammunition is identified by the item infobox type/category instead.
-    if re.search(r"\bammo\b", item_type) and not not_ammo:
+    if ("ammunition" in item_type or re.search(r"\bammo\b", item_type)) and not not_ammo:
         categories.append("ammo")
 
     if not categories:
