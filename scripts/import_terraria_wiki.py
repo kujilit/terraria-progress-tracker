@@ -110,7 +110,7 @@ def find_field(fields: list[str], *candidates: str) -> str | None:
     return None
 
 
-def fetch_cargo_table(table: str, wanted_fields: list[str] | None = None) -> tuple[list[dict[str, str]], list[str]]:
+def fetch_cargo_table(table: str, wanted_fields: list[str] | None = None, order_by: str = '_pageName') -> tuple[list[dict[str, str]], list[str]]:
     available = cargo_fields(table)
     if wanted_fields is None:
         selected = available
@@ -130,7 +130,7 @@ def fetch_cargo_table(table: str, wanted_fields: list[str] | None = None) -> tup
             "action": "cargoquery",
             "tables": table,
             "fields": ",".join(query_fields),
-            "order_by": "_pageName",
+            "order_by": order_by,
             "limit": PAGE_SIZE,
             "offset": offset,
             "format": "json",
@@ -277,10 +277,12 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
 
     categories: list[str] = []
     damage_flags = any(parse_bool(get(row, field)) for field in CLASS_FIELDS)
-    if damage_flags and damage is not None:
+    damage_type = str(get(row, "damagetype", "damage_type", default="") or "").strip()
+    typed_weapon = bool(re.search(r"\\bweapon\\b", item_type))
+    if typed_weapon or (damage is not None and damage > 0 and (damage_flags or damage_type)):
         categories.append("weapon")
-    elif damage_flags:
-        # Some summon weapons or special class weapons have a zero/blank infobox damage value.
+    elif damage_flags and any(parse_bool(get(row, flag)) for flag in ("summon", "sentry")):
+        # Some summon and sentry weapons have an unusual or absent damage field.
         categories.append("weapon")
 
     armor_slots = {
@@ -822,12 +824,12 @@ def main() -> int:
     log(f"Items fields discovered: {len(item_fields)}")
     log(f"Recipes fields discovered: {len(recipe_fields)}")
 
-    item_rows, _ = fetch_cargo_table("Items")
+    item_rows, _ = fetch_cargo_table("Items", order_by="itemid")
     recipe_wanted = [
         "result", "resultid", "resultimage", "resulttext", "amount",
         "version", "station", "ingredients", "ings", "args", "legacy",
     ]
-    recipe_rows, _ = fetch_cargo_table("Recipes", recipe_wanted)
+    recipe_rows, _ = fetch_cargo_table("Recipes", recipe_wanted, order_by="resultid,version,station,amount")
 
     log(f"Building equipment dependency graph from {len(item_rows)} items and {len(recipe_rows)} recipes...")
     items, recipes, ingredients = build_catalog(item_rows, recipe_rows)
