@@ -3,12 +3,33 @@ import unittest
 from import_terraria_wiki import (
     build_catalog,
     classify_item,
+    clean_wiki_text,
     parse_alternatives,
     parse_recipe_ingredients,
     supabase_headers,
     normalize_image_file,
     image_urls_from_payload,
 )
+
+
+class WikiTextSanitizationTests(unittest.TestCase):
+    def test_removes_game_text_span_markup(self):
+        self.assertEqual(
+            clean_wiki_text('<span class="gameText">Allows flight and slow fall</span>'),
+            "Allows flight and slow fall",
+        )
+
+    def test_decodes_escaped_html_and_entities(self):
+        self.assertEqual(
+            clean_wiki_text('&lt;span class=&quot;gameText&quot;&gt;Deals &amp; burns&lt;/span&gt;'),
+            "Deals & burns",
+        )
+
+    def test_keeps_plain_text_and_collapses_markup_whitespace(self):
+        self.assertEqual(
+            clean_wiki_text('  Shoots <b>a beam</b><br>of light  '),
+            "Shoots a beam of light",
+        )
 
 
 class RecipeParsingTests(unittest.TestCase):
