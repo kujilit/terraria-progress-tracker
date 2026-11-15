@@ -29,7 +29,7 @@ npm run dev
 
 ## Каталог Terraria Wiki
 
-Каталог предметов, рецептов и изображений импортируется с официальной Terraria Wiki через Cargo API и MediaWiki `imageinfo`. Схема базы данных: [002_terraria_wiki_catalog.sql](supabase/migrations/002_terraria_wiki_catalog.sql) и [003_catalog_item_images.sql](supabase/migrations/003_catalog_item_images.sql). Импортёр: [scripts/import_terraria_wiki.py](scripts/import_terraria_wiki.py).
+Каталог предметов, рецептов и изображений импортируется с официальной Terraria Wiki через Cargo API и MediaWiki `imageinfo`. Схема базы данных: [002_terraria_wiki_catalog.sql](supabase/migrations/002_terraria_wiki_catalog.sql), [003_catalog_item_images.sql](supabase/migrations/003_catalog_item_images.sql) и [004_class_gear_sets_and_effects.sql](supabase/migrations/004_class_gear_sets_and_effects.sql). Импортёр: [scripts/import_terraria_wiki.py](scripts/import_terraria_wiki.py).
 
 1. Выполни миграции `002_terraria_wiki_catalog.sql`, `003_catalog_item_images.sql` и `004_class_gear_sets_and_effects.sql` по порядку после `001_initial_schema.sql` в Supabase SQL Editor.
 2. В GitHub → Settings → Secrets and variables → Actions → **Secrets** добавь `SUPABASE_SECRET_KEY`. Используй Supabase Secret API key (`sb_secret_...`) или legacy `service_role` key. Никогда не используй этот ключ как `VITE_*` и не добавляй его в Variables.
