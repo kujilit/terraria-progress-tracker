@@ -47,6 +47,10 @@ export default function App() {
   const player = currentPlayers.find(p => p.id === selected) || currentPlayers[0] || players[0]
   const owned = (id: string) => statuses[id] === 'owned'
   const setStatus = (id: string, status: ItemStatus) => {
+    if (isRemoteMode && session && selected !== session.player.id) {
+      setSyncError('Можно редактировать только собственный прогресс. Чужой прогресс доступен для просмотра.')
+      return
+    }
     const previousStatus = statuses[id] || 'missing'
     const next = { ...statuses, [id]: status }
     setStatuses(next)
@@ -62,23 +66,28 @@ export default function App() {
   useEffect(() => {
     if (!isRemoteMode || !session) return
     let active = true
-    setSyncError('')
-    Promise.all([
-      trackerApi.listPlayers(session.token),
-      trackerApi.getProgress(session.token),
-      trackerApi.listBosses(session.token),
-      trackerApi.listInventory(session.token),
-    ]).then(([members, progressRows, bossRows, inventoryRows]) => {
-      if (!active) return
-      setRemotePlayers(members)
-      setRemoteProgress(progressRows)
-      setRemoteBosses(bossRows)
-      setRemoteInventory(inventoryRows)
-      if (!members.some(member => member.id === selected)) setSelected(session.player.id)
-    }).catch(error => {
-      if (active) setSyncError(error instanceof Error ? error.message : 'Ошибка синхронизации')
-    })
-    return () => { active = false }
+    const refresh = async () => {
+      try {
+        const [members, progressRows, bossRows, inventoryRows] = await Promise.all([
+          trackerApi.listPlayers(session.token),
+          trackerApi.getProgress(session.token),
+          trackerApi.listBosses(session.token),
+          trackerApi.listInventory(session.token),
+        ])
+        if (!active) return
+        setRemotePlayers(members)
+        setRemoteProgress(progressRows)
+        setRemoteBosses(bossRows)
+        setRemoteInventory(inventoryRows)
+        setSyncError('')
+        if (!members.some(member => member.id === selected)) setSelected(session.player.id)
+      } catch (error) {
+        if (active) setSyncError(error instanceof Error ? error.message : 'Ошибка синхронизации')
+      }
+    }
+    void refresh()
+    const intervalId = window.setInterval(() => { void refresh() }, 10000)
+    return () => { active = false; window.clearInterval(intervalId) }
   }, [session])
   useEffect(() => {
     if (!isRemoteMode || !session) return
@@ -163,7 +172,7 @@ export default function App() {
         <n.icon size={17}/>{n.label}{n.id === 'inventory' || n.id === 'crafting' ? <span className="new-dot"/> : null}
       </button>)}
       <div className="sidebar-bottom">
-        <div className="connection"><span className="status-dot"/> {isRemoteMode ? 'REMOTE API' : 'DEMO MODE'} <small>{isRemoteMode ? 'Apps Script · синхронизация' : 'Локальное сохранение'}</small></div>
+        <div className="connection"><span className="status-dot"/> {isRemoteMode ? 'REMOTE API' : 'DEMO MODE'} <small>{isRemoteMode ? 'Supabase · синхронизация' : 'Локальное сохранение'}</small></div>
         <button className="nav-item"><Settings size={17}/>Настройки</button>
       </div>
     </aside>
@@ -213,7 +222,7 @@ export default function App() {
             <div className="profile-percent"><b>{total}%</b><small>прогресс класса</small></div>
           </div>
           <div className="section-title"><h2>Предметы персонажа</h2><span className="muted">{classItems.length} в каталоге</span></div>
-          <div className="item-grid">{classItems.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus}/>)}</div>
+          <div className="item-grid">{classItems.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
         </>}
         {tab === 'progression' && <>
           <div className="class-tabs">{(['Melee', 'Ranger', 'Mage', 'Summoner'] as GameClass[]).map(c =>
@@ -263,7 +272,7 @@ export default function App() {
         {tab === 'catalog' && <>
           <div className="search-bar"><Search size={18}/><input placeholder="Поиск предмета на русском или английском..." value={query} onChange={e => setQuery(e.target.value)}/></div>
           <div className="filter-row"><span>{filtered.length} предметов</span><span>Vanilla · 1.4.5.x</span></div>
-          <div className="item-grid">{filtered.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus}/>)}</div>
+          <div className="item-grid">{filtered.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
         </>}
         <footer>TERRARIA PROGRESS TRACKER <span>НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · {isRemoteMode ? "REMOTE DATA" : "DEMO DATA"}</span></footer>
       </div>
@@ -321,10 +330,10 @@ function AuthScreen({ onSession }: { onSession: (session: TrackerSession) => voi
   </form></div>
 }
 
-function ItemCard({ item, status, onStatus }: { item: any; status: ItemStatus; onStatus: (id: string, s: ItemStatus) => void }) {
+function ItemCard({ item, status, onStatus, disabled = false }: { item: any; status: ItemStatus; onStatus: (id: string, s: ItemStatus) => void; disabled?: boolean }) {
   const labels: Record<ItemStatus, string> = { owned: 'Получен', planned: 'В планах', crafting: 'В работе', missing: 'Не получен', skipped: 'Пропущен' }
   return <article className="item-card"><div className="item-art">{item.icon}</div><div className="item-details"><b>{item.name}</b><small>{item.ru} · {item.stage}</small><small>{item.source}</small><span className={'state ' + status}>{labels[status]}</span></div>
-    <select value={status} onChange={e => onStatus(item.id, e.target.value as ItemStatus)} aria-label={'Статус ' + item.name}><option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option></select>
+    <select value={status} disabled={disabled} onChange={e => onStatus(item.id, e.target.value as ItemStatus)} aria-label={'Статус ' + item.name}><option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option></select>
   </article>
 }
 function Stat({ label, value }: { label: string; value: string }) {
