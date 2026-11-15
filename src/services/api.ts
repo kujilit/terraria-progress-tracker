@@ -1,18 +1,50 @@
-import type { ItemStatus } from '../types'
+import type { GameClass, ItemStatus } from '../types'
 
-export interface ProgressRecord {
-  worldId: string
-  playerId: string
-  itemId: string
-  status: ItemStatus
-  quantity: number
-  updatedAt: string
+export interface TrackerWorld {
+  id: string; name: string; joinCode: string; gameVersion: string
+  difficulty: string; evilBiome: string; seed: string
 }
+export interface TrackerPlayer {
+  id: string; name: string; gameClass: GameClass; role: 'owner' | 'member'
+}
+export interface TrackerSession {
+  token: string; expiresAt: string; world: TrackerWorld; player: TrackerPlayer
+}
+export interface ProgressRecord {
+  id: string; worldId: string; playerId: string; itemId: string
+  status: ItemStatus; quantity: number; updatedAt: string
+}
+export interface BossRecord {
+  id: string; worldId: string; bossId: string; status: 'defeated' | 'pending'
+  defeatedAt: string; updatedBy: string
+}
+export interface InventoryRecord {
+  id: string; worldId: string; playerId: string; itemId: string
+  quantity: number; reservedQuantity: number; updatedAt: string
+}
+export interface AuthInput { joinCode: string; playerName: string; pin: string }
+export interface CreateWorldInput {
+  worldName: string; playerName: string; pin: string; gameClass: GameClass; gameVersion?: string
+  difficulty?: string; evilBiome?: string; seed?: string
+}
+export interface JoinWorldInput extends AuthInput { gameClass: GameClass }
 
 export interface TrackerApi {
+  readonly mode: 'local' | 'remote'
   health(): Promise<{ status: 'ok'; apiVersion: string }>
-  getProgress(worldId: string, playerId: string): Promise<ProgressRecord[]>
-  setProgress(record: Omit<ProgressRecord, 'updatedAt'>): Promise<ProgressRecord>
+  createWorld(input: CreateWorldInput): Promise<TrackerSession>
+  joinWorld(input: JoinWorldInput): Promise<TrackerSession>
+  login(input: AuthInput): Promise<TrackerSession>
+  logout(token: string): Promise<void>
+  worldInfo(token: string): Promise<TrackerWorld>
+  listPlayers(token: string): Promise<TrackerPlayer[]>
+  getProgress(token: string): Promise<ProgressRecord[]>
+  setProgress(token: string, input: { itemId: string; status: ItemStatus; quantity: number }): Promise<ProgressRecord>
+  listBosses(token: string): Promise<BossRecord[]>
+  setBossStatus(token: string, input: { bossId: string; status: 'defeated' | 'pending' }): Promise<BossRecord>
+  listInventory(token: string): Promise<InventoryRecord[]>
+  setInventory(token: string, input: { itemId: string; quantity: number }): Promise<InventoryRecord>
+  transferInventory(token: string, input: { toPlayerId: string; itemId: string; quantity: number; idempotencyKey: string }): Promise<{ duplicate: boolean; transferId: string }>
 }
 
 export class ApiError extends Error {
