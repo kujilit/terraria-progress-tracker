@@ -2,13 +2,15 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
   pages: write
   id-token: write
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -22,10 +24,17 @@ jobs:
       - run: npm run build
         env:
           GITHUB_PAGES: 'true'
+      - name: Check Apps Script syntax and manifest
+        run: |
+          cp apps-script/Code.gs /tmp/Code.js
+          node --check /tmp/Code.js
+          node -e "JSON.parse(require('fs').readFileSync('apps-script/appsscript.json', 'utf8'))"
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: ./dist
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
