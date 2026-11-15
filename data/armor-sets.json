@@ -1,0 +1,932 @@
+{
+  "version": "1.4.5.x",
+  "sets": [
+    {
+      "id": "molten",
+      "name": "Molten Armor",
+      "classes": [
+        "Melee"
+      ],
+      "stage": "Pre-Hardmode",
+      "pieces": [
+        {
+          "name": "Molten Helmet",
+          "slot": "Голова",
+          "effect": "+7% к урону ближнего боя и +7% к скорости ближнего боя."
+        },
+        {
+          "name": "Molten Breastplate",
+          "slot": "Тело",
+          "effect": "+7% к урону ближнего боя и +7% к шансу критического удара."
+        },
+        {
+          "name": "Molten Greaves",
+          "slot": "Ноги",
+          "effect": "+7% к урону ближнего боя и +7% к скорости ближнего боя."
+        }
+      ],
+      "bonuses": [
+        "+7% к урону ближнего боя",
+        "+7% к шансу критического удара ближнего боя",
+        "+7% к скорости ближнего боя"
+      ],
+      "setBonus": "+10% к урону ближнего боя; иммунитет к On Fire! и огненным блокам."
+    },
+    {
+      "id": "frost-melee-ranger",
+      "name": "Frost Armor",
+      "classes": [
+        "Melee",
+        "Ranger"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Frost Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Frost Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Frost Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+16% к урону ближнего и дальнего боя",
+        "+11% к критическому шансу ближнего и дальнего боя",
+        "+10% к скорости атак ближнего боя",
+        "+8% к скорости передвижения"
+      ],
+      "setBonus": "Атаки ближнего и дальнего боя накладывают Frostbite; дополнительно +10% к урону обоих типов."
+    },
+    {
+      "id": "turtle",
+      "name": "Turtle Armor",
+      "classes": [
+        "Melee"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Turtle Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Turtle Scale Mail",
+          "slot": "Тело"
+        },
+        {
+          "name": "Turtle Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+14% к урону ближнего боя",
+        "+12% к критическому шансу ближнего боя",
+        "+750 к агрессии"
+      ],
+      "setBonus": "15% снижения входящего урона и шипы: контактный урон по броне отражается врагу с множителем 200%."
+    },
+    {
+      "id": "beetle-scale",
+      "name": "Beetle Armor · Scale Mail",
+      "classes": [
+        "Melee"
+      ],
+      "stage": "Post-Plantera",
+      "pieces": [
+        {
+          "name": "Beetle Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Beetle Scale Mail",
+          "slot": "Тело"
+        },
+        {
+          "name": "Beetle Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+6% к урону ближнего боя",
+        "+6% к скорости ближнего боя",
+        "+6% к скорости передвижения",
+        "+8% дополнительного урона и критического шанса от Scale Mail"
+      ],
+      "setBonus": "После попаданий накапливается Beetle Might: ступени усиливают урон и скорость ближнего боя вплоть до +30%."
+    },
+    {
+      "id": "beetle-shell",
+      "name": "Beetle Armor · Shell",
+      "classes": [
+        "Melee"
+      ],
+      "stage": "Post-Plantera",
+      "pieces": [
+        {
+          "name": "Beetle Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Beetle Shell",
+          "slot": "Тело"
+        },
+        {
+          "name": "Beetle Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+6% к урону ближнего боя",
+        "+6% к скорости ближнего боя",
+        "+6% к скорости передвижения",
+        "+5% дополнительного урона ближнего боя и +5% критического шанса от Beetle Shell"
+      ],
+      "setBonus": "Пока персонаж не получает урон, накапливается Beetle Endurance: до 45% снижения входящего урона. При попадании эффект теряет одну ступень."
+    },
+    {
+      "id": "solar-flare",
+      "name": "Solar Flare Armor",
+      "classes": [
+        "Melee"
+      ],
+      "stage": "Post-Moon Lord",
+      "pieces": [
+        {
+          "name": "Solar Flare Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Solar Flare Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Solar Flare Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+29% к урону ближнего боя",
+        "+26% к критическому шансу ближнего боя",
+        "+15% к скорости ближнего боя",
+        "+12% снижения входящего урона",
+        "+3 HP/с регенерации"
+      ],
+      "setBonus": "Даёт бафф Solar Blaze: щит заряжается до трёх зарядов, поглощает часть урона и позволяет совершать рывок с уроном по врагам."
+    },
+    {
+      "id": "fossil",
+      "name": "Fossil Armor",
+      "classes": [
+        "Ranger"
+      ],
+      "stage": "Pre-Hardmode",
+      "pieces": [
+        {
+          "name": "Fossil Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Fossil Plate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Fossil Greaves",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+5% к урону дальнего боя",
+        "+8% к критическому шансу дальнего боя"
+      ],
+      "setBonus": "20% шанс не потратить боеприпас при выстреле."
+    },
+    {
+      "id": "necro",
+      "name": "Necro Armor",
+      "classes": [
+        "Ranger"
+      ],
+      "stage": "Pre-Hardmode",
+      "pieces": [
+        {
+          "name": "Necro Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Necro Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Necro Greaves",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+15% к урону дальнего боя"
+      ],
+      "setBonus": "+10% к критическому шансу дальнего боя; при движении появляется визуальный след."
+    },
+    {
+      "id": "cobalt-melee",
+      "name": "Cobalt Armor · Helmet",
+      "classes": [
+        "Melee"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Cobalt Helmet",
+          "slot": "Голова",
+          "effect": "+15% к урону ближнего боя и +10% к скорости передвижения."
+        },
+        {
+          "name": "Cobalt Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Cobalt Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+3% ко всему урону",
+        "+5% к критическому шансу",
+        "+10% к скорости передвижения"
+      ],
+      "setBonus": "+15% к скорости ближнего боя."
+    },
+    {
+      "id": "cobalt-ranger",
+      "name": "Cobalt Armor · Mask",
+      "classes": [
+        "Ranger"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Cobalt Mask",
+          "slot": "Голова",
+          "effect": "+10% к урону и +10% к критическому шансу дальнего боя."
+        },
+        {
+          "name": "Cobalt Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Cobalt Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+3% ко всему урону",
+        "+5% к критическому шансу",
+        "+10% к скорости передвижения"
+      ],
+      "setBonus": "20% шанс не потратить боеприпас при выстреле."
+    },
+    {
+      "id": "cobalt-mage",
+      "name": "Cobalt Armor · Hat",
+      "classes": [
+        "Mage"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Cobalt Hat",
+          "slot": "Голова",
+          "effect": "+10% к магическому урону, +9% к магическому критическому шансу и +40 к максимуму маны."
+        },
+        {
+          "name": "Cobalt Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Cobalt Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+3% ко всему урону",
+        "+5% к критическому шансу",
+        "+10% к скорости передвижения"
+      ],
+      "setBonus": "−14% расхода маны."
+    },
+    {
+      "id": "adamantite-melee",
+      "name": "Adamantite Armor · Helmet",
+      "classes": [
+        "Melee"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Adamantite Helmet",
+          "slot": "Голова",
+          "effect": "+14% к урону и +7% к критическому шансу ближнего боя."
+        },
+        {
+          "name": "Adamantite Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Adamantite Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+8% ко всему урону",
+        "+7% к критическому шансу",
+        "+5% к скорости передвижения"
+      ],
+      "setBonus": "+20% к скорости ближнего боя и +20% к скорости передвижения."
+    },
+    {
+      "id": "adamantite-ranger",
+      "name": "Adamantite Armor · Mask",
+      "classes": [
+        "Ranger"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Adamantite Mask",
+          "slot": "Голова",
+          "effect": "+14% к урону и +10% к критическому шансу дальнего боя."
+        },
+        {
+          "name": "Adamantite Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Adamantite Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+8% ко всему урону",
+        "+7% к критическому шансу",
+        "+5% к скорости передвижения"
+      ],
+      "setBonus": "25% шанс не потратить боеприпас при выстреле."
+    },
+    {
+      "id": "adamantite-mage",
+      "name": "Adamantite Armor · Headgear",
+      "classes": [
+        "Mage"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Adamantite Headgear",
+          "slot": "Голова",
+          "effect": "+12% к магическому урону, +12% к критическому шансу и +80 к максимуму маны."
+        },
+        {
+          "name": "Adamantite Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Adamantite Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+8% ко всему урону",
+        "+7% к критическому шансу",
+        "+5% к скорости передвижения"
+      ],
+      "setBonus": "−19% расхода маны."
+    },
+    {
+      "id": "titanium-melee",
+      "name": "Titanium Armor · Mask",
+      "classes": [
+        "Melee"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Titanium Mask",
+          "slot": "Голова",
+          "effect": "+9% к урону, критическому шансу и скорости ближнего боя."
+        },
+        {
+          "name": "Titanium Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Titanium Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+7% ко всему урону",
+        "+6% к критическому шансу",
+        "+6% к скорости передвижения"
+      ],
+      "setBonus": "После удара активируется Titanium Barrier на 10 секунд: вокруг персонажа появляются осколки, наносящие урон и отбрасывающие врагов."
+    },
+    {
+      "id": "titanium-ranger",
+      "name": "Titanium Armor · Helmet",
+      "classes": [
+        "Ranger"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Titanium Helmet",
+          "slot": "Голова",
+          "effect": "+16% к урону и +7% к критическому шансу дальнего боя."
+        },
+        {
+          "name": "Titanium Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Titanium Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+7% ко всему урону",
+        "+6% к критическому шансу",
+        "+6% к скорости передвижения"
+      ],
+      "setBonus": "После удара активируется Titanium Barrier на 10 секунд: осколки наносят 50 базового урона и отбрасывают врагов."
+    },
+    {
+      "id": "titanium-mage",
+      "name": "Titanium Armor · Headgear",
+      "classes": [
+        "Mage"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Titanium Headgear",
+          "slot": "Голова",
+          "effect": "+16% к магическому урону, +7% к магическому критическому шансу и +100 к максимуму маны."
+        },
+        {
+          "name": "Titanium Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Titanium Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+7% ко всему урону",
+        "+6% к критическому шансу",
+        "+6% к скорости передвижения"
+      ],
+      "setBonus": "После удара активируется Titanium Barrier на 10 секунд: вокруг персонажа появляются осколки, наносящие урон и отбрасывающие врагов."
+    },
+    {
+      "id": "shroomite-bow",
+      "name": "Shroomite Armor · Headgear",
+      "classes": [
+        "Ranger"
+      ],
+      "stage": "Post-Plantera",
+      "pieces": [
+        {
+          "name": "Shroomite Headgear",
+          "slot": "Голова",
+          "effect": "Множитель ×1,12 к урону луков, репитеров, стрел и кольев."
+        },
+        {
+          "name": "Shroomite Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Shroomite Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+13% к дальнему урону",
+        "+25% к критическому шансу дальнего боя",
+        "+20% шанс сохранить боеприпас",
+        "+12% к скорости передвижения"
+      ],
+      "setBonus": "При неподвижности включается скрытность: до +50% дальнего урона, +10% критического шанса, +50% отбрасывания и −750 агрессии врагов."
+    },
+    {
+      "id": "shroomite-guns",
+      "name": "Shroomite Armor · Mask",
+      "classes": [
+        "Ranger"
+      ],
+      "stage": "Post-Plantera",
+      "pieces": [
+        {
+          "name": "Shroomite Mask",
+          "slot": "Голова",
+          "effect": "Множитель ×1,12 к урону огнестрельного оружия и пуль."
+        },
+        {
+          "name": "Shroomite Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Shroomite Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+13% к дальнему урону",
+        "+25% к критическому шансу дальнего боя",
+        "+20% шанс сохранить боеприпас",
+        "+12% к скорости передвижения"
+      ],
+      "setBonus": "При неподвижности включается скрытность: до +50% дальнего урона, +10% критического шанса, +50% отбрасывания и −750 агрессии врагов."
+    },
+    {
+      "id": "shroomite-special",
+      "name": "Shroomite Armor · Helmet",
+      "classes": [
+        "Ranger"
+      ],
+      "stage": "Post-Plantera",
+      "pieces": [
+        {
+          "name": "Shroomite Helmet",
+          "slot": "Голова",
+          "effect": "Множитель ×1,12 к специализированному дальнему оружию и боеприпасам."
+        },
+        {
+          "name": "Shroomite Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Shroomite Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+13% к дальнему урону",
+        "+25% к критическому шансу дальнего боя",
+        "+20% шанс сохранить боеприпас",
+        "+12% к скорости передвижения"
+      ],
+      "setBonus": "При неподвижности включается скрытность: до +50% дальнего урона, +10% критического шанса, +50% отбрасывания и −750 агрессии врагов."
+    },
+    {
+      "id": "vortex",
+      "name": "Vortex Armor",
+      "classes": [
+        "Ranger"
+      ],
+      "stage": "Post-Moon Lord",
+      "pieces": [
+        {
+          "name": "Vortex Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Vortex Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Vortex Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+36% к дальнему урону",
+        "+27% к критическому шансу дальнего боя",
+        "+25% шанс сохранить боеприпас",
+        "+10% к скорости передвижения"
+      ],
+      "setBonus": "Режим скрытности: до +80% дальнего урона, +20% критического шанса, +50% отбрасывания и −1200 агрессии; скорость передвижения снижается."
+    },
+    {
+      "id": "jungle",
+      "name": "Jungle Armor",
+      "classes": [
+        "Mage"
+      ],
+      "stage": "Pre-Hardmode",
+      "pieces": [
+        {
+          "name": "Jungle Hat",
+          "slot": "Голова"
+        },
+        {
+          "name": "Jungle Shirt",
+          "slot": "Тело"
+        },
+        {
+          "name": "Jungle Pants",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+6% к магическому урону",
+        "+12% к магическому критическому шансу",
+        "+80 к максимуму маны"
+      ],
+      "setBonus": "−16% расхода маны. Части взаимозаменяемы с Ancient Cobalt armor."
+    },
+    {
+      "id": "meteor",
+      "name": "Meteor Armor",
+      "classes": [
+        "Mage"
+      ],
+      "stage": "Pre-Hardmode",
+      "pieces": [
+        {
+          "name": "Meteor Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Meteor Suit",
+          "slot": "Тело"
+        },
+        {
+          "name": "Meteor Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+27% к магическому урону"
+      ],
+      "setBonus": "Space Gun, Laser Rifle, Gray Zapinator и Orange Zapinator расходуют 0 маны."
+    },
+    {
+      "id": "spectre-mask",
+      "name": "Spectre Armor · Mask",
+      "classes": [
+        "Mage"
+      ],
+      "stage": "Post-Plantera",
+      "pieces": [
+        {
+          "name": "Spectre Mask",
+          "slot": "Голова",
+          "effect": "+10% магического урона, +10% критического шанса, +60 маны и −13% расхода маны."
+        },
+        {
+          "name": "Spectre Robe",
+          "slot": "Тело"
+        },
+        {
+          "name": "Spectre Pants",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+15% к магическому урону",
+        "+7% к магическому критическому шансу",
+        "+8% к скорости передвижения"
+      ],
+      "setBonus": "Магический урон создаёт самонаводящиеся сферы, наносящие 100% нанесённого урона."
+    },
+    {
+      "id": "spectre-hood",
+      "name": "Spectre Armor · Hood",
+      "classes": [
+        "Mage"
+      ],
+      "stage": "Post-Plantera",
+      "pieces": [
+        {
+          "name": "Spectre Hood",
+          "slot": "Голова",
+          "effect": "Перенаправляет 20% нанесённого магического урона в лечение персонажа или ближайшего союзника с наименьшим здоровьем."
+        },
+        {
+          "name": "Spectre Robe",
+          "slot": "Тело"
+        },
+        {
+          "name": "Spectre Pants",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+15% к магическому урону",
+        "+7% к магическому критическому шансу",
+        "+8% к скорости передвижения"
+      ],
+      "setBonus": "Лечение: 20% магического урона восстанавливается как здоровье игроку или союзнику с наименьшим HP; ценой −40% магического урона."
+    },
+    {
+      "id": "nebula",
+      "name": "Nebula Armor",
+      "classes": [
+        "Mage"
+      ],
+      "stage": "Post-Moon Lord",
+      "pieces": [
+        {
+          "name": "Nebula Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Nebula Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Nebula Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+26% к магическому урону",
+        "+16% к магическому критическому шансу",
+        "+60 к максимуму маны",
+        "−15% расхода маны",
+        "+10% к скорости передвижения"
+      ],
+      "setBonus": "Попадания магией могут создавать сферы-бустеры: Damage Booster (до +45% урона), Life Booster (регенерация здоровья) и Mana Booster (регенерация маны)."
+    },
+    {
+      "id": "bee",
+      "name": "Bee Armor",
+      "classes": [
+        "Summoner"
+      ],
+      "stage": "Pre-Hardmode",
+      "pieces": [
+        {
+          "name": "Bee Headgear",
+          "slot": "Голова",
+          "effect": "+4% к урону призыва и +1 слот миньона."
+        },
+        {
+          "name": "Bee Breastplate",
+          "slot": "Тело",
+          "effect": "+4% к урону призыва и +1 слот миньона."
+        },
+        {
+          "name": "Bee Greaves",
+          "slot": "Ноги",
+          "effect": "+5% к урону призыва."
+        }
+      ],
+      "bonuses": [
+        "+13% к урону призыва",
+        "+2 слота миньонов"
+      ],
+      "setBonus": "+10% к урону призыва (суммарно +23% с бонусами частей)."
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian Armor",
+      "classes": [
+        "Summoner"
+      ],
+      "stage": "Pre-Hardmode",
+      "pieces": [
+        {
+          "name": "Obsidian Outlaw Hat",
+          "slot": "Голова"
+        },
+        {
+          "name": "Obsidian Longcoat",
+          "slot": "Тело"
+        },
+        {
+          "name": "Obsidian Pants",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+16% к урону призыва",
+        "+1 слот миньона"
+      ],
+      "setBonus": "+15% к урону призыва, +30% к дальности кнутов и +15% к скорости кнутов."
+    },
+    {
+      "id": "spider",
+      "name": "Spider Armor",
+      "classes": [
+        "Summoner"
+      ],
+      "stage": "Hardmode",
+      "pieces": [
+        {
+          "name": "Spider Mask",
+          "slot": "Голова",
+          "effect": "+5% к урону призыва и +1 слот миньона."
+        },
+        {
+          "name": "Spider Breastplate",
+          "slot": "Тело",
+          "effect": "+5% к урону призыва и +1 слот миньона."
+        },
+        {
+          "name": "Spider Greaves",
+          "slot": "Ноги",
+          "effect": "+6% к урону призыва и +1 слот миньона."
+        }
+      ],
+      "bonuses": [
+        "+16% к урону призыва",
+        "+3 слота миньонов"
+      ],
+      "setBonus": "+12% к урону призыва (суммарно +28%)."
+    },
+    {
+      "id": "tiki",
+      "name": "Tiki Armor",
+      "classes": [
+        "Summoner"
+      ],
+      "stage": "Post-Plantera",
+      "pieces": [
+        {
+          "name": "Tiki Mask",
+          "slot": "Голова",
+          "effect": "+10% к урону призыва, +1 слот миньона и +10% к дальности кнутов."
+        },
+        {
+          "name": "Tiki Shirt",
+          "slot": "Тело",
+          "effect": "+10% к урону призыва и +1 слот миньона."
+        },
+        {
+          "name": "Tiki Pants",
+          "slot": "Ноги",
+          "effect": "+10% к урону призыва и +1 слот миньона."
+        }
+      ],
+      "bonuses": [
+        "+30% к урону призыва",
+        "+3 слота миньонов",
+        "+10% к дальности кнутов"
+      ],
+      "setBonus": "+1 слот миньона и +20% к дальности кнутов (итого +4 слота и +30% дальности)."
+    },
+    {
+      "id": "spooky",
+      "name": "Spooky Armor",
+      "classes": [
+        "Summoner"
+      ],
+      "stage": "Post-Plantera",
+      "pieces": [
+        {
+          "name": "Spooky Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Spooky Breastplate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Spooky Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+33% к урону призыва",
+        "+4 слота миньонов",
+        "+20% к скорости передвижения"
+      ],
+      "setBonus": "+25% к урону призыва (итого +58%)."
+    },
+    {
+      "id": "stardust",
+      "name": "Stardust Armor",
+      "classes": [
+        "Summoner"
+      ],
+      "stage": "Post-Moon Lord",
+      "pieces": [
+        {
+          "name": "Stardust Helmet",
+          "slot": "Голова"
+        },
+        {
+          "name": "Stardust Plate",
+          "slot": "Тело"
+        },
+        {
+          "name": "Stardust Leggings",
+          "slot": "Ноги"
+        }
+      ],
+      "bonuses": [
+        "+66% к урону призыва",
+        "+5 слотов миньонов",
+        "+1 слот часового",
+        "+30% к дальности кнутов"
+      ],
+      "setBonus": "Призывает Stardust Guardian — стража, который следует за игроком и защищает его."
+    }
+  ]
+}
