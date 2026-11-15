@@ -200,7 +200,7 @@ export default function App() {
         const order: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
         return order[statusForPlayer(player.id, a.id)] - order[statusForPlayer(player.id, b.id)] || a.name.localeCompare(b.name)
       }
-      const order: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Not specified': 2 }
+      const order: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Post-Mechanical': 2, 'Post-Plantera': 3, 'Post-Golem': 4, 'Post-Moon Lord': 5, 'Not specified': 6 }
       return (order[a.stage] ?? 3) - (order[b.stage] ?? 3) || a.name.localeCompare(b.name)
     })
   const playerArmorSets = armorSetsForClass(player.gameClass)
@@ -400,7 +400,7 @@ export default function App() {
 
             <div className="player-gear-filters">
               <div className="player-gear-search"><Search size={16}/><input value={playerQuery} onChange={event => setPlayerQuery(event.target.value)} placeholder="Найти предмет или эффект..."/></div>
-              <label><span>Этап</span><select value={playerStage} onChange={event => setPlayerStage(event.target.value)}><option value="all">Все этапы</option><option value="Pre-Hardmode">Pre-Hardmode</option><option value="Hardmode">Hardmode</option><option value="Not specified">Не указан</option></select></label>
+              <label><span>Этап</span><select value={playerStage} onChange={event => setPlayerStage(event.target.value)}><option value="all">Все этапы</option><option value="Pre-Hardmode">Pre-Hardmode</option><option value="Hardmode">Hardmode</option><option value="Post-Mechanical">После механических боссов</option><option value="Post-Plantera">После Плантеры</option><option value="Post-Golem">После Голема</option><option value="Post-Moon Lord">После Лунного лорда</option><option value="Not specified">Не указан</option></select></label>
               <label><span>Сортировка</span><select value={playerSort} onChange={event => setPlayerSort(event.target.value as typeof playerSort)}><option value="stage">Сначала ранние этапы</option><option value="name">По названию</option><option value="status">По статусу</option></select></label>
             </div>
 
@@ -619,14 +619,14 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
         <h3>{set.name}</h3>
         <div className="player-armor-set-classes">{set.classes.map(gameClass => <span key={gameClass}>{classNames[gameClass]}</span>)}</div>
       </div>
-      <span className="player-armor-set-count">{items.length}/3 <small>частей</small></span>
+      <span className="player-armor-set-count">{items.length}/{set.pieces.length} <small>частей</small></span>
     </header>
     {set.bonuses.length > 0 && <div className="player-armor-bonuses">
-      <span className="player-armor-block-label">Бонусы частей</span>
+      <span className="player-armor-block-label">Пассивные характеристики полного набора</span>
       <div>{set.bonuses.map(bonus => <span className="player-armor-bonus" key={bonus}>{bonus}</span>)}</div>
     </div>}
     <div className="player-armor-set-bonus">
-      <span className="player-armor-block-label">Бонус полного комплекта</span>
+      <span className="player-armor-block-label">Особый бонус комплекта</span>
       <p>{set.setBonus}</p>
       {set.buffName && <div className="player-gear-buff"><Sparkles size={13}/> Бафф: <b>{set.buffName}</b>{set.buffDuration && <small>{set.buffDuration}</small>}</div>}
     </div>
@@ -638,7 +638,7 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
           <b>{piece.name}</b><small>Нет в текущем каталоге</small>
         </div>
         const status = statusForItem(item.id)
-        const effect = piece.effect || item.equipmentEffect || item.description
+        const effect = armorPieceEffect(set, piece.name) || piece.effect || item.equipmentEffect || item.description
         return <div className="player-armor-piece" key={piece.name}>
           <ItemArtwork item={item} className="player-armor-piece-art"/>
           <div className="player-armor-piece-info">
@@ -712,6 +712,10 @@ function categoryLabel(category: string) {
 function stageLabel(stage: string) {
   if (stage === 'Pre-Hardmode') return 'Pre-Hardmode'
   if (stage === 'Hardmode') return 'Hardmode'
+  if (stage === 'Post-Mechanical') return 'После механических боссов'
+  if (stage === 'Post-Plantera') return 'После Плантеры'
+  if (stage === 'Post-Golem') return 'После Голема'
+  if (stage === 'Post-Moon Lord') return 'После Лунного лорда'
   return 'Этап не указан'
 }
 
