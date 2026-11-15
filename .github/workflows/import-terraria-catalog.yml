@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
       - 'scripts/**'
+      - 'src/**'
       - 'supabase/migrations/002_terraria_wiki_catalog.sql'
+      - 'supabase/migrations/003_catalog_item_images.sql'
       - '.github/workflows/import-terraria-catalog.yml'
   workflow_dispatch:
     inputs:
