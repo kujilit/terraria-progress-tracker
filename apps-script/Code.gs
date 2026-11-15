@@ -424,7 +424,12 @@ function newJoinCode_() {
   for (let i=0;i<8;i++) result += alphabet[(bytes[i] + 256) % alphabet.length];
   return result;
 }
-function hashPin_(pin,salt) { return hashText_(salt + ':' + pin); }
+function hashPin_(pin,salt) {
+  const pepper = PropertiesService.getScriptProperties().getProperty('PIN_PEPPER');
+  if (!pepper || pepper.length < 32) fail_('CONFIGURATION_ERROR','Set a random PIN_PEPPER (at least 32 characters) in Script Properties.');
+  const bytes = Utilities.computeHmacSha256Signature(salt + ':' + pin,pepper,Utilities.Charset.UTF_8);
+  return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/,'');
+}
 function hashText_(value) {
   const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,String(value),Utilities.Charset.UTF_8);
   return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/,'');
