@@ -872,6 +872,8 @@ def publish_catalog(
         "items": len(items),
         "recipes": len(recipes),
         "recipe_ingredients": len(ingredients),
+        "images": sum(1 for item in items if item.get("image_url")),
+        "image_files": sum(1 for item in items if item.get("image_file")),
         "categories": {},
         "classes": {},
         "generated_at": utc_now(),
