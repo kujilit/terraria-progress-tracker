@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { Swords, Users, Backpack, Skull, GitBranch, Target, BookOpen, Settings, Globe, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw } from 'lucide-react'
+import { Swords, Users, Backpack, Skull, GitBranch, Target, BookOpen, Settings, Globe, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw, Menu, X } from 'lucide-react'
 import { AccessoryBuilds } from './AccessoryBuilds'
 import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
 import { items, players, bosses } from './data'
@@ -26,6 +26,7 @@ const initial: Record<string, ItemStatus> = {
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('overview')
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [session, setSession] = useState<TrackerSession | null>(() => loadSession())
   const [remotePlayers, setRemotePlayers] = useState<TrackerPlayer[]>([])
   const [remoteProgress, setRemoteProgress] = useState<ProgressRecord[]>([])
@@ -292,11 +293,20 @@ export default function App() {
   if (isRemoteMode && !session) return <AuthScreen onSession={handleSession}/>
   
   return <div className="app-shell">
-    <aside className="sidebar">
+    <aside className={"sidebar " + (mobileNavOpen ? "mobile-nav-open" : "")}>
       <div className="brand"><div className="brand-mark">T</div><div><b>TERRARIA</b><small>PROGRESS TRACKER</small></div></div>
+      <button
+        type="button"
+        className="mobile-nav-toggle"
+        aria-expanded={mobileNavOpen}
+        onClick={() => setMobileNavOpen(value => !value)}
+      >
+        <span>{mobileNavOpen ? <X size={15}/> : <Menu size={15}/>} {mobileNavOpen ? 'Закрыть меню' : 'Разделы'}</span>
+        <ChevronRight className={mobileNavOpen ? 'open' : ''} size={15}/>
+      </button>
       <div className="world-switch"><span className="eyebrow">ТЕКУЩИЙ МИР</span><b>{session?.world.name || 'For The Worthy'}</b><small>{session ? `${session.world.difficulty} · ${session.world.evilBiome} · ${session.world.gameVersion}` : 'Master · Crimson · 1.4.5.x'}</small>{session && <button className="invite-code" onClick={() => navigator.clipboard.writeText(session.world.joinCode)}>КОД МИРА · {session.world.joinCode}</button>}</div>
       <div className="nav-label">ПРИКЛЮЧЕНИЕ</div>
-      {nav.map(n => <button key={n.id} className={'nav-item ' + (tab === n.id ? 'active' : '')} onClick={() => setTab(n.id)}>
+      {nav.map(n => <button key={n.id} className={'nav-item ' + (tab === n.id ? 'active' : '')} onClick={() => { setTab(n.id); setMobileNavOpen(false) }}>
         <n.icon size={17}/>{n.label}{n.id === 'inventory' || n.id === 'crafting' ? <span className="new-dot"/> : null}
       </button>)}
       <div className="sidebar-bottom">
@@ -614,7 +624,8 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
   const classNames: Record<GameClass, string> = {
     Melee: 'Ближний бой', Ranger: 'Стрелок', Mage: 'Маг', Summoner: 'Призыватель',
   }
-  const [expanded, setExpanded] = useState(false)
+  const collectedCount = items.filter(item => statusForItem(item.id) === 'owned').length
+
   return <article className="player-armor-set-card">
     <header className="player-armor-set-head">
       <div>
@@ -622,7 +633,7 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
         <h3>{set.name}</h3>
         <div className="player-armor-set-classes">{set.classes.map(gameClass => <span key={gameClass}>{classNames[gameClass]}</span>)}</div>
       </div>
-      <span className="player-armor-set-count">{items.length}/{set.pieces.length} <small>частей</small></span>
+      <span className="player-armor-set-count">{collectedCount}/{set.pieces.length} <small>получено</small></span>
     </header>
     {set.bonuses.length > 0 && <div className="player-armor-bonuses">
       <span className="player-armor-block-label">Суммарные бонусы частей комплекта</span>
@@ -633,12 +644,7 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
       <p>{set.setBonus}</p>
       {set.buffName && <div className="player-gear-buff"><Sparkles size={13}/> {set.buffName.toLowerCase().includes('дебафф') ? 'Дебафф:' : 'Бафф:'} <b>{set.buffName}</b>{set.buffDuration && <small>{set.buffDuration}</small>}</div>}
     </div>
-    <button type="button" className="player-armor-toggle" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>
-      <span>{expanded ? 'Скрыть части' : 'Показать части комплекта'}</span>
-      <b>{set.pieces.length} предмета</b>
-      <ChevronRight className={expanded ? 'expanded' : ''} size={15}/>
-    </button>
-    {expanded && <div className="player-armor-pieces">
+    <div className="player-armor-pieces">
       {set.pieces.map(piece => {
         const item = items.find(entry => entry.name === piece.name)
         if (!item) return <div className="player-armor-piece unavailable" key={piece.name}>
@@ -660,8 +666,8 @@ function PlayerArmorSetCard({ set, items, matchedCount, statusForItem, onStatus,
           </select>
         </div>
       })}
-    </div>}
-    {expanded && matchedCount < items.length && <small className="player-armor-filter-note">Показан весь комплект: фильтр совпал с {matchedCount} из {items.length} доступных частей.</small>}
+    </div>
+    {matchedCount < items.length && <small className="player-armor-filter-note">Показан весь комплект: фильтр совпал с {matchedCount} из {items.length} доступных частей.</small>}
   </article>
 }
 
