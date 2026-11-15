@@ -1,7 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Swords, Users, Backpack, Skull, GitBranch, Target, BookOpen, Settings, Globe, Search, ChevronRight, Hammer, Sparkles } from 'lucide-react'
 import { items, players, bosses } from './data'
-import type { GameClass, ItemStatus } from './types'
+import type { GameClass, ItemStatus, Player } from './types'
+import type { BossRecord, ProgressRecord, TrackerPlayer, TrackerSession } from './services/api'
+import { trackerApi, isRemoteMode } from './services'
 
 type Tab = 'overview' | 'players' | 'progression' | 'inventory' | 'bosses' | 'crafting' | 'catalog'
 const nav: { id: Tab; label: string; icon: typeof Globe }[] = [
@@ -21,20 +23,89 @@ const initial: Record<string, ItemStatus> = {
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('overview')
-  const [selected, setSelected] = useState('p1')
+  const [session, setSession] = useState<TrackerSession | null>(() => loadSession())
+  const [remotePlayers, setRemotePlayers] = useState<TrackerPlayer[]>([])
+  const [remoteProgress, setRemoteProgress] = useState<ProgressRecord[]>([])
+  const [remoteBosses, setRemoteBosses] = useState<BossRecord[]>([])
+  const [syncError, setSyncError] = useState('')
+  const [selected, setSelected] = useState(() => loadSession()?.player.id || 'p1')
   const [statuses, setStatuses] = useState<Record<string, ItemStatus>>(() => {
     try { return { ...initial, ...JSON.parse(localStorage.getItem('terraria-statuses') || '{}') } }
     catch { return initial }
   })
   const [query, setQuery] = useState('')
   const [target, setTarget] = useState('terra_blade')
-  const player = players.find(p => p.id === selected)!
+  const classColors: Record<GameClass, string> = { Melee:'#d98d54', Ranger:'#79a8d8', Mage:'#a88add', Summoner:'#76b98c' }
+  const currentPlayers: Player[] = isRemoteMode
+    ? (remotePlayers.length ? remotePlayers : session ? [session.player] : []).map(p => ({...p,color:classColors[p.gameClass]}))
+    : players
+  const player = currentPlayers.find(p => p.id === selected) || currentPlayers[0] || players[0]
   const owned = (id: string) => statuses[id] === 'owned'
   const setStatus = (id: string, status: ItemStatus) => {
     const next = { ...statuses, [id]: status }
     setStatuses(next)
-    localStorage.setItem('terraria-statuses', JSON.stringify(next))
+    if (isRemoteMode && session) {
+      trackerApi.setProgress(session.token,{itemId:id,status,quantity:status === 'owned' ? 1 : 0})
+        .then(record => setRemoteProgress(current => [...current.filter(x => !(x.playerId === record.playerId && x.itemId === record.itemId)),record]))
+        .catch(error => setSyncError(error instanceof Error ? error.message : 'Не удалось сохранить прогресс'))
+    } else {
+      localStorage.setItem('terraria-statuses', JSON.stringify(next))
+      void trackerApi.setProgress(selected,{itemId:id,status,quantity:status === 'owned' ? 1 : 0}).catch(() => undefined)
+    }
   }
+  useEffect(() => {
+    if (!isRemoteMode || !session) return
+    let active = true
+    setSyncError('')
+    Promise.all([
+      trackerApi.listPlayers(session.token),
+      trackerApi.getProgress(session.token),
+      trackerApi.listBosses(session.token),
+    ]).then(([members, progressRows, bossRows]) => {
+      if (!active) return
+      setRemotePlayers(members)
+      setRemoteProgress(progressRows)
+      setRemoteBosses(bossRows)
+      if (!members.some(member => member.id === selected)) setSelected(session.player.id)
+    }).catch(error => {
+      if (active) setSyncError(error instanceof Error ? error.message : 'Ошибка синхронизации')
+    })
+    return () => { active = false }
+  }, [session])
+  useEffect(() => {
+    if (!isRemoteMode || !session) return
+    const own = remoteProgress.filter(row => row.playerId === selected)
+    setStatuses(Object.fromEntries(own.map(row => [row.itemId,row.status])))
+  }, [remoteProgress, selected, session])
+  const bossStatus = (bossId: string) => {
+    if (isRemoteMode) return remoteBosses.find(row => row.bossId === bossId)?.status || 'pending'
+    try {
+      const saved = JSON.parse(localStorage.getItem('terraria-bosses') || '{}') as Record<string,string>
+      return saved[bossId] || (bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending')
+    } catch { return bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending' }
+  }
+  const setBossStatus = (bossId: string, status: 'defeated'|'pending') => {
+    if (isRemoteMode && session) {
+      trackerApi.setBossStatus(session.token,{bossId,status})
+        .then(row => setRemoteBosses(current => [...current.filter(x => x.bossId !== bossId),row]))
+        .catch(error => setSyncError(error instanceof Error ? error.message : 'Не удалось обновить босса'))
+    } else {
+      const current = JSON.parse(localStorage.getItem('terraria-bosses') || '{}') as Record<string,string>
+      current[bossId] = status
+      localStorage.setItem('terraria-bosses',JSON.stringify(current))
+    }
+  }
+  const handleSession = (next: TrackerSession) => {
+    sessionStorage.setItem('terraria-tracker-session',JSON.stringify(next))
+    setSession(next)
+    setSelected(next.player.id)
+  }
+  const handleLogout = async () => {
+    if (session) { try { await trackerApi.logout(session.token) } catch { /* local session is still cleared */ } }
+    sessionStorage.removeItem('terraria-tracker-session')
+    setSession(null); setRemotePlayers([]); setRemoteProgress([]); setRemoteBosses([])
+  }
+
   const classItems = items.filter(i => i.gameClass.includes(player.gameClass))
   const total = Math.round(
     items.filter(i => i.gameClass.includes(player.gameClass))
@@ -42,7 +113,7 @@ export default function App() {
       .filter(i => owned(i.id)).length /
     Math.max(items.filter(i => i.gameClass.includes(player.gameClass) && statuses[i.id] !== 'skipped').length, 1) * 100,
   )
-  const teamCount = items.filter(i => players.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)).length
+  const teamCount = items.filter(i => isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id))).length
   const filtered = useMemo(() => items.filter(i => (i.name + ' ' + i.ru).toLowerCase().includes(query.toLowerCase())), [query])
   const current = items.find(i => i.id === target)!
   const recipeTree = (id: string, depth = 0, seen: string[] = []): any => {
@@ -55,26 +126,28 @@ export default function App() {
   }
   const tree = recipeTree(target)
   const pageTitle = nav.find(n => n.id === tab)?.label || 'Обзор'
-
+  if (isRemoteMode && !session) return <AuthScreen onSession={handleSession}/>
+  
   return <div className="app-shell">
     <aside className="sidebar">
       <div className="brand"><div className="brand-mark">T</div><div><b>TERRARIA</b><small>PROGRESS TRACKER</small></div></div>
-      <div className="world-switch"><span className="eyebrow">ТЕКУЩИЙ МИР</span><b>For The Worthy</b><small>Master · Crimson · 1.4.5.x</small></div>
+      <div className="world-switch"><span className="eyebrow">ТЕКУЩИЙ МИР</span><b>{session?.world.name || 'For The Worthy'}</b><small>{session ? `${session.world.difficulty} · ${session.world.evilBiome} · ${session.world.gameVersion}` : 'Master · Crimson · 1.4.5.x'}</small></div>
       <div className="nav-label">ПРИКЛЮЧЕНИЕ</div>
       {nav.map(n => <button key={n.id} className={'nav-item ' + (tab === n.id ? 'active' : '')} onClick={() => setTab(n.id)}>
         <n.icon size={17}/>{n.label}{n.id === 'inventory' || n.id === 'crafting' ? <span className="new-dot"/> : null}
       </button>)}
       <div className="sidebar-bottom">
-        <div className="connection"><span className="status-dot"/> DEMO MODE <small>Локальное сохранение</small></div>
+        <div className="connection"><span className="status-dot"/> {isRemoteMode ? 'REMOTE API' : 'DEMO MODE'} <small>{isRemoteMode ? 'Apps Script · синхронизация' : 'Локальное сохранение'}</small></div>
         <button className="nav-item"><Settings size={17}/>Настройки</button>
       </div>
     </aside>
     <main className="main">
       <header className="topbar">
-        <div className="crumb">МИРЫ <ChevronRight size={13}/> <b>FOR THE WORTHY</b> <ChevronRight size={13}/> {pageTitle.toUpperCase()}</div>
-        <div className="top-actions"><span className="version">VANILLA 1.4.5.x</span><div className="avatar">{player.name[0]}</div><span className="player-name">{player.name}</span></div>
+        <div className="crumb">МИРЫ <ChevronRight size={13}/> <b>{(session?.world.name || 'FOR THE WORTHY').toUpperCase()}</b> <ChevronRight size={13}/> {pageTitle.toUpperCase()}</div>
+        <div className="top-actions"><span className="version">{session?.world.gameVersion || 'VANILLA 1.4.5.x'}</span><div className="avatar">{player.name[0]}</div><span className="player-name">{player.name}</span>{session && <button className="logout-button" onClick={handleLogout}>Выйти</button>}</div>
       </header>
       <div className="content">
+        {syncError && <div className="notice sync-error">Синхронизация: {syncError}</div>}
         <div className="page-heading">
           <div><div className="eyebrow">WORLD OVERVIEW / {pageTitle.toUpperCase()}</div><h1>{tab === 'overview' ? 'Путешествие продолжается' : pageTitle}</h1><p>Отслеживайте прогресс команды и планируйте следующие шаги.</p></div>
           <button className="gold-button" onClick={() => setTab('players')}><Users size={16}/> Игроки мира</button>
@@ -89,7 +162,7 @@ export default function App() {
             </div><div className="pixel-sun">☀</div><div className="hero-ground"/>
           </section>
           <div className="section-title"><h2>Отряд</h2><button className="text-button" onClick={() => setTab('players')}>Все игроки <ChevronRight size={15}/></button></div>
-          <div className="player-grid">{players.map(p => {
+          <div className="player-grid">{currentPlayers.map(p => {
             const its = items.filter(i => i.gameClass.includes(p.gameClass))
             const done = its.filter(i => statuses[i.id] === 'owned').length
             return <button className={'player-card ' + (selected === p.id ? 'chosen' : '')} key={p.id} onClick={() => { setSelected(p.id); setTab('players') }}>
@@ -103,12 +176,12 @@ export default function App() {
                 <div className="goal-row" key={i.id}><span className="item-icon">{i.icon}</span><div className="goal-info"><b>{i.name}</b><small>{i.source}</small></div><span className={'state ' + statuses[i.id]}>{statuses[i.id] === 'planned' ? 'В планах' : 'В работе'}</span></div>)}
             </section>
             <section className="panel"><div className="panel-head"><h2>Прогресс боссов</h2><Skull size={17}/></div>
-              {bosses.slice(0, 5).map((b, i) => <div className="boss-row" key={b.id}><span className={'boss-icon ' + (i < 2 ? 'defeated' : '')}>{i < 2 ? '✓' : '?'}</span><span>{b.name}</span><small>{i < 2 ? 'Побеждён' : 'Ожидает'}</small></div>)}
+              {bosses.slice(0, 5).map((b, i) => <div className="boss-row" key={b.id}><span className={'boss-icon ' + (bossStatus(b.id) === 'defeated' ? 'defeated' : '')}>{bossStatus(b.id) === 'defeated' ? '✓' : '?'}</span><span>{b.name}</span><small>{bossStatus(b.id) === 'defeated' ? 'Побеждён' : 'Ожидает'}</small></div>)}
             </section>
           </div>
         </>}
         {tab === 'players' && <>
-          <div className="player-switch">{players.map(p => <button className={selected === p.id ? 'selected' : ''} onClick={() => setSelected(p.id)} key={p.id}>{p.name}<small>{p.gameClass}</small></button>)}</div>
+          <div className="player-switch">{currentPlayers.map(p => <button className={selected === p.id ? 'selected' : ''} onClick={() => setSelected(p.id)} key={p.id}>{p.name}<small>{p.gameClass}</small></button>)}</div>
           <div className="profile-banner"><div className="player-emblem big" style={{ background: player.color }}>{player.gameClass === 'Melee' ? '⚔' : player.gameClass === 'Ranger' ? '➶' : player.gameClass === 'Mage' ? '✦' : '♟'}</div>
             <div><span className="eyebrow">ПЕРСОНАЖ / {player.gameClass.toUpperCase()}</span><h2>{player.name}</h2><p>{player.gameClass} progression · Master Mode</p></div>
             <div className="profile-percent"><b>{total}%</b><small>прогресс класса</small></div>
@@ -118,7 +191,7 @@ export default function App() {
         </>}
         {tab === 'progression' && <>
           <div className="class-tabs">{(['Melee', 'Ranger', 'Mage', 'Summoner'] as GameClass[]).map(c =>
-            <button className={player.gameClass === c ? 'selected' : ''} onClick={() => { const p = players.find(x => x.gameClass === c)!; setSelected(p.id) }} key={c}>{c}</button>)}</div>
+            <button className={player.gameClass === c ? 'selected' : ''} onClick={() => { const p = currentPlayers.find(x => x.gameClass === c); if (p) setSelected(p.id) }} key={c}>{c}</button>)}</div>
           <div className="stage-list">{['Pre-Boss', 'Pre-Skeletron', 'Pre-Wall of Flesh', 'Pre-Mechanical Bosses', 'Pre-Plantera', 'Pre-Golem', 'Pre-Moon Lord', 'Post-Moon Lord'].map((s, i) =>
             <section className="stage-card" key={s}><div className="stage-number">{String(i + 1).padStart(2, '0')}</div><div className="stage-main"><b>{s}</b><small>{i === 0 ? 'Начальная экипировка и подготовка' : i < 3 ? 'Подготовка к следующему боссу' : 'Развитие экипировки и аксессуаров'}</small></div><span className={i < 2 ? 'stage-open' : 'stage-locked'}>{i < 2 ? 'ДОСТУПЕН' : 'ЗАБЛОКИРОВАН'}</span></section>)}
           </div>
@@ -130,7 +203,7 @@ export default function App() {
         </>}
         {tab === 'bosses' && <>
           <div className="notice"><Skull size={18}/> Boss Gates: отметка босса открывает последующие этапы. В демо используются примерные связи — перед production их нужно сверить с игровыми условиями 1.4.5.x.</div>
-          <div className="boss-grid">{bosses.map((b, i) => <div className="boss-card" key={b.id}><div className={'boss-portrait ' + (i < 2 ? 'won' : '')}>{i < 2 ? '☠' : '?'}</div><div><b>{b.name}</b><small>{b.stage}</small><span className={i < 2 ? 'state owned' : 'state missing'}>{i < 2 ? 'Побеждён' : b.requires.length ? 'Зависит от предыдущего этапа' : 'Доступен'}</span></div><button className="small-button" onClick={e => { e.currentTarget.textContent = e.currentTarget.textContent === 'Отметить' ? 'Отмечен' : 'Отметить' }}>Отметить</button></div>)}</div>
+          <div className="boss-grid">{bosses.map((b, i) => <div className="boss-card" key={b.id}><div className={'boss-portrait ' + (bossStatus(b.id) === 'defeated' ? 'won' : '')}>{bossStatus(b.id) === 'defeated' ? '☠' : '?'}</div><div><b>{b.name}</b><small>{b.stage}</small><span className={bossStatus(b.id) === 'defeated' ? 'state owned' : 'state missing'}>{bossStatus(b.id) === 'defeated' ? 'Побеждён' : b.requires.length ? 'Зависит от предыдущего этапа' : 'Доступен'}</span></div><button className="small-button" onClick={() => setBossStatus(b.id,bossStatus(b.id) === 'defeated' ? 'pending' : 'defeated')}>{bossStatus(b.id) === 'defeated' ? 'Отменить' : 'Отметить'}</button></div>)}</div>
         </>}
         {tab === 'crafting' && <>
           <div className="craft-layout">
@@ -152,6 +225,56 @@ export default function App() {
       </div>
     </main>
   </div>
+}
+
+
+function loadSession(): TrackerSession | null {
+  try {
+    const raw = sessionStorage.getItem('terraria-tracker-session')
+    if (!raw) return null
+    const value = JSON.parse(raw) as TrackerSession
+    if (!value.token || new Date(value.expiresAt).getTime() <= Date.now()) {
+      sessionStorage.removeItem('terraria-tracker-session')
+      return null
+    }
+    return value
+  } catch { return null }
+}
+
+function AuthScreen({ onSession }: { onSession: (session: TrackerSession) => void }) {
+  const [mode,setMode] = useState<'login'|'join'|'create'>('login')
+  const [joinCode,setJoinCode] = useState('')
+  const [worldName,setWorldName] = useState('Новый мир')
+  const [playerName,setPlayerName] = useState('')
+  const [pin,setPin] = useState('')
+  const [gameClass,setGameClass] = useState<GameClass>('Melee')
+  const [busy,setBusy] = useState(false)
+  const [error,setError] = useState('')
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault(); setBusy(true); setError('')
+    try {
+      const session = mode === 'create'
+        ? await trackerApi.createWorld({worldName,playerName,pin,gameClass})
+        : mode === 'join'
+          ? await trackerApi.joinWorld({joinCode,playerName,pin,gameClass})
+          : await trackerApi.login({joinCode,playerName,pin})
+      onSession(session)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Не удалось выполнить вход')
+    } finally { setBusy(false) }
+  }
+  return <div className="auth-shell"><form className="auth-card" onSubmit={submit}>
+    <div className="brand auth-brand"><div className="brand-mark">T</div><div><b>TERRARIA</b><small>PROGRESS TRACKER</small></div></div>
+    <span className="eyebrow">MULTIPLAYER WORLD ACCESS</span><h1>{mode === 'create' ? 'Создать мир' : mode === 'join' ? 'Присоединиться' : 'Войти в мир'}</h1>
+    <div className="auth-tabs"><button type="button" className={mode==='login'?'selected':''} onClick={()=>setMode('login')}>Вход</button><button type="button" className={mode==='join'?'selected':''} onClick={()=>setMode('join')}>Вступить</button><button type="button" className={mode==='create'?'selected':''} onClick={()=>setMode('create')}>Создать</button></div>
+    {mode === 'create' ? <label>Название мира<input required minLength={2} maxLength={48} value={worldName} onChange={e=>setWorldName(e.target.value)} /></label> : <label>Код мира<input required minLength={8} maxLength={8} autoCapitalize="characters" value={joinCode} onChange={e=>setJoinCode(e.target.value.toUpperCase())} placeholder="8 символов" /></label>}
+    <label>Имя игрока<input required minLength={2} maxLength={24} value={playerName} onChange={e=>setPlayerName(e.target.value)} /></label>
+    <label>PIN (6–12 цифр)<input required inputMode="numeric" type="password" pattern="[0-9]{6,12}" minLength={6} maxLength={12} value={pin} onChange={e=>setPin(e.target.value)} /></label>
+    {mode !== 'login' && <label>Класс персонажа<select value={gameClass} onChange={e=>setGameClass(e.target.value as GameClass)}><option>Melee</option><option>Ranger</option><option>Mage</option><option>Summoner</option></select></label>}
+    {error && <div className="auth-error">{error}</div>}
+    <button className="gold-button auth-submit" disabled={busy}>{busy ? 'Подключение…' : mode === 'create' ? 'Создать мир' : mode === 'join' ? 'Вступить в мир' : 'Войти'}</button>
+    <p className="auth-help">Сессия хранится в текущей вкладке браузера и автоматически истекает через 12 часов.</p>
+  </form></div>
 }
 
 function ItemCard({ item, status, onStatus }: { item: any; status: ItemStatus; onStatus: (id: string, s: ItemStatus) => void }) {
