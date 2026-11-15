@@ -208,7 +208,7 @@ export default function App() {
         .map(set => [set.name, ...set.bonuses, set.setBonus, set.buffName || ''].join(' '))
         .join(' ')
       const searchable = [
-        item.name, item.ru, item.description, item.equipmentEffect, item.armorSetName,
+        item.name, item.ru, cleanWikiText(item.description), cleanWikiText(item.equipmentEffect), item.armorSetName,
         item.armorSetBonus, item.buffName, item.damageType, item.damage, item.defense, setText,
       ].join(' ').toLowerCase()
       return searchable.includes(playerQuery.trim().toLowerCase())
@@ -250,7 +250,7 @@ export default function App() {
     const statusOrder: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
     const stageOrder: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Not specified': 2 }
     return catalogItems
-      .filter(item => (item.name + ' ' + item.ru + ' ' + item.description).toLowerCase().includes(query.trim().toLowerCase()))
+      .filter(item => (item.name + ' ' + item.ru + ' ' + cleanWikiText(item.description)).toLowerCase().includes(query.trim().toLowerCase()))
       .filter(item => catalogClassFilter === 'all' || item.gameClass.includes(catalogClassFilter))
       .filter(item => catalogCategoryFilter === 'all' || categoryKey(item.category) === catalogCategoryFilter)
       .filter(item => catalogStageFilter === 'all' || item.stage === catalogStageFilter)
@@ -668,7 +668,7 @@ function PlayerArmorSetCard({ set, items, allItems, matchedCount, statusForItem,
         const item = items.find(entry => entry.name === piece.name)
         if (!item) return null
         const status = statusForItem(item.id)
-        const effect = armorPieceEffect(set, piece.name) || piece.effect || item.equipmentEffect || item.description
+        const effect = cleanWikiText(armorPieceEffect(set, piece.name) || piece.effect || item.equipmentEffect || item.description)
         return <div className="player-armor-piece" key={piece.name}>
           <ItemArtwork item={item} className="player-armor-piece-art"/>
           <div className="player-armor-piece-info">
@@ -738,13 +738,14 @@ function PlayerGearCard({ item, status, onStatus, onCraft, disabled = false }: {
     owned: 'Получен', planned: 'В планах', crafting: 'В работе',
     missing: 'Не получен', skipped: 'Пропущен',
   }
+  const description = cleanWikiText(item.equipmentEffect || item.description)
   return <article className="player-gear-card">
     <ItemArtwork item={item} className="player-gear-art"/>
     <div className="player-gear-main">
       <div className="player-gear-tags"><span>{categoryLabel(item.category)}</span><span>{stageLabel(item.stage)}</span></div>
       <h3><button type="button" className="item-recipe-link" onClick={() => onCraft(item)} title="Открыть дерево крафта">{item.name}<GitBranch size={12}/></button></h3>
       {item.ru && item.ru !== item.name && <p className="player-gear-ru">{item.ru}</p>}
-      {(item.equipmentEffect || item.description)?.trim() && <p className="player-gear-description">{item.equipmentEffect || item.description}</p>}
+      {description && <p className="player-gear-description">{description}</p>}
       <div className="player-gear-highlights">
         {item.damage !== null && item.damage !== undefined && <span>{item.damage} урона</span>}
         {item.defense !== null && item.defense !== undefined && item.defense > 0 && <span>{item.defense} защиты</span>}
@@ -760,6 +761,22 @@ function PlayerGearCard({ item, status, onStatus, onCraft, disabled = false }: {
       </div>
     </div>
   </article>
+}
+
+function cleanWikiText(value: string | null | undefined): string {
+  if (!value) return ''
+  return value
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&nbsp;|&#160;|&#xA0;/gi, ' ')
+    .replace(/<br\s*\/?\s*>/gi, ' ')
+    .replace(/<\/?[a-z][^<>]*>/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 function categoryKey(category: string) {
@@ -801,6 +818,7 @@ function CatalogItemCard({ item, status, onStatus, onCraft, disabled = false }: 
     owned: 'Получен', planned: 'В планах', crafting: 'В работе',
     missing: 'Не получен', skipped: 'Пропущен',
   }
+  const description = cleanWikiText(item.description)
   return <article className="catalog-card">
     <div className="catalog-card-top">
       <ItemArtwork item={item} className="catalog-card-art"/>
@@ -809,7 +827,7 @@ function CatalogItemCard({ item, status, onStatus, onCraft, disabled = false }: 
     <div className="catalog-card-body">
       <h3><button type="button" className="item-recipe-link" onClick={() => onCraft(item)} title="Открыть дерево крафта">{item.name}<GitBranch size={13}/></button></h3>
       {item.ru && item.ru !== item.name && <p className="catalog-card-ru">{item.ru}</p>}
-      {item.description?.trim() && <p className="catalog-card-description">{item.description}</p>}
+      {description && <p className="catalog-card-description">{description}</p>}
       <div className="catalog-card-classes">{item.gameClass.map(gameClass => <span key={gameClass}>{({Melee:'Melee',Ranger:'Ranger',Mage:'Mage',Summoner:'Summoner'})[gameClass]}</span>)}</div>
     </div>
     <div className="catalog-card-footer">
