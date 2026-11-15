@@ -7,6 +7,7 @@ export interface Item {
   id:string; name:string; ru:string; gameClass:GameClass[]; category:string; stage:string
   icon:string; description:string; source:string; recipe?:{itemId:string;qty:number}[]
   station?:string; recipes?:CatalogRecipe[]; verified:boolean
+  imageUrl?:string|null; imageOriginalUrl?:string|null; imagePageUrl?:string|null; imageFile?:string|null
 }
 export interface PlayerItem { playerId:string; itemId:string; status:ItemStatus; quantity:number }
 export interface Boss { id:string; name:string; stage:string; requires:string[] }

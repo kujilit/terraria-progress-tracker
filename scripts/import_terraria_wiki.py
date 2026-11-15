@@ -153,6 +153,115 @@ def fetch_cargo_table(table: str, wanted_fields: list[str] | None = None, order_
     return rows, available
 
 
+def api_post(params: dict[str, Any], retries: int = 7) -> dict[str, Any]:
+    """POST a MediaWiki API query (used for batched titles, to avoid huge URLs)."""
+    for attempt in range(retries):
+        try:
+            response = API.post(WIKI_API, data=params, timeout=60)
+            if response.status_code == 429 or response.status_code >= 500:
+                delay = min(60, 2 ** attempt)
+                log(f"Wiki API HTTP {response.status_code}; retrying in {delay}s")
+                time.sleep(delay)
+                continue
+            response.raise_for_status()
+            payload = response.json()
+            if "error" in payload:
+                error = payload["error"]
+                raise RuntimeError(
+                    f"Terraria Wiki API error {error.get('code')}: "
+                    f"{error.get('info') or error}"
+                )
+            return payload
+        except (requests.RequestException, ValueError) as exc:
+            if attempt + 1 >= retries:
+                raise RuntimeError(f"Could not query Terraria Wiki image API: {exc}") from exc
+            delay = min(60, 2 ** attempt)
+            log(f"Wiki image API request failed ({exc}); retrying in {delay}s")
+            time.sleep(delay)
+    raise RuntimeError("Terraria Wiki image API retries exhausted")
+
+
+def normalize_image_file(value: Any) -> str | None:
+    filename = str(value or "").strip()
+    if not filename or filename.casefold() in {"none", "null", "n/a", "0"}:
+        return None
+    filename = re.sub(r"^File\s*:\s*", "", filename, flags=re.IGNORECASE).strip()
+    filename = filename.replace("_", " ")
+    return filename or None
+
+
+def image_urls_from_payload(payload: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """Map filename to a resolved thumbnail URL and original file URL."""
+    pages = payload.get("query", {}).get("pages", [])
+    if isinstance(pages, dict):
+        pages = list(pages.values())
+    result: dict[str, dict[str, str]] = {}
+    for page in pages if isinstance(pages, list) else []:
+        title = str(page.get("title") or "")
+        filename = re.sub(r"^File\s*:\s*", "", title, flags=re.IGNORECASE).strip()
+        imageinfo = page.get("imageinfo") or []
+        if not filename or not imageinfo:
+            continue
+        info = imageinfo[0]
+        thumb = info.get("thumburl") or info.get("url")
+        original = info.get("url") or thumb
+        if thumb:
+            result[normalize_text(filename)] = {
+                "image_url": str(thumb),
+                "image_original_url": str(original) if original else str(thumb),
+                "image_page_url": WIKI_ROOT + "File:" + quote(filename.replace(" ", "_"), safe="()'!,:-._"),
+            }
+    return result
+
+
+def resolve_image_urls(items: list[dict[str, Any]]) -> None:
+    """Resolve Cargo image filenames to stable, direct MediaWiki thumbnail URLs.
+
+    Image resolution is an enrichment step: if a specific file has no imageinfo
+    record, the item remains in the catalog with its original icon fallback.
+    """
+    files = sorted({
+        filename
+        for item in items
+        if (filename := normalize_image_file(item.get("image_file")))
+    })
+    if not files:
+        log("No Cargo imagefile values found; retaining icon fallback.")
+        return
+
+    log(f"Resolving Terraria Wiki item images: {len(files)} unique files")
+    resolved: dict[str, dict[str, str]] = {}
+    batch_size = 40
+    for start in range(0, len(files), batch_size):
+        batch = files[start:start + batch_size]
+        titles = "|".join("File:" + filename for filename in batch)
+        payload = api_post({
+            "action": "query",
+            "titles": titles,
+            "prop": "imageinfo",
+            "iiprop": "url",
+            "iiurlwidth": 72,
+            "format": "json",
+            "formatversion": 2,
+        })
+        resolved.update(image_urls_from_payload(payload))
+        log(f"Wiki image API: resolved {len(resolved)}/{len(files)} files")
+        time.sleep(0.12)
+
+    for item in items:
+        filename = normalize_image_file(item.get("image_file"))
+        if not filename:
+            continue
+        info = resolved.get(normalize_text(filename))
+        if info:
+            item["image_url"] = info["image_url"]
+            item["image_original_url"] = info["image_original_url"]
+            item["image_page_url"] = info["image_page_url"]
+
+    count = sum(1 for item in items if item.get("image_url"))
+    log(f"Item image URLs resolved: {count}/{len(items)} catalog rows")
+
+
 def norm_key(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.casefold())
 
@@ -338,6 +447,10 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
         "name_ru": None,
         "page_title": page or name,
         "wiki_url": wiki_url(page or name),
+        "image_file": normalize_image_file(get(row, "imagefile", "image_file")),
+        "image_url": None,
+        "image_original_url": None,
+        "image_page_url": None,
         "primary_category": primary_category,
         "categories": sorted(set(categories)),
         "classes": class_damage,
@@ -472,6 +585,10 @@ def make_material_stub(name: str, classes: set[str]) -> dict[str, Any]:
         "name_ru": None,
         "page_title": name,
         "wiki_url": wiki_url(name),
+        "image_file": None,
+        "image_url": None,
+        "image_original_url": None,
+        "image_page_url": None,
         "primary_category": "material",
         "categories": ["material"],
         "classes": [c for c in CLASSES if c in classes] or list(CLASSES),
@@ -502,6 +619,10 @@ def make_source_material(source: dict[str, Any], classes: set[str]) -> dict[str,
         "internal_name": source.get("internal_name"),
         "page_title": source.get("page_title") or source["name"],
         "wiki_url": wiki_url(source.get("page_title") or source["name"]),
+        "image_file": source.get("image_file"),
+        "image_url": None,
+        "image_original_url": None,
+        "image_page_url": None,
         "source_note": f"Terraria Wiki · {source.get('page_title') or source['name']}",
         "raw_cargo": source.get("raw_cargo") or {},
     })
@@ -532,6 +653,7 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
             "internal_name": internal_name or None,
             "name": name,
             "page_title": page or name,
+            "image_file": normalize_image_file(get(row, "imagefile", "image_file")),
             "raw_cargo": row,
         }
         if key not in source_items or (
@@ -750,6 +872,8 @@ def publish_catalog(
         "items": len(items),
         "recipes": len(recipes),
         "recipe_ingredients": len(ingredients),
+        "images": sum(1 for item in items if item.get("image_url")),
+        "image_files": sum(1 for item in items if item.get("image_file")),
         "categories": {},
         "classes": {},
         "generated_at": utc_now(),
@@ -854,6 +978,15 @@ def main() -> int:
 
     log(f"Building equipment dependency graph from {len(item_rows)} items and {len(recipe_rows)} recipes...")
     items, recipes, ingredients = build_catalog(item_rows, recipe_rows)
+    if find_field(item_fields, "imagefile") is None:
+        log("Warning: Cargo Items schema has no imagefile field; item cards will use icon fallbacks.")
+    else:
+        try:
+            resolve_image_urls(items)
+        except Exception as exc:
+            # Recipe/equipment import should still be publishable if the Wiki image API
+            # is temporarily unavailable. The image URLs can be enriched on next run.
+            log(f"Warning: image URL enrichment failed; retaining fallback icons: {exc}")
     if not items:
         raise RuntimeError("Import produced no catalog items; refusing to publish.")
     if not any(item["primary_category"] == "weapon" for item in items):

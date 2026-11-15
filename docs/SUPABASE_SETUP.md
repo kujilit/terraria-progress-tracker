@@ -65,11 +65,11 @@ Use a test world before entering a real group's progress. Never send database pa
 The app refreshes shared server data every 10 seconds. It does not yet use Supabase Realtime push notifications, so updates can appear with a short delay.
 
 
-## 6. Import the Terraria Wiki equipment catalog
+## 6. Import the Terraria Wiki equipment catalog and images
 
 The Wiki catalog uses a separate import migration and a server-only key. The existing website Publishable key is not sufficient for writing catalog rows.
 
-1. Open Supabase → SQL Editor and run [`supabase/migrations/002_terraria_wiki_catalog.sql`](../supabase/migrations/002_terraria_wiki_catalog.sql). Do this after migration 001; do not rerun 001.
+1. Open Supabase → SQL Editor and run [`supabase/migrations/002_terraria_wiki_catalog.sql`](../supabase/migrations/002_terraria_wiki_catalog.sql) after migration 001. Then run [`supabase/migrations/003_catalog_item_images.sql`](../supabase/migrations/003_catalog_item_images.sql). Do not rerun 001 or 002.
 2. In GitHub repository Settings → Secrets and variables → Actions → **Secrets**, create:
    - `SUPABASE_SECRET_KEY`: the server-side Secret API key (`sb_secret_...`) from Supabase, or the legacy `service_role` key if that is what your project exposes.
 3. The importer reads the Project URL from the existing `VITE_SUPABASE_URL` Actions Variable. It does not need the Publishable key.
@@ -81,5 +81,5 @@ The workflow runs automatically once a month. It first downloads the Cargo `Item
 
 **Key safety:** `SUPABASE_SECRET_KEY` belongs only in GitHub Actions **Secrets**. Never put it in Actions Variables, a `VITE_*` variable, source code, or chat. The website continues to use only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
 
-The Wiki provides English item names, category/stat fields and recipe ingredients. Russian translations and exact progression milestones are not inferred; the app falls back to the official English name until a translation layer is added.
+The Wiki provides English item names, category/stat fields, recipe ingredients and image filenames. The importer resolves image filenames through MediaWiki `imageinfo`, then stores direct thumbnail, original-image and File-page URLs in Supabase. The app displays the thumbnail and falls back to the existing icon if an image is missing or unavailable. Russian translations and exact progression milestones are not inferred; the app falls back to the official English name until a translation layer is added.
 

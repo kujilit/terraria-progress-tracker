@@ -247,7 +247,7 @@ export default function App() {
           <div className="two-col">
             <section className="panel"><div className="panel-head"><h2>Следующие цели</h2><Target size={17}/></div>
               {catalogItems.filter(i => i.category !== 'material' && (statuses[i.id] === 'planned' || statuses[i.id] === 'crafting')).slice(0, 4).map(i =>
-                <div className="goal-row" key={i.id}><span className="item-icon">{i.icon}</span><div className="goal-info"><b>{i.name}</b><small>{i.source}</small></div><span className={'state ' + statuses[i.id]}>{statuses[i.id] === 'planned' ? 'В планах' : 'В работе'}</span></div>)}
+                <div className="goal-row" key={i.id}><ItemArtwork item={i} className="item-icon"/><div className="goal-info"><b>{i.name}</b><small>{i.source}</small></div><span className={'state ' + statuses[i.id]}>{statuses[i.id] === 'planned' ? 'В планах' : 'В работе'}</span></div>)}
             </section>
             <section className="panel"><div className="panel-head"><h2>Прогресс боссов</h2><Skull size={17}/></div>
               {bosses.slice(0, 5).map(b => <div className="boss-row" key={b.id}><span className={'boss-icon ' + (bossStatus(b.id) === 'defeated' ? 'defeated' : '')}>{bossStatus(b.id) === 'defeated' ? '✓' : '?'}</span><span>{b.name}</span><small>{bossStatus(b.id) === 'defeated' ? 'Побеждён' : 'Ожидает'}</small></div>)}
@@ -289,9 +289,9 @@ export default function App() {
           {isRemoteMode && <div className="item-grid">{remoteInventory.map(row => {
             const item = catalogItems.find(x => x.id === row.itemId)
             const owner = currentPlayers.find(x => x.id === row.playerId)
-            return <div className="item-card" key={row.id}><div className="item-art">{item?.icon || '📦'}</div><div className="item-details"><b>{item?.name || row.itemId}</b><small>{owner?.name || 'Участник'} · резерв: {row.reservedQuantity}</small><span className="state owned">Количество: {row.quantity}</span></div></div>
+            return <div className="item-card" key={row.id}><ItemArtwork item={item || { icon: '📦' }} className="item-art"/><div className="item-details"><b>{item?.name || row.itemId}</b><small>{owner?.name || 'Участник'} · резерв: {row.reservedQuantity}</small><span className="state owned">Количество: {row.quantity}</span></div></div>
           })}</div>}
-          {!isRemoteMode && <div className="item-grid">{catalogItems.filter(i => i.category !== 'material' && statuses[i.id] === 'owned').map(i => <div className="item-card" key={i.id}><div className="item-art">{i.icon}</div><div className="item-details"><b>{i.name}</b><small>{i.gameClass.join(', ')}</small><span className="state owned">Есть в команде</span></div></div>)}</div>}
+          {!isRemoteMode && <div className="item-grid">{catalogItems.filter(i => i.category !== 'material' && statuses[i.id] === 'owned').map(i => <div className="item-card" key={i.id}><ItemArtwork item={i} className="item-art"/><div className="item-details"><b>{i.name}</b><small>{i.gameClass.join(', ')}</small><span className="state owned">Есть в команде</span></div></div>)}</div>}
         </>}
         {tab === 'bosses' && <>
           <div className="notice"><Skull size={18}/> Boss Gates: отметка босса открывает последующие этапы. В демо используются примерные связи — перед production их нужно сверить с игровыми условиями 1.4.5.x.</div>
@@ -300,7 +300,7 @@ export default function App() {
         {tab === 'crafting' && <>
           <div className="craft-layout">
             <section className="panel craft-picker"><div className="panel-head"><h2>Целевой предмет</h2><Hammer size={17}/></div>
-              {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><span>{i.icon}</span><b>{i.name}</b><ChevronRight size={15}/></button>)}
+              {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><ItemArtwork item={i} className="craft-choice-art"/><b>{i.name}</b><ChevronRight size={15}/></button>)}
             </section>
             <section className="panel tree-panel"><div className="panel-head"><div><h2>{current?.name || 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {tree?.station || current?.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
               {(current?.recipes?.length || 0) > 1 && <label className="recipe-select">Вариант рецепта<select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>{current.recipes?.map((recipe, index) => <option value={index} key={recipe.id}>{recipe.station || 'Без станции'} · {recipe.version || 'Все версии'} · ×{recipe.amount}</option>)}</select></label>}
@@ -370,9 +370,19 @@ function AuthScreen({ onSession }: { onSession: (session: TrackerSession) => voi
   </form></div>
 }
 
+function ItemArtwork({ item, className }: { item: Pick<Item, 'icon' | 'imageUrl'>; className: string }) {
+  const [failed, setFailed] = useState(false)
+  const imageUrl = item.imageUrl
+  return <div className={className} aria-hidden="true">
+    {imageUrl && !failed
+      ? <img src={imageUrl} alt="" loading="lazy" decoding="async" onError={() => setFailed(true)}/>
+      : (item.icon || '◆')}
+  </div>
+}
+
 function ItemCard({ item, status, onStatus, disabled = false }: { item: any; status: ItemStatus; onStatus: (id: string, s: ItemStatus) => void; disabled?: boolean }) {
   const labels: Record<ItemStatus, string> = { owned: 'Получен', planned: 'В планах', crafting: 'В работе', missing: 'Не получен', skipped: 'Пропущен' }
-  return <article className="item-card"><div className="item-art">{item.icon}</div><div className="item-details"><b>{item.name}</b><small>{item.ru} · {item.stage}</small><small>{item.source}</small><span className={'state ' + status}>{labels[status]}</span></div>
+  return <article className="item-card"><ItemArtwork item={item} className="item-art"/><div className="item-details"><b>{item.name}</b><small>{item.ru} · {item.stage}</small><small>{item.source}</small><span className={'state ' + status}>{labels[status]}</span></div>
     <select value={status} disabled={disabled} onChange={e => onStatus(item.id, e.target.value as ItemStatus)} aria-label={'Статус ' + item.name}><option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option></select>
   </article>
 }
@@ -382,6 +392,6 @@ function Stat({ label, value }: { label: string; value: string }) {
 function TreeNode({ node, statuses }: { node: any; statuses: Record<string, ItemStatus> }) {
   const [open, setOpen] = useState(true)
   return <div className="tree-node"><div className={'tree-item ' + (statuses[node.it.id] === 'owned' ? 'has-item' : '')}>
-    <button onClick={() => setOpen(!open)}>{node.children.length ? (open ? '−' : '+') : '·'}</button><span>{node.it.icon}</span><b>{node.it.name}</b><small>{statuses[node.it.id] === 'owned' ? 'Есть' : 'Нужно проверить'}{node.qty ? ` · ×${node.qty}` : ''}</small>{node.alternatives?.length > 0 && <small>Альтернативы: {node.alternatives.map((option: { name: string }) => option.name).join(' / ')}</small>}
+    <button onClick={() => setOpen(!open)}>{node.children.length ? (open ? '−' : '+') : '·'}</button><ItemArtwork item={node.it} className="tree-item-art"/><b>{node.it.name}</b><small>{statuses[node.it.id] === 'owned' ? 'Есть' : 'Нужно проверить'}{node.qty ? ` · ×${node.qty}` : ''}</small>{node.alternatives?.length > 0 && <small>Альтернативы: {node.alternatives.map((option: { name: string }) => option.name).join(' / ')}</small>}
   </div>{open && node.children.length > 0 && <div className="tree-children">{node.children.map((child: any, i: number) => <div className="tree-branch" key={i}><TreeNode node={child} statuses={statuses}/></div>)}</div>}</div>
 }
