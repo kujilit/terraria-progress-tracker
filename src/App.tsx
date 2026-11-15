@@ -47,12 +47,13 @@ export default function App() {
   const player = currentPlayers.find(p => p.id === selected) || currentPlayers[0] || players[0]
   const owned = (id: string) => statuses[id] === 'owned'
   const setStatus = (id: string, status: ItemStatus) => {
+    const previousStatus = statuses[id] || 'missing'
     const next = { ...statuses, [id]: status }
     setStatuses(next)
     if (isRemoteMode && session) {
       trackerApi.setProgress(session.token,{itemId:id,status,quantity:status === 'owned' ? 1 : 0})
         .then(record => setRemoteProgress(current => [...current.filter(x => !(x.playerId === record.playerId && x.itemId === record.itemId)),record]))
-        .catch(error => setSyncError(error instanceof Error ? error.message : 'Не удалось сохранить прогресс'))
+        .catch(error => { setStatuses(current => ({...current,[id]:previousStatus})); setSyncError(error instanceof Error ? error.message : 'Не удалось сохранить прогресс') })
     } else {
       localStorage.setItem('terraria-statuses', JSON.stringify(next))
       void trackerApi.setProgress(selected,{itemId:id,status,quantity:status === 'owned' ? 1 : 0}).catch(() => undefined)
@@ -189,7 +190,7 @@ export default function App() {
           <div className="section-title"><h2>Отряд</h2><button className="text-button" onClick={() => setTab('players')}>Все игроки <ChevronRight size={15}/></button></div>
           <div className="player-grid">{currentPlayers.map(p => {
             const its = items.filter(i => i.gameClass.includes(p.gameClass))
-            const done = its.filter(i => statuses[i.id] === 'owned').length
+            const done = isRemoteMode ? remoteProgress.filter(row => row.playerId === p.id && row.status === 'owned').length : its.filter(i => statuses[i.id] === 'owned').length
             return <button className={'player-card ' + (selected === p.id ? 'chosen' : '')} key={p.id} onClick={() => { setSelected(p.id); setTab('players') }}>
               <div className="player-top"><div className="player-emblem" style={{ background: p.color }}>{p.gameClass === 'Melee' ? '⚔' : p.gameClass === 'Ranger' ? '➶' : p.gameClass === 'Mage' ? '✦' : '♟'}</div><span className="class-tag">{p.gameClass}</span></div>
               <h3>{p.name}</h3><div className="mini-progress"><span style={{ width: `${Math.round(done / Math.max(its.length, 1) * 100)}%` }}/></div><small>{done} / {its.length} предметов отмечено</small>
@@ -236,7 +237,7 @@ export default function App() {
             </div>
           </section>}
           <div className="notice"><Backpack size={18}/> {isRemoteMode ? "Инвентарь синхронизируется через Apps Script. Передача работает только в пределах текущего мира." : "В демо-режиме инвентарь показывает предметы, отмеченные как полученные."}</div>
-          <div className="stats-row"><Stat label="Предметов в команде" value={String(teamCount)}/><Stat label="Игроков" value="4"/><Stat label="Активных целей" value={String(items.filter(i => statuses[i.id] === 'planned' || statuses[i.id] === 'crafting').length)}/></div>
+          <div className="stats-row"><Stat label="Предметов в команде" value={String(teamCount)}/><Stat label="Игроков" value={String(currentPlayers.length)}/><Stat label="Активных целей" value={String(items.filter(i => statuses[i.id] === 'planned' || statuses[i.id] === 'crafting').length)}/></div>
           {isRemoteMode && <div className="item-grid">{remoteInventory.map(row => {
             const item = items.find(x => x.id === row.itemId)
             const owner = currentPlayers.find(x => x.id === row.playerId)
@@ -264,7 +265,7 @@ export default function App() {
           <div className="filter-row"><span>{filtered.length} предметов</span><span>Vanilla · 1.4.5.x</span></div>
           <div className="item-grid">{filtered.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus}/>)}</div>
         </>}
-        <footer>TERRARIA PROGRESS TRACKER <span>НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · ДЕМО-ДАННЫЕ</span></footer>
+        <footer>TERRARIA PROGRESS TRACKER <span>НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · {isRemoteMode ? "REMOTE DATA" : "DEMO DATA"}</span></footer>
       </div>
     </main>
   </div>
