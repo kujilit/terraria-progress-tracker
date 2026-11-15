@@ -1,5 +1,5 @@
 import type {
-  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, JoinWorldInput,
+  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, Item, JoinWorldInput,
   ProgressRecord, TrackerApi, TrackerSession, TrackerWorld, TrackerPlayer,
 } from './api'
 import { ApiError } from './api'
@@ -37,6 +37,9 @@ export class AppsScriptTrackerApi implements TrackerApi {
   }
 
   health() { return this.request<{status:'ok';apiVersion:string}>('health') }
+  async getCatalog(_token: string): Promise<Item[]> {
+    throw new ApiError('Каталог из Wiki поддерживается в Supabase mode.', 'NOT_SUPPORTED')
+  }
   createWorld(input: CreateWorldInput) { return this.request<TrackerSession>('world.create',input) }
   joinWorld(input: JoinWorldInput) { return this.request<TrackerSession>('world.join',input) }
   login(input: AuthInput) { return this.request<TrackerSession>('auth.login',input) }
