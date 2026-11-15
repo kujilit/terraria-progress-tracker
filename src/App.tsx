@@ -47,13 +47,13 @@ export default function App() {
   const player = currentPlayers.find(p => p.id === selected) || currentPlayers[0] || players[0]
   const owned = (id: string) => statuses[id] === 'owned'
   const setStatus = (id: string, status: ItemStatus) => {
-    const previousStatus = statuses[id] || 'missing'
-    const next = { ...statuses, [id]: status }
-    setStatuses(next)
     if (isRemoteMode && session && selected !== session.player.id) {
       setSyncError('Можно редактировать только собственный прогресс. Чужой прогресс доступен для просмотра.')
       return
     }
+    const previousStatus = statuses[id] || 'missing'
+    const next = { ...statuses, [id]: status }
+    setStatuses(next)
     if (isRemoteMode && session) {
       trackerApi.setProgress(session.token,{itemId:id,status,quantity:status === 'owned' ? 1 : 0})
         .then(record => setRemoteProgress(current => [...current.filter(x => !(x.playerId === record.playerId && x.itemId === record.itemId)),record]))
@@ -272,7 +272,7 @@ export default function App() {
         {tab === 'catalog' && <>
           <div className="search-bar"><Search size={18}/><input placeholder="Поиск предмета на русском или английском..." value={query} onChange={e => setQuery(e.target.value)}/></div>
           <div className="filter-row"><span>{filtered.length} предметов</span><span>Vanilla · 1.4.5.x</span></div>
-          <div className="item-grid">{filtered.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus}/>)}</div>
+          <div className="item-grid">{filtered.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
         </>}
         <footer>TERRARIA PROGRESS TRACKER <span>НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · {isRemoteMode ? "REMOTE DATA" : "DEMO DATA"}</span></footer>
       </div>
