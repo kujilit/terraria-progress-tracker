@@ -48,6 +48,34 @@ class ItemClassificationTests(unittest.TestCase):
         self.assertEqual(item["classes"], ["Melee"])
         self.assertEqual(item["stage"], "Hardmode")
 
+    def test_armor_detected_from_type_and_text_slot(self):
+        armor = classify_item({
+            "itemid": "2277",
+            "internalname": "Gi",
+            "name": "Gi",
+            "type": "Armor",
+            "bodySlot": "Shirt",
+            "defense": "4",
+            "hardmode": "No",
+            "melee": "1",
+        })
+        self.assertIsNotNone(armor)
+        self.assertEqual(armor["primary_category"], "armor")
+        self.assertEqual(armor["classes"], ["Melee"])
+
+    def test_accessory_detected_from_type_field(self):
+        accessory = classify_item({
+            "itemid": "554",
+            "internalname": "ShieldofCthulhu",
+            "name": "Shield of Cthulhu",
+            "type": "Accessory",
+            "defense": "0",
+            "hardmode": "No",
+        })
+        self.assertIsNotNone(accessory)
+        self.assertEqual(accessory["primary_category"], "accessory")
+        self.assertEqual(accessory["classes"], ["Melee", "Ranger", "Mage", "Summoner"])
+
     def test_class_specific_armor_and_accessory(self):
         armor = classify_item({
             "itemid": "7001",
