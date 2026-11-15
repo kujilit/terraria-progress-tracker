@@ -164,7 +164,7 @@ export default function App() {
   )
   const teamCount = catalogItems.filter(i => i.category !== 'material' && (isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)))).length
   const filtered = useMemo(() => catalogItems.filter(i => (i.name + ' ' + i.ru).toLowerCase().includes(query.toLowerCase())), [query, catalogItems])
-  const current = catalogItems.find(i => i.id === target) || catalogItems.find(i => i.recipe?.length) || catalogItems[0]
+  const current = catalogItems.find(i => i.id === target) || catalogItems.find(i => i.recipe?.length) || catalogItems[0] || items[0]
   useEffect(() => {
     if (!catalogItems.length) return
     if (!catalogItems.some(item => item.id === target)) {
@@ -382,6 +382,6 @@ function Stat({ label, value }: { label: string; value: string }) {
 function TreeNode({ node, statuses }: { node: any; statuses: Record<string, ItemStatus> }) {
   const [open, setOpen] = useState(true)
   return <div className="tree-node"><div className={'tree-item ' + (statuses[node.it.id] === 'owned' ? 'has-item' : '')}>
-    <button onClick={() => setOpen(!open)}>{node.children.length ? (open ? '−' : '+') : '·'}</button><span>{node.it.icon}</span><b>{node.it.name}</b><small>{statuses[node.it.id] === 'owned' ? 'Есть' : 'Нужно проверить'}</small>
+    <button onClick={() => setOpen(!open)}>{node.children.length ? (open ? '−' : '+') : '·'}</button><span>{node.it.icon}</span><b>{node.it.name}</b><small>{statuses[node.it.id] === 'owned' ? 'Есть' : 'Нужно проверить'}{node.qty ? ` · ×${node.qty}` : ''}</small>{node.alternatives?.length > 0 && <small>Альтернативы: {node.alternatives.map((option: { name: string }) => option.name).join(' / ')}</small>}
   </div>{open && node.children.length > 0 && <div className="tree-children">{node.children.map((child: any, i: number) => <div className="tree-branch" key={i}><TreeNode node={child} statuses={statuses}/></div>)}</div>}</div>
 }
