@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Swords, Users, Backpack, Skull, GitBranch, Target, BookOpen, Settings, Globe, Search, ChevronRight, Hammer, Sparkles } from 'lucide-react'
 import { items, players, bosses } from './data'
-import type { GameClass, ItemStatus, Player } from './types'
+import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 
@@ -28,6 +28,7 @@ export default function App() {
   const [remoteProgress, setRemoteProgress] = useState<ProgressRecord[]>([])
   const [remoteBosses, setRemoteBosses] = useState<BossRecord[]>([])
   const [remoteInventory, setRemoteInventory] = useState<InventoryRecord[]>([])
+  const [catalogItems, setCatalogItems] = useState<Item[]>(items)
   const [inventoryItemId, setInventoryItemId] = useState(items[0].id)
   const [inventoryQty, setInventoryQty] = useState('1')
   const [transferTarget, setTransferTarget] = useState('')
@@ -40,6 +41,7 @@ export default function App() {
   })
   const [query, setQuery] = useState('')
   const [target, setTarget] = useState('terra_blade')
+  const [recipeIndex, setRecipeIndex] = useState(0)
   const classColors: Record<GameClass, string> = { Melee:'#d98d54', Ranger:'#79a8d8', Mage:'#a88add', Summoner:'#76b98c' }
   const currentPlayers: Player[] = isRemoteMode
     ? (remotePlayers.length ? remotePlayers : session ? [session.player] : []).map(p => ({...p,color:classColors[p.gameClass]}))
@@ -88,6 +90,18 @@ export default function App() {
     void refresh()
     const intervalId = window.setInterval(() => { void refresh() }, 10000)
     return () => { active = false; window.clearInterval(intervalId) }
+  }, [session])
+  useEffect(() => {
+    if (!isRemoteMode || !session) return
+    let active = true
+    trackerApi.getCatalog(session.token)
+      .then(rows => {
+        if (active && rows.length) setCatalogItems(rows)
+      })
+      .catch(error => {
+        if (active) setSyncError(error instanceof Error ? error.message : 'Не удалось загрузить каталог')
+      })
+    return () => { active = false }
   }, [session])
   useEffect(() => {
     if (!isRemoteMode || !session) return
@@ -141,25 +155,50 @@ export default function App() {
     setSession(null); setRemotePlayers([]); setRemoteProgress([]); setRemoteBosses([]); setRemoteInventory([])
   }
 
-  const classItems = items.filter(i => i.gameClass.includes(player.gameClass))
+  const classItems = catalogItems.filter(i => i.category !== 'material' && i.gameClass.includes(player.gameClass))
   const total = Math.round(
-    items.filter(i => i.gameClass.includes(player.gameClass))
+    catalogItems.filter(i => i.category !== 'material' && i.gameClass.includes(player.gameClass))
       .filter(i => statuses[i.id] !== 'skipped')
       .filter(i => owned(i.id)).length /
-    Math.max(items.filter(i => i.gameClass.includes(player.gameClass) && statuses[i.id] !== 'skipped').length, 1) * 100,
+    Math.max(catalogItems.filter(i => i.category !== 'material' && i.gameClass.includes(player.gameClass) && statuses[i.id] !== 'skipped').length, 1) * 100,
   )
-  const teamCount = items.filter(i => isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id))).length
-  const filtered = useMemo(() => items.filter(i => (i.name + ' ' + i.ru).toLowerCase().includes(query.toLowerCase())), [query])
-  const current = items.find(i => i.id === target)!
+  const teamCount = catalogItems.filter(i => i.category !== 'material' && (isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)))).length
+  const filtered = useMemo(() => catalogItems.filter(i => (i.name + ' ' + i.ru).toLowerCase().includes(query.toLowerCase())), [query, catalogItems])
+  const current = catalogItems.find(i => i.id === target) || catalogItems.find(i => i.recipe?.length) || catalogItems[0] || items[0]
+  useEffect(() => {
+    if (!catalogItems.length) return
+    if (!catalogItems.some(item => item.id === target)) {
+      setTarget(catalogItems.find(item => item.recipe?.length)?.id || catalogItems[0].id)
+    }
+    if (!catalogItems.some(item => item.id === inventoryItemId)) {
+      setInventoryItemId(catalogItems[0].id)
+    }
+  }, [catalogItems, target, inventoryItemId])
   const recipeTree = (id: string, depth = 0, seen: string[] = []): any => {
-    const it = items.find(x => x.id === id)
-    if (!it) return null
+    const it = catalogItems.find(x => x.id === id)
+    if (!it || depth > 20) return null
+    const cycle = seen.includes(id)
+    const recipesForItem = it.recipes || []
+    const selectedRecipe = recipesForItem[id === target ? recipeIndex : 0] || recipesForItem[0]
+    const ingredients = selectedRecipe?.ingredients || it.recipe || []
+    const children = cycle ? [] : ingredients.map(ingredient => {
+      const child = recipeTree(ingredient.itemId, depth + 1, [...seen, id])
+      return child ? {
+        qty: ingredient.qty,
+        alternatives: ingredient.alternatives || [],
+        ...child,
+      } : null
+    }).filter(Boolean)
     return {
-      it, depth, cycle: seen.includes(id),
-      children: it.recipe?.map(r => ({ qty: r.qty, ...recipeTree(r.itemId, depth + 1, [...seen, id]) })).filter(Boolean) || [],
+      it,
+      depth,
+      cycle,
+      station: selectedRecipe?.station || it.station,
+      children,
     }
   }
-  const tree = recipeTree(target)
+  const tree = current ? recipeTree(current.id) : null
+  useEffect(() => { setRecipeIndex(0) }, [target])
   const pageTitle = nav.find(n => n.id === tab)?.label || 'Обзор'
   if (isRemoteMode && !session) return <AuthScreen onSession={handleSession}/>
   
@@ -198,7 +237,7 @@ export default function App() {
           </section>
           <div className="section-title"><h2>Отряд</h2><button className="text-button" onClick={() => setTab('players')}>Все игроки <ChevronRight size={15}/></button></div>
           <div className="player-grid">{currentPlayers.map(p => {
-            const its = items.filter(i => i.gameClass.includes(p.gameClass))
+            const its = catalogItems.filter(i => i.category !== 'material' && i.gameClass.includes(p.gameClass))
             const done = isRemoteMode ? remoteProgress.filter(row => row.playerId === p.id && row.status === 'owned').length : its.filter(i => statuses[i.id] === 'owned').length
             return <button className={'player-card ' + (selected === p.id ? 'chosen' : '')} key={p.id} onClick={() => { setSelected(p.id); setTab('players') }}>
               <div className="player-top"><div className="player-emblem" style={{ background: p.color }}>{p.gameClass === 'Melee' ? '⚔' : p.gameClass === 'Ranger' ? '➶' : p.gameClass === 'Mage' ? '✦' : '♟'}</div><span className="class-tag">{p.gameClass}</span></div>
@@ -207,7 +246,7 @@ export default function App() {
           })}</div>
           <div className="two-col">
             <section className="panel"><div className="panel-head"><h2>Следующие цели</h2><Target size={17}/></div>
-              {items.filter(i => statuses[i.id] === 'planned' || statuses[i.id] === 'crafting').slice(0, 4).map(i =>
+              {catalogItems.filter(i => i.category !== 'material' && (statuses[i.id] === 'planned' || statuses[i.id] === 'crafting')).slice(0, 4).map(i =>
                 <div className="goal-row" key={i.id}><span className="item-icon">{i.icon}</span><div className="goal-info"><b>{i.name}</b><small>{i.source}</small></div><span className={'state ' + statuses[i.id]}>{statuses[i.id] === 'planned' ? 'В планах' : 'В работе'}</span></div>)}
             </section>
             <section className="panel"><div className="panel-head"><h2>Прогресс боссов</h2><Skull size={17}/></div>
@@ -235,7 +274,7 @@ export default function App() {
           {isRemoteMode && session && <section className="panel inventory-controls">
             <div className="panel-head"><h2>Управление количеством</h2><Backpack size={17}/></div>
             <div className="inventory-form">
-              <label>Предмет<select value={inventoryItemId} onChange={e=>setInventoryItemId(e.target.value)}>{items.map(item=><option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
+              <label>Предмет<select value={inventoryItemId} onChange={e=>setInventoryItemId(e.target.value)}>{catalogItems.map(item=><option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
               <label>Количество<input type="number" min="0" max="99999" value={inventoryQty} onChange={e=>setInventoryQty(e.target.value)}/></label>
               <button className="small-button" onClick={saveInventoryQuantity}>Сохранить у себя</button>
             </div>
@@ -245,14 +284,14 @@ export default function App() {
               <button className="small-button" onClick={transferInventory}>Передать</button>
             </div>
           </section>}
-          <div className="notice"><Backpack size={18}/> {isRemoteMode ? "Инвентарь синхронизируется через Apps Script. Передача работает только в пределах текущего мира." : "В демо-режиме инвентарь показывает предметы, отмеченные как полученные."}</div>
-          <div className="stats-row"><Stat label="Предметов в команде" value={String(teamCount)}/><Stat label="Игроков" value={String(currentPlayers.length)}/><Stat label="Активных целей" value={String(items.filter(i => statuses[i.id] === 'planned' || statuses[i.id] === 'crafting').length)}/></div>
+          <div className="notice"><Backpack size={18}/> {isRemoteMode ? "Инвентарь синхронизируется через Supabase. Передача работает только в пределах текущего мира." : "В демо-режиме инвентарь показывает предметы, отмеченные как полученные."}</div>
+          <div className="stats-row"><Stat label="Предметов в команде" value={String(teamCount)}/><Stat label="Игроков" value={String(currentPlayers.length)}/><Stat label="Активных целей" value={String(catalogItems.filter(i => i.category !== 'material' && (statuses[i.id] === 'planned' || statuses[i.id] === 'crafting')).length)}/></div>
           {isRemoteMode && <div className="item-grid">{remoteInventory.map(row => {
-            const item = items.find(x => x.id === row.itemId)
+            const item = catalogItems.find(x => x.id === row.itemId)
             const owner = currentPlayers.find(x => x.id === row.playerId)
             return <div className="item-card" key={row.id}><div className="item-art">{item?.icon || '📦'}</div><div className="item-details"><b>{item?.name || row.itemId}</b><small>{owner?.name || 'Участник'} · резерв: {row.reservedQuantity}</small><span className="state owned">Количество: {row.quantity}</span></div></div>
           })}</div>}
-          {!isRemoteMode && <div className="item-grid">{items.filter(i => statuses[i.id] === 'owned').map(i => <div className="item-card" key={i.id}><div className="item-art">{i.icon}</div><div className="item-details"><b>{i.name}</b><small>{i.gameClass.join(', ')}</small><span className="state owned">Есть в команде</span></div></div>)}</div>}
+          {!isRemoteMode && <div className="item-grid">{catalogItems.filter(i => i.category !== 'material' && statuses[i.id] === 'owned').map(i => <div className="item-card" key={i.id}><div className="item-art">{i.icon}</div><div className="item-details"><b>{i.name}</b><small>{i.gameClass.join(', ')}</small><span className="state owned">Есть в команде</span></div></div>)}</div>}
         </>}
         {tab === 'bosses' && <>
           <div className="notice"><Skull size={18}/> Boss Gates: отметка босса открывает последующие этапы. В демо используются примерные связи — перед production их нужно сверить с игровыми условиями 1.4.5.x.</div>
@@ -261,11 +300,12 @@ export default function App() {
         {tab === 'crafting' && <>
           <div className="craft-layout">
             <section className="panel craft-picker"><div className="panel-head"><h2>Целевой предмет</h2><Hammer size={17}/></div>
-              {items.filter(i => i.recipe).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><span>{i.icon}</span><b>{i.name}</b><ChevronRight size={15}/></button>)}
+              {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><span>{i.icon}</span><b>{i.name}</b><ChevronRight size={15}/></button>)}
             </section>
-            <section className="panel tree-panel"><div className="panel-head"><div><h2>{current.name}</h2><small className="muted">Дерево компонентов · {current.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
+            <section className="panel tree-panel"><div className="panel-head"><div><h2>{current?.name || 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {tree?.station || current?.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
+              {(current?.recipes?.length || 0) > 1 && <label className="recipe-select">Вариант рецепта<select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>{current.recipes?.map((recipe, index) => <option value={index} key={recipe.id}>{recipe.station || 'Без станции'} · {recipe.version || 'Все версии'} · ×{recipe.amount}</option>)}</select></label>}
               <div className="tree-root">{tree && <TreeNode node={tree} statuses={statuses}/>}</div>
-              <div className="notice compact"><Sparkles size={16}/> Демо-данные: рецепты и количества требуют проверки по Terraria Wiki перед использованием в реальном прохождении.</div>
+              <div className="notice compact"><Sparkles size={16}/> Рецепты загружаются из Terraria Wiki. Проверьте версию игры и доступность конкретного рецепта для вашей платформы.</div>
             </section>
           </div>
         </>}
@@ -342,6 +382,6 @@ function Stat({ label, value }: { label: string; value: string }) {
 function TreeNode({ node, statuses }: { node: any; statuses: Record<string, ItemStatus> }) {
   const [open, setOpen] = useState(true)
   return <div className="tree-node"><div className={'tree-item ' + (statuses[node.it.id] === 'owned' ? 'has-item' : '')}>
-    <button onClick={() => setOpen(!open)}>{node.children.length ? (open ? '−' : '+') : '·'}</button><span>{node.it.icon}</span><b>{node.it.name}</b><small>{statuses[node.it.id] === 'owned' ? 'Есть' : 'Нужно проверить'}</small>
+    <button onClick={() => setOpen(!open)}>{node.children.length ? (open ? '−' : '+') : '·'}</button><span>{node.it.icon}</span><b>{node.it.name}</b><small>{statuses[node.it.id] === 'owned' ? 'Есть' : 'Нужно проверить'}{node.qty ? ` · ×${node.qty}` : ''}</small>{node.alternatives?.length > 0 && <small>Альтернативы: {node.alternatives.map((option: { name: string }) => option.name).join(' / ')}</small>}
   </div>{open && node.children.length > 0 && <div className="tree-children">{node.children.map((child: any, i: number) => <div className="tree-branch" key={i}><TreeNode node={child} statuses={statuses}/></div>)}</div>}</div>
 }

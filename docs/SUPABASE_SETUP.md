@@ -63,3 +63,23 @@ Use a test world before entering a real group's progress. Never send database pa
 - **Browser key:** only the publishable key is used. Table access is revoked for `anon` and `authenticated`; RLS is enabled, and only the RPC methods are granted.
 
 The app refreshes shared server data every 10 seconds. It does not yet use Supabase Realtime push notifications, so updates can appear with a short delay.
+
+
+## 6. Import the Terraria Wiki equipment catalog
+
+The Wiki catalog uses a separate import migration and a server-only key. The existing website Publishable key is not sufficient for writing catalog rows.
+
+1. Open Supabase → SQL Editor and run [`supabase/migrations/002_terraria_wiki_catalog.sql`](../supabase/migrations/002_terraria_wiki_catalog.sql). Do this after migration 001; do not rerun 001.
+2. In GitHub repository Settings → Secrets and variables → Actions → **Secrets**, create:
+   - `SUPABASE_SECRET_KEY`: the server-side Secret API key (`sb_secret_...`) from Supabase, or the legacy `service_role` key if that is what your project exposes.
+3. The importer reads the Project URL from the existing `VITE_SUPABASE_URL` Actions Variable. It does not need the Publishable key.
+4. Open GitHub → Actions → **Import Terraria Wiki catalog** → Run workflow.
+5. First run with `dry_run` enabled. Check the summary of classes, categories, items, recipes and ingredients.
+6. If the dry run succeeds and the counts look plausible, run again with `dry_run` disabled. This publishes the new catalog snapshot.
+
+The workflow runs automatically once a month. It first downloads the Cargo `Items` and `Recipes` tables, then builds a recursive dependency graph so craftable intermediate materials are included. All recipes and alternate recipe versions for imported equipment are retained. A new catalog snapshot becomes visible to the app only after all rows upload successfully.
+
+**Key safety:** `SUPABASE_SECRET_KEY` belongs only in GitHub Actions **Secrets**. Never put it in Actions Variables, a `VITE_*` variable, source code, or chat. The website continues to use only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+
+The Wiki provides English item names, category/stat fields and recipe ingredients. Russian translations and exact progression milestones are not inferred; the app falls back to the official English name until a translation layer is added.
+

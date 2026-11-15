@@ -4,6 +4,7 @@ import type {
   ProgressRecord, TrackerApi, TrackerPlayer, TrackerSession, TrackerWorld,
 } from './api'
 import { ApiError } from './api'
+import type { Item } from '../types'
 
 type RpcEnvelope<T> = {
   success: boolean
@@ -58,6 +59,10 @@ export class SupabaseTrackerApi implements TrackerApi {
 
   health() {
     return this.rpc<{ status: 'ok'; apiVersion: string }>('tracker_health')
+  }
+
+  getCatalog(token: string) {
+    return this.rpc<Item[]>('tracker_catalog_list', { p_token: token })
   }
 
   createWorld(input: CreateWorldInput) {
