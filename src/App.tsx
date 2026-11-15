@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Swords, Users, Backpack, Skull, GitBranch, Target, BookOpen, Settings, Globe, Search, ChevronRight, Hammer, Sparkles } from 'lucide-react'
 import { items, players, bosses } from './data'
 import type { GameClass, ItemStatus, Player } from './types'
@@ -250,7 +250,7 @@ function AuthScreen({ onSession }: { onSession: (session: TrackerSession) => voi
   const [gameClass,setGameClass] = useState<GameClass>('Melee')
   const [busy,setBusy] = useState(false)
   const [error,setError] = useState('')
-  const submit = async (event: React.FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault(); setBusy(true); setError('')
     try {
       const session = mode === 'create'
