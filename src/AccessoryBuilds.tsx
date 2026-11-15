@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ExternalLink, Shield, Sparkles, Swords, Target } from 'lucide-react'
+import { ExternalLink, GitBranch, Shield, Sparkles, Swords, Target } from 'lucide-react'
 import type { GameClass, Item } from './types'
 import { accessoryBuilds, classLabels } from './accessory-builds'
 
@@ -21,7 +21,7 @@ function normalizeName(value: string) {
   return value.toLocaleLowerCase().replace(/[^a-z0-9]/g, '')
 }
 
-export function AccessoryBuilds({ items }: { items: Item[] }) {
+export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenCraft: (item: Item) => void }) {
   const [selectedClass, setSelectedClass] = useState<GameClass>('Melee')
   const [selectedVariant, setSelectedVariant] = useState('damage')
   const [slotCount, setSlotCount] = useState<6 | 7>(6)
@@ -109,7 +109,7 @@ export function AccessoryBuilds({ items }: { items: Item[] }) {
             </div>
             <div className="accessory-details">
               <div className="accessory-name-row">
-                <h3>{accessory.name}</h3>
+                <h3>{catalogItem ? <button type="button" className="item-recipe-link" onClick={() => onOpenCraft(catalogItem)} title="Открыть дерево крафта">{accessory.name}<GitBranch size={13}/></button> : accessory.name}</h3>
                 <span className="accessory-role">{accessory.role}</span>
               </div>
               <p>{accessory.effect}</p>
@@ -126,7 +126,7 @@ export function AccessoryBuilds({ items }: { items: Item[] }) {
         <div className="accessory-slot">7</div>
         <div>
           <b>Дополнительный слот — после использования Demon Heart</b>
-          <p><strong>{extraItem.name}:</strong> {extraItem.effect}</p>
+          <p><strong>{itemIndex.get(normalizeName(extraItem.name)) ? <button type="button" className="item-recipe-link" onClick={() => onOpenCraft(itemIndex.get(normalizeName(extraItem.name))!)}>{extraItem.name}<GitBranch size={12}/></button> : extraItem.name}:</strong> {extraItem.effect}</p>
         </div>
         <Sparkles size={17}/>
       </div>}
