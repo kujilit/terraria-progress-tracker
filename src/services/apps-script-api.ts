@@ -1,8 +1,9 @@
 import type {
-  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, Item, JoinWorldInput,
+  AuthInput, BossRecord, CreateWorldInput, InventoryRecord, JoinWorldInput,
   ProgressRecord, TrackerApi, TrackerSession, TrackerWorld, TrackerPlayer,
 } from './api'
 import { ApiError } from './api'
+import type { Item } from '../types'
 
 interface Envelope<T> { success: boolean; data: T | null; error: { code: string; message: string } | null }
 
