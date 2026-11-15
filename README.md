@@ -1,6 +1,6 @@
 # Terraria Progress Tracker
 
-Веб-приложение для совместного отслеживания прохождения Terraria Vanilla. Стек: React + TypeScript + Vite. Есть локальный режим и удалённый Apps Script API v1.
+Веб-приложение для совместного отслеживания прохождения Terraria Vanilla. Стек: React + TypeScript + Vite. Есть локальный demo mode и удалённый backend на Supabase Cloud.
 
 ## Запуск локально
 
@@ -15,25 +15,28 @@ npm run dev
 
 ## Режимы работы
 
-По умолчанию используется локальный demo mode (localStorage). Для удалённого API:
+По умолчанию используется локальный demo mode (localStorage). Для совместной работы включается Supabase:
 
-1. Разверните Google Apps Script по инструкции [docs/API_V1.md](docs/API_V1.md).
-2. Укажите в окружении frontend:
-   ```dotenv
-   VITE_API_MODE=remote
-   VITE_API_BASE_URL=https://script.google.com/macros/s/DEPLOYMENT_ID/exec
-   ```
-3. Пересоберите и разверните frontend.
+1. Создай проект Supabase Cloud.
+2. Выполни SQL-миграцию `supabase/migrations/001_initial_schema.sql` в Supabase SQL Editor.
+3. Возьми Project URL и Publishable key в Supabase Dashboard.
+4. Добавь GitHub Actions Variables: `VITE_API_MODE=remote`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
+5. Повторно запусти workflow **Deploy to GitHub Pages**.
 
-Не добавляйте `PIN_PEPPER` или другие серверные секреты в Vite env: всё с префиксом `VITE_` попадает в клиентский bundle. Для GitHub Pages задайте в Settings → Secrets and variables → Actions → Variables значения `VITE_API_MODE=remote` и `VITE_API_BASE_URL` (URL Web App, заканчивается на `/exec`), затем повторно запустите workflow. Если переменные не заданы, сборка остаётся в локальном demo mode.
+Подробная инструкция: [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md).
+
+В браузере используется только публичный Publishable key. Не добавляй `sb_secret_*` или `service_role` в `VITE_*`, GitHub Actions Variables или исходный код. Секретные ключи обходят RLS и для этой архитектуры не нужны.
 
 ## GitHub Pages
 
-Workflow `.github/workflows/deploy.yml` собирает ветку `main`. В Settings → Pages выберите **GitHub Actions**. Для репозитория `terraria-progress-tracker` Vite base path настроен под `/terraria-progress-tracker/`.
+Workflow `.github/workflows/deploy.yml` собирает ветку `main`. В Settings → Pages выбери **GitHub Actions**. Для репозитория `terraria-progress-tracker` Vite base path настроен под `/terraria-progress-tracker/`.
 
-## Важно
+## Данные и ограничения
 
-- Apps Script + Sheets — MVP для небольшой закрытой группы, не production база данных.
-- Для удалённого режима каждый игрок входит по коду мира, имени и индивидуальному PIN (6–12 цифр).
-- Каталог предметов, рецепты и часть этапов боссов пока демонстрационные. Не считайте их проверенными для Terraria 1.4.5.x.
-- Перед использованием удалённого режима выполните smoke test из [docs/API_V1.md](docs/API_V1.md).
+- Supabase PostgreSQL хранит миры, игроков, прогресс предметов, боссов и инвентарь.
+- PIN сохраняется как bcrypt-хеш; после пяти неправильных попыток вход блокируется на 15 минут.
+- Сессионный токен случайный, действует 12 часов; в базе хранится только его SHA-256-хеш.
+- Передачи предметов выполняются атомарно в одной транзакции PostgreSQL и защищены idempotency key.
+- Состояние других игроков обновляется в открытой вкладке с интервалом 10 секунд.
+- Каталог предметов, рецепты и часть этапов боссов пока демонстрационные. Не считай их проверенными для Terraria 1.4.5.x.
+- `apps-script/` и `docs/API_V1.md` оставлены в репозитории как прежний прототип; для текущего remote mode они не используются.
