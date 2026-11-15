@@ -42,6 +42,12 @@ export default function App() {
     catch { return initial }
   })
   const [query, setQuery] = useState('')
+  const [playerQuery, setPlayerQuery] = useState('')
+  const [playerCategory, setPlayerCategory] = useState<'all' | 'weapon' | 'armor' | 'accessory' | 'ammo'>('all')
+  const [playerStatus, setPlayerStatus] = useState<ItemStatus | 'all'>('all')
+  const [playerStage, setPlayerStage] = useState('all')
+  const [playerSort, setPlayerSort] = useState<'stage' | 'name' | 'status'>('stage')
+  const [playerVisibleCount, setPlayerVisibleCount] = useState(60)
   const [catalogClassFilter, setCatalogClassFilter] = useState<GameClass | 'all'>('all')
   const [catalogCategoryFilter, setCatalogCategoryFilter] = useState('all')
   const [catalogStageFilter, setCatalogStageFilter] = useState('all')
@@ -162,14 +168,43 @@ export default function App() {
     setSession(null); setRemotePlayers([]); setRemoteProgress([]); setRemoteBosses([]); setRemoteInventory([])
   }
 
-  const classItems = catalogItems.filter(i => i.category !== 'material' && i.gameClass.includes(player.gameClass))
+  const statusForPlayer = (playerId: string, itemId: string): ItemStatus => {
+    if (isRemoteMode) {
+      return remoteProgress.find(row => row.playerId === playerId && row.itemId === itemId)?.status || 'missing'
+    }
+    return statuses[`${playerId}:${itemId}`] || statuses[itemId] || 'missing'
+  }
+  const classItems = catalogItems.filter(i => categoryKey(i.category) !== 'material' && i.gameClass.includes(player.gameClass))
+  const playerStatusCounts = classItems.reduce<Record<ItemStatus, number>>((counts, item) => {
+    counts[statusForPlayer(player.id, item.id)] += 1
+    return counts
+  }, { owned: 0, planned: 0, crafting: 0, missing: 0, skipped: 0 })
+  const playerFilteredItems = classItems
+    .filter(item => playerCategory === 'all' || categoryKey(item.category) === playerCategory)
+    .filter(item => playerStatus === 'all' || statusForPlayer(player.id, item.id) === playerStatus)
+    .filter(item => playerStage === 'all' || item.stage === playerStage)
+    .filter(item => (item.name + ' ' + item.ru + ' ' + item.description).toLowerCase().includes(playerQuery.trim().toLowerCase()))
+    .sort((a, b) => {
+      if (playerSort === 'name') return a.name.localeCompare(b.name)
+      if (playerSort === 'status') {
+        const order: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
+        return order[statusForPlayer(player.id, a.id)] - order[statusForPlayer(player.id, b.id)] || a.name.localeCompare(b.name)
+      }
+      const order: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Not specified': 2 }
+      return (order[a.stage] ?? 3) - (order[b.stage] ?? 3) || a.name.localeCompare(b.name)
+    })
+  const visiblePlayerItems = playerFilteredItems.slice(0, playerVisibleCount)
+  const categoryCounts = classItems.reduce<Record<string, number>>((counts, item) => {
+    const category = categoryKey(item.category)
+    counts[category] = (counts[category] || 0) + 1
+    return counts
+  }, {})
+  useEffect(() => { setPlayerVisibleCount(60) }, [selected, playerQuery, playerCategory, playerStatus, playerStage, playerSort])
   const total = Math.round(
-    catalogItems.filter(i => i.category !== 'material' && i.gameClass.includes(player.gameClass))
-      .filter(i => statuses[i.id] !== 'skipped')
-      .filter(i => owned(i.id)).length /
-    Math.max(catalogItems.filter(i => i.category !== 'material' && i.gameClass.includes(player.gameClass) && statuses[i.id] !== 'skipped').length, 1) * 100,
+    classItems.filter(item => statusForPlayer(player.id, item.id) !== 'skipped' && statusForPlayer(player.id, item.id) === 'owned').length /
+    Math.max(classItems.filter(item => statusForPlayer(player.id, item.id) !== 'skipped').length, 1) * 100,
   )
-  const teamCount = catalogItems.filter(i => i.category !== 'material' && (isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)))).length
+  const teamCount = catalogItems.filter(i => categoryKey(i.category) !== 'material' && (isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)))).length
   const filtered = useMemo(() => {
     const statusOrder: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
     const stageOrder: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Not specified': 2 }
@@ -285,13 +320,91 @@ export default function App() {
           </div>
         </>}
         {tab === 'players' && <>
-          <div className="player-switch">{currentPlayers.map(p => <button className={selected === p.id ? 'selected' : ''} onClick={() => setSelected(p.id)} key={p.id}>{p.name}<small>{p.gameClass}</small></button>)}</div>
-          <div className="profile-banner"><div className="player-emblem big" style={{ background: player.color }}>{player.gameClass === 'Melee' ? '⚔' : player.gameClass === 'Ranger' ? '➶' : player.gameClass === 'Mage' ? '✦' : '♟'}</div>
-            <div><span className="eyebrow">ПЕРСОНАЖ / {player.gameClass.toUpperCase()}</span><h2>{player.name}</h2><p>{player.gameClass} progression · Master Mode</p></div>
-            <div className="profile-percent"><b>{total}%</b><small>прогресс класса</small></div>
+          <section className="player-roster">
+            <div className="player-roster-heading">
+              <div><span className="eyebrow">WORLD ROSTER</span><h2>Персонажи мира</h2></div>
+              <span>{currentPlayers.length} {currentPlayers.length === 1 ? 'игрок' : 'игрока'}</span>
+            </div>
+            <div className="player-roster-grid">{currentPlayers.map(p => {
+              const gear = catalogItems.filter(item => categoryKey(item.category) !== 'material' && item.gameClass.includes(p.gameClass))
+              const collected = gear.filter(item => statusForPlayer(p.id, item.id) === 'owned').length
+              const percent = Math.round(collected / Math.max(gear.length, 1) * 100)
+              const icon = classIcon(p.gameClass)
+              return <button type="button" className={'player-roster-card ' + (selected === p.id ? 'selected' : '')} onClick={() => setSelected(p.id)} key={p.id}>
+                <span className="roster-emblem" style={{ background: p.color }}>{icon}</span>
+                <span className="roster-identity"><b>{p.name}</b><small>{classLabel(p.gameClass)}</small></span>
+                <span className="roster-progress"><b>{percent}%</b><small>{collected}/{gear.length}</small></span>
+                <span className="roster-progress-track"><i style={{ width: percent + '%' }}/></span>
+              </button>
+            })}</div>
+          </section>
+
+          <section className="player-profile-panel">
+            <div className="player-profile-identity">
+              <div className="player-emblem big" style={{ background: player.color }}>{classIcon(player.gameClass)}</div>
+              <div><span className="eyebrow">АКТИВНЫЙ ПЕРСОНАЖ</span><h2>{player.name}</h2><p>{classLabel(player.gameClass)} · Master Mode</p></div>
+            </div>
+            <div className="player-profile-progress">
+              <div className="player-profile-progress-head"><span>Прогресс экипировки</span><b>{total}%</b></div>
+              <div className="player-profile-track"><i style={{ width: total + '%' }}/></div>
+              <small>{playerStatusCounts.owned} из {classItems.length - playerStatusCounts.skipped} предметов получено</small>
+            </div>
+          </section>
+
+          <div className="player-stat-grid">
+            <div><small>Получено</small><b className="stat-owned">{playerStatusCounts.owned}</b></div>
+            <div><small>В работе</small><b className="stat-crafting">{playerStatusCounts.crafting}</b></div>
+            <div><small>В планах</small><b className="stat-planned">{playerStatusCounts.planned}</b></div>
+            <div><small>Не получено</small><b>{playerStatusCounts.missing}</b></div>
           </div>
-          <div className="section-title"><h2>Предметы персонажа</h2><span className="muted">{classItems.length} в каталоге</span></div>
-          <div className="item-grid">{classItems.map(i => <ItemCard key={i.id} item={i} status={statuses[i.id] || 'missing'} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
+
+          <section className="player-gear-section">
+            <div className="player-gear-heading">
+              <div><span className="eyebrow">LOADOUT / GEAR</span><h2>Экипировка персонажа</h2><p>Предметы подходят классу {classLabel(player.gameClass).toLowerCase()}. Отмечай полученное, запланированное и то, что сейчас собираешь.</p></div>
+              <span className="player-gear-total">{playerFilteredItems.length.toLocaleString('ru-RU')} <small>предметов</small></span>
+            </div>
+
+            <div className="player-category-tabs">
+              {[
+                ['all', 'Всё снаряжение', classItems.length],
+                ['weapon', 'Оружие', categoryCounts.weapon || 0],
+                ['armor', 'Броня', categoryCounts.armor || 0],
+                ['accessory', 'Аксессуары', categoryCounts.accessory || 0],
+                ['ammo', 'Боеприпасы', categoryCounts.ammo || 0],
+              ].map(([key, label, count]) => <button type="button" key={key} className={playerCategory === key ? 'selected' : ''} onClick={() => setPlayerCategory(key as typeof playerCategory)}>
+                <span>{label}</span><b>{count}</b>
+              </button>)}
+            </div>
+
+            <div className="player-gear-filters">
+              <div className="player-gear-search"><Search size={16}/><input value={playerQuery} onChange={event => setPlayerQuery(event.target.value)} placeholder="Найти предмет или эффект..."/></div>
+              <label><span>Этап</span><select value={playerStage} onChange={event => setPlayerStage(event.target.value)}><option value="all">Все этапы</option><option value="Pre-Hardmode">Pre-Hardmode</option><option value="Hardmode">Hardmode</option><option value="Not specified">Не указан</option></select></label>
+              <label><span>Сортировка</span><select value={playerSort} onChange={event => setPlayerSort(event.target.value as typeof playerSort)}><option value="stage">Сначала ранние этапы</option><option value="name">По названию</option><option value="status">По статусу</option></select></label>
+            </div>
+
+            <div className="player-status-filters">
+              <span>Показать:</span>
+              {[
+                ['all', 'Все', classItems.length],
+                ['missing', 'Не получено', playerStatusCounts.missing],
+                ['planned', 'В планах', playerStatusCounts.planned],
+                ['crafting', 'В работе', playerStatusCounts.crafting],
+                ['owned', 'Получено', playerStatusCounts.owned],
+                ['skipped', 'Пропущено', playerStatusCounts.skipped],
+              ].map(([key, label, count]) => <button type="button" key={key} className={playerStatus === key ? 'selected' : ''} onClick={() => setPlayerStatus(key as ItemStatus | 'all')}>
+                {label}<b>{count}</b>
+              </button>)}
+            </div>
+
+            {visiblePlayerItems.length > 0
+              ? <div className="player-gear-grid">{visiblePlayerItems.map(item => <PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id, item.id)} onStatus={setStatus} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
+              : <div className="player-gear-empty"><Search size={22}/><b>Предметы не найдены</b><span>Попробуй изменить запрос или фильтры.</span><button type="button" onClick={() => { setPlayerQuery(''); setPlayerStage('all'); setPlayerStatus('all'); setPlayerCategory('all') }}>Сбросить фильтры</button></div>}
+
+            <div className="player-gear-pagination">
+              <span>Показано {visiblePlayerItems.length} из {playerFilteredItems.length}</span>
+              {visiblePlayerItems.length < playerFilteredItems.length && <button type="button" onClick={() => setPlayerVisibleCount(count => count + 60)}>Показать ещё 60</button>}
+            </div>
+          </section>
         </>}
         {tab === 'accessories' && <AccessoryBuilds items={catalogItems}/>}
         {tab === 'progression' && <>
@@ -438,12 +551,45 @@ function ItemArtwork({ item, className }: { item: Pick<Item, 'icon' | 'imageUrl'
   </div>
 }
 
-function ItemCard({ item, status, onStatus, disabled = false }: { item: any; status: ItemStatus; onStatus: (id: string, s: ItemStatus) => void; disabled?: boolean }) {
-  const labels: Record<ItemStatus, string> = { owned: 'Получен', planned: 'В планах', crafting: 'В работе', missing: 'Не получен', skipped: 'Пропущен' }
-  return <article className="item-card"><ItemArtwork item={item} className="item-art"/><div className="item-details"><b>{item.name}</b><small>{item.ru} · {item.stage}</small><small>{item.source}</small><span className={'state ' + status}>{labels[status]}</span></div>
-    <select value={status} disabled={disabled} onChange={e => onStatus(item.id, e.target.value as ItemStatus)} aria-label={'Статус ' + item.name}><option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option></select>
+function classIcon(gameClass: GameClass) {
+  return gameClass === 'Melee' ? '⚔' : gameClass === 'Ranger' ? '➶' : gameClass === 'Mage' ? '✦' : '♟'
+}
+
+function classLabel(gameClass: GameClass) {
+  const labels: Record<GameClass, string> = {
+    Melee: 'Ближний бой', Ranger: 'Стрелок', Mage: 'Маг', Summoner: 'Призыватель',
+  }
+  return labels[gameClass]
+}
+
+function PlayerGearCard({ item, status, onStatus, disabled = false }: {
+  item: Item
+  status: ItemStatus
+  onStatus: (id: string, status: ItemStatus) => void
+  disabled?: boolean
+}) {
+  const labels: Record<ItemStatus, string> = {
+    owned: 'Получен', planned: 'В планах', crafting: 'В работе',
+    missing: 'Не получен', skipped: 'Пропущен',
+  }
+  return <article className="player-gear-card">
+    <ItemArtwork item={item} className="player-gear-art"/>
+    <div className="player-gear-main">
+      <div className="player-gear-tags"><span>{categoryLabel(item.category)}</span><span>{stageLabel(item.stage)}</span></div>
+      <h3>{item.name}</h3>
+      {item.ru && item.ru !== item.name && <p className="player-gear-ru">{item.ru}</p>}
+      {item.description?.trim() && <p className="player-gear-description">{item.description}</p>}
+      <small className="player-gear-source">{item.source}</small>
+      <div className="player-gear-status">
+        <span className={'state ' + status}>{labels[status]}</span>
+        <select value={status} disabled={disabled} onChange={event => onStatus(item.id, event.target.value as ItemStatus)} aria-label={'Статус ' + item.name}>
+          <option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option>
+        </select>
+      </div>
+    </div>
   </article>
 }
+
 function categoryKey(category: string) {
   const value = category.toLowerCase()
   if (value.includes('weapon') || value.includes('оруж')) return 'weapon'
