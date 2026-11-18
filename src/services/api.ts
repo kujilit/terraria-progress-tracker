@@ -40,6 +40,7 @@ export interface TrackerApi {
   worldInfo(token: string): Promise<TrackerWorld>
   listPlayers(token: string): Promise<TrackerPlayer[]>
   setPlayerAdmin(token: string, playerId: string, isAdmin: boolean): Promise<TrackerPlayer>
+  removePlayer(token: string, playerId: string): Promise<{ playerId: string }>
   getProgress(token: string): Promise<ProgressRecord[]>
   setProgress(token: string, input: { itemId: string; status: ItemStatus; quantity: number }): Promise<ProgressRecord>
   listBosses(token: string): Promise<BossRecord[]>
