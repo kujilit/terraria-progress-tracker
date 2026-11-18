@@ -2,7 +2,7 @@ import { items } from '../data'
 import type { Item } from '../types'
 import type {
   AuthInput, BossRecord, CreateWorldInput, InventoryRecord, JoinWorldInput,
-  ProgressRecord, TrackerApi, TrackerPlayer, TrackerSession, TrackerWorld,
+  ProgressRecord, TeamNote, TrackerApi, TrackerPlayer, TrackerSession, TrackerWorld,
 } from './api'
 
 const STORE_KEY = 'terraria-tracker-local-v1'
@@ -16,7 +16,7 @@ const DEMO_PLAYERS: TrackerPlayer[] = [
   { id:'p3', name:'Дмитрий', gameClass:'Mage', role:'member' },
   { id:'p4', name:'Андрей', gameClass:'Summoner', role:'member' },
 ]
-type LocalState = { world: TrackerWorld; players: TrackerPlayer[]; progress: ProgressRecord[]; bosses: BossRecord[]; inventory: InventoryRecord[] }
+type LocalState = { world: TrackerWorld; players: TrackerPlayer[]; progress: ProgressRecord[]; bosses: BossRecord[]; inventory: InventoryRecord[]; notes: TeamNote[] }
 function read(): LocalState {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORE_KEY) || '{}')
@@ -25,10 +25,10 @@ function read(): LocalState {
       players: parsed.players || DEMO_PLAYERS,
       progress: parsed.progress || [],
       bosses: parsed.bosses || [],
-      inventory: parsed.inventory || [],
+      inventory: parsed.inventory || [], notes: parsed.notes || [],
     }
   } catch {
-    return { world: DEFAULT_WORLD, players: DEMO_PLAYERS, progress: [], bosses: [], inventory: [] }
+    return { world: DEFAULT_WORLD, players: DEMO_PLAYERS, progress: [], bosses: [], inventory: [], notes: [] }
   }
 }
 function write(state: LocalState) { localStorage.setItem(STORE_KEY, JSON.stringify(state)) }
@@ -97,6 +97,15 @@ export const localApi: TrackerApi = {
     const next:InventoryRecord={id:current?.id||input.itemId,worldId:state.world.id,playerId:player.id,itemId:input.itemId,quantity:input.quantity,reservedQuantity:current?.reservedQuantity||0,updatedAt:new Date().toISOString()}
     state.inventory=state.inventory.filter(x=>!(x.playerId===player.id&&x.itemId===input.itemId));state.inventory.push(next);write(state);return next
   },
+  async listNotes(_token: string) { return read().notes.sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)) },
+  async saveNote(token, input) {
+    const state=read(), now=new Date().toISOString(), actor=state.players.find(p=>p.id===token)||state.players[0]
+    const previous=state.notes.find(note=>note.id===input.id)
+    const note:TeamNote={id:previous?.id||'note-'+Date.now(),title:input.title.trim(),body:input.body.trim(),status:input.status,priority:input.priority,playerIds:input.playerIds.filter(id=>state.players.some(p=>p.id===id)),createdBy:previous?.createdBy||actor.id,createdAt:previous?.createdAt||now,updatedAt:now}
+    if(!note.title) throw new Error('У заметки должен быть заголовок')
+    state.notes=state.notes.filter(x=>x.id!==note.id);state.notes.push(note);write(state);return note
+  },
+  async deleteNote(_token, noteId) { const state=read();state.notes=state.notes.filter(note=>note.id!==noteId);write(state) },
   async transferInventory(token, input) {
     const state=read()
     const from=state.inventory.find(x=>x.playerId===(state.players.find(p=>p.id===token)?.id || state.players[0].id)&&x.itemId===input.itemId)

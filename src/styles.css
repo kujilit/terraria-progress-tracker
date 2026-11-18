@@ -927,3 +927,35 @@ footer{border-color:#394052;color:#9297b5}
 .craft-search button{display:grid;place-items:center;padding:2px;border:0;background:transparent;color:var(--os-muted)}
 .craft-search-count{margin:0 0 8px;color:var(--os-muted);font-size:10px;letter-spacing:.5px}
 .craft-search-empty{padding:12px 4px;color:var(--os-muted);font-size:12px}
+
+
+/* Shared team notes / backlog */
+.notes-layout{display:grid;grid-template-columns:minmax(280px,.82fr) minmax(0,1.5fr);gap:18px;align-items:start}
+.notes-editor,.notes-board{padding:20px;background:var(--os-panel);color:var(--os-ink);border:2px solid var(--os-black);box-shadow:4px 4px 0 #000;min-width:0}
+.notes-editor{display:flex;flex-direction:column;gap:13px}
+.notes-editor>.panel-head,.notes-board>.panel-head{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #c4b58f;padding-bottom:12px}
+.notes-editor .panel-head h2,.notes-board .panel-head h2{margin:0;color:var(--os-ink);font:12px 'Press Start 2P';line-height:1.8}
+.notes-editor label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:800}
+.notes-editor input,.notes-editor textarea,.notes-editor select{width:100%;padding:10px;background:#fff0cf;color:var(--os-ink);border:2px solid var(--os-ink);font:inherit}
+.notes-editor textarea{resize:vertical;line-height:1.5}
+.notes-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.notes-players{display:flex;flex-wrap:wrap;gap:8px;border:1px solid #b8a77f;padding:10px}
+.notes-players legend{font-size:12px;font-weight:900;padding:0 5px}
+.notes-players label{display:flex;flex-direction:row;align-items:center;gap:6px;background:#fff0cf;padding:7px;border:1px solid var(--os-ink)}
+.notes-players input{width:15px;height:15px;accent-color:#087d65}
+.notes-actions,.team-note-actions{display:flex;flex-wrap:wrap;gap:8px}
+.notes-filters{display:flex;gap:7px;flex-wrap:wrap;padding:13px 0}
+.notes-filters button{padding:7px 10px;background:#e8d4a7;border:2px solid var(--os-ink);color:var(--os-ink);font-weight:800}
+.notes-filters button.selected{background:var(--os-green);box-shadow:2px 2px 0 var(--os-black)}
+.notes-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.team-note{padding:13px;background:#fff0cf;border:2px solid var(--os-ink);box-shadow:3px 3px 0 #b9a77d;min-width:0}
+.team-note-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#087d65;font-size:9px;font-weight:900;letter-spacing:.5px}
+.team-note h3{margin:10px 0 6px;font-size:16px;color:var(--os-ink)}
+.team-note p{margin:0 0 10px;color:var(--os-muted);font-size:12px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.team-note>small{display:block;margin:9px 0;color:var(--os-muted);font-size:10px}
+.team-note-players{display:flex;gap:5px;flex-wrap:wrap}
+.team-note-players span{padding:4px 7px;background:#d8f4e3;border:1px solid #087d65;color:var(--os-ink);font-size:10px;font-weight:800}
+.team-note-actions{padding-top:8px;border-top:1px solid #c4b58f}
+.team-note-actions .danger{background:#f4d8c9;color:#853528;border-color:#853528}
+@media(max-width:900px){.notes-layout{grid-template-columns:1fr}.notes-list{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.notes-editor,.notes-board{padding:13px}.notes-list{grid-template-columns:1fr}.notes-form-row{grid-template-columns:1fr}}

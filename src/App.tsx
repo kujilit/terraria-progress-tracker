@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
-import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw, Menu, X } from 'lucide-react'
+import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw, Menu, X, ClipboardList, Plus, Trash2 } from 'lucide-react'
 import { AccessoryBuilds } from './AccessoryBuilds'
 import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
 import { getClassProgressItems, getItemStageRank } from './gear-progression'
 import { items, players, bosses } from './data'
 import type { GameClass, Item, ItemStatus, Player } from './types'
-import type { BossRecord, InventoryRecord, ProgressRecord, TrackerPlayer, TrackerSession } from './services/api'
+import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 
-type Tab = 'players' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'settings' | 'admin'
+type Tab = 'players' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'notes' | 'settings' | 'admin'
 const nav: { id: Tab; label: string; icon: typeof Swords }[] = [
   { id: 'players', label: 'Игроки', icon: Users },
   { id: 'progression', label: 'Прогресс классов', icon: Swords },
@@ -17,6 +17,7 @@ const nav: { id: Tab; label: string; icon: typeof Swords }[] = [
   { id: 'bosses', label: 'Боссы и этапы', icon: Skull },
   { id: 'crafting', label: 'Дерево крафта', icon: GitBranch },
   { id: 'catalog', label: 'Каталог предметов', icon: BookOpen },
+  { id: 'notes', label: 'Заметки команды', icon: ClipboardList },
 ]
 const initial: Record<string, ItemStatus> = {
   night_edge: 'owned', muramasa: 'owned', blade_grass: 'crafting',
@@ -32,6 +33,14 @@ export default function App() {
   const [remoteProgress, setRemoteProgress] = useState<ProgressRecord[]>([])
   const [remoteBosses, setRemoteBosses] = useState<BossRecord[]>([])
   const [remoteInventory, setRemoteInventory] = useState<InventoryRecord[]>([])
+  const [teamNotes, setTeamNotes] = useState<TeamNote[]>([])
+  const [noteTitle, setNoteTitle] = useState('')
+  const [noteBody, setNoteBody] = useState('')
+  const [noteStatus, setNoteStatus] = useState<TeamNote['status']>('backlog')
+  const [notePriority, setNotePriority] = useState<TeamNote['priority']>('normal')
+  const [notePlayers, setNotePlayers] = useState<string[]>([])
+  const [editingNote, setEditingNote] = useState<string | undefined>()
+  const [noteFilter, setNoteFilter] = useState<'all' | TeamNote['status']>('all')
   const [catalogItems, setCatalogItems] = useState<Item[]>(items)
   const [inventoryItemId, setInventoryItemId] = useState(items[0].id)
   const [inventoryQty, setInventoryQty] = useState('1')
@@ -127,6 +136,15 @@ export default function App() {
     return () => { active = false; window.clearInterval(intervalId) }
   }, [session])
   useEffect(() => {
+    if (!session) return
+    let active = true
+    const refresh = () => trackerApi.listNotes(session.token).then(rows => { if (active) setTeamNotes(rows) }).catch(error => { if (active) setSyncError(error instanceof Error ? error.message : 'Не удалось загрузить заметки') })
+    void refresh()
+    if (!isRemoteMode) return () => { active = false }
+    const timer = window.setInterval(refresh, 10000)
+    return () => { active = false; window.clearInterval(timer) }
+  }, [session])
+  useEffect(() => {
     if (!isRemoteMode || !session) return
     let active = true
     trackerApi.getCatalog(session.token)
@@ -204,6 +222,10 @@ export default function App() {
       setSyncError('')
     } catch (error) { setSyncError(error instanceof Error ? error.message : 'Не удалось изменить роль игрока') }
   }
+  const resetNoteForm = () => { setNoteTitle(''); setNoteBody(''); setNoteStatus('backlog'); setNotePriority('normal'); setNotePlayers([]); setEditingNote(undefined) }
+  const editNote = (note: TeamNote) => { setEditingNote(note.id); setNoteTitle(note.title); setNoteBody(note.body); setNoteStatus(note.status); setNotePriority(note.priority); setNotePlayers(note.playerIds) }
+  const saveTeamNote = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!session || !noteTitle.trim()) return; try { const saved=await trackerApi.saveNote(session.token,{id:editingNote,title:noteTitle,body:noteBody,status:noteStatus,priority:notePriority,playerIds:notePlayers}); setTeamNotes(current=>[...current.filter(note=>note.id!==saved.id),saved]); resetNoteForm(); setSyncError('') } catch(error) { setSyncError(error instanceof Error?error.message:'Не удалось сохранить заметку') } }
+  const deleteTeamNote = async (id:string) => { if(!session || !window.confirm('Удалить заметку?')) return; try { await trackerApi.deleteNote(session.token,id); setTeamNotes(current=>current.filter(note=>note.id!==id)); if(editingNote===id) resetNoteForm() } catch(error) { setSyncError(error instanceof Error?error.message:'Не удалось удалить заметку') } }
   const handleSession = (next: TrackerSession) => {
     sessionStorage.setItem('terraria-tracker-session',JSON.stringify(next))
     setSession(next)
@@ -523,6 +545,8 @@ export default function App() {
           </section>
         </>}
         {tab === 'accessories' && <AccessoryBuilds items={catalogItems} onOpenCraft={setCraftModalItem}/>}
+        {tab === 'notes' && <section className="notes-layout"><form className="notes-editor" onSubmit={saveTeamNote}><div className="panel-head"><h2>{editingNote?'Редактировать заметку':'Новая заметка'}</h2><ClipboardList size={18}/></div><label>Заголовок<input required maxLength={120} value={noteTitle} onChange={e=>setNoteTitle(e.target.value)} placeholder="Задача команды"/></label><label>Описание / чек-лист<textarea rows={6} maxLength={10000} value={noteBody} onChange={e=>setNoteBody(e.target.value)} placeholder="План, ресурсы, детали..."/></label><div className="notes-form-row"><label>Статус<select value={noteStatus} onChange={e=>setNoteStatus(e.target.value as TeamNote['status'])}><option value="backlog">Бэклог</option><option value="doing">В работе</option><option value="done">Готово</option></select></label><label>Приоритет<select value={notePriority} onChange={e=>setNotePriority(e.target.value as TeamNote['priority'])}><option value="low">Низкий</option><option value="normal">Обычный</option><option value="high">Высокий</option></select></label></div><fieldset className="notes-players"><legend>Привязать игроков</legend>{currentPlayers.map(member=><label key={member.id}><input type="checkbox" checked={notePlayers.includes(member.id)} onChange={e=>setNotePlayers(old=>e.target.checked?[...old,member.id]:old.filter(id=>id!==member.id))}/>{member.name} · {classLabel(member.gameClass)}</label>)}</fieldset><div className="notes-actions"><button className="small-button" type="submit"><Plus size={14}/>{editingNote?'Сохранить':'Добавить заметку'}</button>{editingNote&&<button type="button" className="catalog-reset" onClick={resetNoteForm}>Отмена</button>}</div></form><section className="notes-board"><div className="panel-head"><div><h2>Бэклог команды</h2><small>{teamNotes.length} заметок</small></div><ClipboardList size={18}/></div><div className="notes-filters">{[['all','Все'],['backlog','Бэклог'],['doing','В работе'],['done','Готово']].map(([v,l])=><button type="button" key={v} className={noteFilter===v?'selected':''} onClick={()=>setNoteFilter(v as typeof noteFilter)}>{l}</button>)}</div><div className="notes-list">{teamNotes.filter(note=>noteFilter==='all'||note.status===noteFilter).map(note=><article className="team-note" key={note.id}><div className="team-note-top"><span>{note.priority==='high'?'ВЫСОКИЙ ПРИОРИТЕТ':note.priority==='low'?'НИЗКИЙ ПРИОРИТЕТ':'ОБЫЧНЫЙ ПРИОРИТЕТ'}</span><span>{note.status==='done'?'ГОТОВО':note.status==='doing'?'В РАБОТЕ':'БЭКЛОГ'}</span></div><h3>{note.title}</h3>{note.body&&<p>{note.body}</p>}<div className="team-note-players">{note.playerIds.map(id=>currentPlayers.find(member=>member.id===id)).filter(Boolean).map(member=><span key={member!.id}>{member!.name}</span>)}</div><small>{new Date(note.updatedAt).toLocaleString('ru-RU')}</small><div className="team-note-actions"><button type="button" className="small-button" onClick={()=>editNote(note)}>Изменить</button><button type="button" className="small-button danger" onClick={()=>deleteTeamNote(note.id)}><Trash2 size={13}/>Удалить</button></div></article>)}{teamNotes.length===0&&<p>Заметок пока нет. Добавь первую задачу.</p>}</div></section></section>}
+
         {tab === 'progression' && <>
           <section className="progression-overview">
             <div className="progression-overview-heading">
