@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw, Menu, X } from 'lucide-react'
 import { AccessoryBuilds } from './AccessoryBuilds'
 import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
@@ -8,7 +8,7 @@ import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 
-type Tab = 'players' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog'
+type Tab = 'players' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'settings'
 const nav: { id: Tab; label: string; icon: typeof Swords }[] = [
   { id: 'players', label: 'Игроки', icon: Users },
   { id: 'progression', label: 'Прогресс классов', icon: Swords },
@@ -51,6 +51,9 @@ export default function App() {
   const [playerSort, setPlayerSort] = useState<'stage' | 'name' | 'status'>('stage')
   const [playerVisibleCount, setPlayerVisibleCount] = useState(60)
   const [hideWeakerGear, setHideWeakerGear] = useState(() => localStorage.getItem('terraria-hide-weaker-gear') === 'true')
+  const [compactMode, setCompactMode] = useState(() => localStorage.getItem('terraria-compact-mode') === 'true')
+  const [animationsEnabled, setAnimationsEnabled] = useState(() => localStorage.getItem('terraria-animations') !== 'false')
+  const [uiScale, setUiScale] = useState(() => Number(localStorage.getItem('terraria-ui-scale') || 100))
   const [catalogClassFilter, setCatalogClassFilter] = useState<GameClass | 'all'>('all')
   const [catalogCategoryFilter, setCatalogCategoryFilter] = useState('all')
   const [catalogStageFilter, setCatalogStageFilter] = useState('all')
@@ -65,6 +68,9 @@ export default function App() {
     : players
   const player = currentPlayers.find(p => p.id === selected) || currentPlayers[0] || players[0]
   useEffect(() => { localStorage.setItem('terraria-hide-weaker-gear', String(hideWeakerGear)) }, [hideWeakerGear])
+  useEffect(() => { localStorage.setItem('terraria-compact-mode', String(compactMode)) }, [compactMode])
+  useEffect(() => { localStorage.setItem('terraria-animations', String(animationsEnabled)) }, [animationsEnabled])
+  useEffect(() => { localStorage.setItem('terraria-ui-scale', String(uiScale)) }, [uiScale])
   const owned = (id: string) => statuses[id] === 'owned'
   const setStatus = (id: string, status: ItemStatus) => {
     if (isRemoteMode && session && selected !== session.player.id) {
@@ -282,10 +288,56 @@ export default function App() {
   }, [catalogItems, target, inventoryItemId])
   const tree = current ? buildRecipeTree(current.id, catalogItems, recipeIndex) : null
   useEffect(() => { setRecipeIndex(0) }, [target])
-  const pageTitle = nav.find(n => n.id === tab)?.label || 'Игроки'
+  const pageTitle = tab === 'settings' ? 'Настройки' : nav.find(n => n.id === tab)?.label || 'Игроки'
+  const exportProgress = () => {
+    const payload = {
+      format: 'terraria-progress-tracker', version: 1, exportedAt: new Date().toISOString(),
+      statuses, bosses: JSON.parse(localStorage.getItem('terraria-bosses') || '{}'),
+      preferences: { hideWeakerGear, compactMode, animationsEnabled, uiScale },
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url; link.download = 'terraria-progress-backup.json'; link.click()
+    URL.revokeObjectURL(url)
+  }
+  const importProgress = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (isRemoteMode) { setSyncError('Импорт локальных резервных копий доступен только в демо-режиме.'); event.target.value = ''; return }
+    const file = event.target.files?.[0]
+    if (!file) return
+    try {
+      const payload = JSON.parse(await file.text())
+      if (payload.format !== 'terraria-progress-tracker' || payload.version !== 1 || !payload.statuses || typeof payload.statuses !== 'object') {
+        throw new Error('Файл не является резервной копией Terraria Progress Tracker.')
+      }
+      if (!window.confirm('Импорт заменит текущие статусы предметов и отметки боссов. Продолжить?')) return
+      setStatuses(payload.statuses as Record<string, ItemStatus>)
+      localStorage.setItem('terraria-statuses', JSON.stringify(payload.statuses))
+      const bossData = payload.bosses && typeof payload.bosses === 'object' ? payload.bosses : {}
+      localStorage.setItem('terraria-bosses', JSON.stringify(bossData))
+      if (payload.preferences) {
+        if (typeof payload.preferences.hideWeakerGear === 'boolean') setHideWeakerGear(payload.preferences.hideWeakerGear)
+        if (typeof payload.preferences.compactMode === 'boolean') setCompactMode(payload.preferences.compactMode)
+        if (typeof payload.preferences.animationsEnabled === 'boolean') setAnimationsEnabled(payload.preferences.animationsEnabled)
+        if (Number.isFinite(payload.preferences.uiScale)) setUiScale(Math.min(110, Math.max(90, Number(payload.preferences.uiScale))))
+      }
+      setSyncError('Резервная копия успешно импортирована.')
+    } catch (error) {
+      setSyncError(error instanceof Error ? error.message : 'Не удалось прочитать файл.')
+    } finally { event.target.value = '' }
+  }
+  const resetProgress = () => {
+    if (isRemoteMode) return
+    if (!window.confirm('Сбросить весь локальный прогресс предметов и боссов? Это действие нельзя отменить.')) return
+    setStatuses({})
+    localStorage.removeItem('terraria-statuses')
+    localStorage.removeItem('terraria-bosses')
+    setSyncError('Локальный прогресс сброшен.')
+  }
   if (isRemoteMode && !session) return <AuthScreen onSession={handleSession}/>
   
-  return <div className="app-shell">
+  return <div className="app-root">
+    <div className={'app-shell ' + (compactMode ? 'ui-compact ' : '') + (!animationsEnabled ? 'ui-no-animations' : '')} style={{ fontSize: `${uiScale}%` }}>
     <aside className={"sidebar " + (mobileNavOpen ? "mobile-nav-open" : "")}>
       <div className="sidebar-header">
         <div className="brand"><div className="brand-mark">T</div><div><b>TERRARIA</b><small>PROGRESS TRACKER</small></div></div>
@@ -300,7 +352,7 @@ export default function App() {
       </button>)}
       <div className="sidebar-bottom">
         <div className="connection"><span className="status-dot"/> {isRemoteMode ? 'REMOTE API' : 'DEMO MODE'} <small>{isRemoteMode ? 'Supabase · синхронизация' : 'Локальное сохранение'}</small></div>
-        <button className="nav-item"><Settings size={17}/>Настройки</button>
+        <button className={'nav-item ' + (tab === 'settings' ? 'active' : '')} onClick={() => { setTab('settings'); setMobileNavOpen(false) }}><Settings size={17}/>Настройки</button>
       </div>
     </aside>
     <main className="main">
@@ -504,6 +556,26 @@ export default function App() {
             </section>
           </div>
         </>}
+        {tab === 'settings' && <>
+          <div className="settings-layout">
+            <section className="settings-section">
+              <div className="settings-section-heading"><SlidersHorizontal size={19}/><div><h2>Игровой процесс</h2><p>Управление расчётом прогресса и отображением экипировки.</p></div></div>
+              <label className="settings-row"><span><b>Скрывать более слабую экипировку</b><small>Не учитывать старое оружие и броню, если уже есть более сильная замена.</small></span><input type="checkbox" checked={hideWeakerGear} onChange={event => setHideWeakerGear(event.target.checked)}/></label>
+            </section>
+            <section className="settings-section">
+              <div className="settings-section-heading"><Settings size={19}/><div><h2>Интерфейс</h2><p>Настрой внешний вид под размер экрана.</p></div></div>
+              <label className="settings-row"><span><b>Компактный режим</b><small>Уменьшает отступы и плотнее размещает карточки.</small></span><input type="checkbox" checked={compactMode} onChange={event => setCompactMode(event.target.checked)}/></label>
+              <label className="settings-row"><span><b>Анимации</b><small>Отключает анимации и переходы интерфейса.</small></span><input type="checkbox" checked={animationsEnabled} onChange={event => setAnimationsEnabled(event.target.checked)}/></label>
+              <label className="settings-scale"><span><b>Масштаб интерфейса</b><strong>{uiScale}%</strong></span><input type="range" min="90" max="110" step="5" value={uiScale} onChange={event => setUiScale(Number(event.target.value))}/><small>Изменяет базовый размер текста. Для мобильных устройств масштаб лучше оставить 100%.</small></label>
+            </section>
+            <section className="settings-section">
+              <div className="settings-section-heading"><BookOpen size={19}/><div><h2>Данные и сохранения</h2><p>Создание резервной копии и перенос прохождения.</p></div></div>
+              <div className="settings-actions"><button type="button" className="small-button" onClick={exportProgress}><BookOpen size={15}/> Экспорт JSON</button><label className="small-button settings-file-button"><Search size={15}/> Импорт JSON<input type="file" accept="application/json,.json" onChange={importProgress} disabled={isRemoteMode}/></label></div>
+              <div className="settings-warning"><b>Сброс прогресса</b><span>{isRemoteMode ? 'В сетевом режиме сброс недоступен — данные мира общие.' : 'Удаляет локальные отметки предметов и боссов.'}</span><button type="button" className="settings-danger" disabled={isRemoteMode} onClick={resetProgress}><RotateCcw size={14}/> Сбросить прогресс</button></div>
+            </section>
+            <div className="settings-footnote">Настройки интерфейса и фильтр экипировки сохраняются в этом браузере. Экспорт включает отметки предметов, боссов и основные предпочтения.</div>
+          </div>
+        </>}
         {tab === 'catalog' && <>
           <section className="catalog-toolbar">
             <div className="catalog-toolbar-top">
@@ -547,6 +619,7 @@ export default function App() {
       onClose={() => setCraftModalItem(null)}
       onOpenItem={setCraftModalItem}
     />}
+    </div>
   </div>
 }
 

@@ -838,3 +838,41 @@ footer{border-color:#394052;color:#9297b5}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+
+/* Settings page */
+.settings-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.settings-section{min-width:0;padding:20px;background:var(--os-panel);color:var(--os-ink);border:2px solid var(--os-black);box-shadow:4px 4px 0 #000}
+.settings-section-heading{display:flex;align-items:flex-start;gap:12px;padding-bottom:15px;margin-bottom:6px;border-bottom:2px solid #c4b58f}
+.settings-section-heading>svg{flex:0 0 auto;color:#087d65}
+.settings-section-heading h2{margin:0;color:var(--os-ink);font:12px 'Press Start 2P';line-height:1.8}
+.settings-section-heading p{margin:5px 0 0;color:var(--os-muted);font-size:12px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px 0;border-bottom:1px solid #c4b58f;cursor:pointer}
+.settings-row:last-child{border-bottom:0}
+.settings-row span,.settings-scale span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.settings-row b,.settings-scale b{font-size:14px;color:var(--os-ink)}
+.settings-row small,.settings-scale small{font-size:11px;line-height:1.45;color:var(--os-muted)}
+.settings-row input[type=checkbox]{width:19px;height:19px;flex:0 0 auto;accent-color:#087d65}
+.settings-scale{display:block;padding:15px 0 2px}
+.settings-scale>span{flex-direction:row;align-items:center;justify-content:space-between}
+.settings-scale strong{color:#087d65}
+.settings-scale input[type=range]{width:100%;margin:14px 0 7px;accent-color:#087d65}
+.settings-actions{display:flex;flex-wrap:wrap;gap:10px;padding:16px 0}
+.settings-actions button,.settings-file-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 13px;cursor:pointer}
+.settings-file-button input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.settings-warning{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;padding:14px;background:#f5d8c9;border:2px solid #8c3b2d}
+.settings-warning b{color:#742c22;font-size:13px}
+.settings-warning span{flex:1 1 100%;font-size:11px;color:#743d33}
+.settings-danger{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;background:#9b342d;border:2px solid #501d1a;color:#fff;font-weight:800;cursor:pointer}
+.settings-danger:disabled{opacity:.45;cursor:not-allowed}
+.settings-footnote{grid-column:1/-1;color:#aebcb7;font-size:12px;line-height:1.5}
+.ui-compact .settings-section{padding:14px}
+.ui-compact .settings-row{padding:10px 0}
+.ui-no-animations *, .ui-no-animations *::before, .ui-no-animations *::after{animation:none!important;transition:none!important}
+@media(max-width:850px){.settings-layout{grid-template-columns:1fr}.settings-footnote{grid-column:auto}}
+@media(max-width:700px){.settings-section{padding:14px}.settings-section-heading h2{font-size:10px}.settings-row{gap:10px}.settings-row b{font-size:13px}}
+
+.ui-compact .content{padding:26px 30px}
+.ui-compact .player-gear-card,.ui-compact .catalog-card,.ui-compact .player-armor-set-card,.ui-compact .accessory-card{padding:9px}
+.ui-compact .player-gear-grid,.ui-compact .catalog-grid{gap:10px}
+@media(max-width:700px){.ui-compact .content{padding:16px 10px}}
