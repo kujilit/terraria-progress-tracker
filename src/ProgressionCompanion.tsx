@@ -23,6 +23,8 @@ const category = (value: string) => {
   if (v.includes('weapon') || v.includes('оруж')) return 'weapon'
   if (v.includes('armor') || v.includes('брон')) return 'armor'
   if (v.includes('accessory') || v.includes('аксесс')) return 'accessory'
+  if (v.includes('ammo') || v.includes('боеприп')) return 'ammo'
+  if (v.includes('material') || v.includes('материал')) return 'material'
   return 'other'
 }
 const bossPrep: Record<string, { title: string; tasks: string[]; potions: string[] }> = {
@@ -69,7 +71,7 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
     if (activeBoss) localStorage.setItem(storageKey(activeBoss.id), JSON.stringify(next))
   }
   const defeatedCount = orderedBosses.filter(boss => bossStatus(boss.id) === 'defeated').length
-  const tabs = [{ id: 'tree', label: 'Прогрессия', icon: GitTreeIcon }, { id: 'gear', label: 'Экипировка', icon: Shield }, { id: 'boss', label: 'Подготовка к боссу', icon: Crosshair }]
+  const tabs: { id: 'tree' | 'gear' | 'boss'; label: string; icon: typeof GitTreeIcon }[] = [{ id: 'tree', label: 'Прогрессия', icon: GitTreeIcon }, { id: 'gear', label: 'Экипировка', icon: Shield }, { id: 'boss', label: 'Подготовка к боссу', icon: Crosshair }]
   return <section className="companion-page">
     <header className="companion-hero">
       <div><span className="eyebrow">ADVENTURE COMPANION</span><h2>План приключения</h2><p>{playerName} · {classNames[gameClass]} · персональный маршрут прохождения</p></div>
