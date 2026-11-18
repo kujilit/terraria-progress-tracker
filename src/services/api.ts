@@ -29,6 +29,8 @@ export interface CreateWorldInput {
 }
 export interface JoinWorldInput extends AuthInput { gameClass: GameClass }
 
+export interface TeamNote { id:string; title:string; body:string; status:'backlog'|'doing'|'done'; priority:'low'|'normal'|'high'; playerIds:string[]; createdBy:string; createdAt:string; updatedAt:string }
+
 export interface TrackerApi {
   readonly mode: 'local' | 'remote'
   health(): Promise<{ status: 'ok'; apiVersion: string }>
@@ -48,6 +50,9 @@ export interface TrackerApi {
   listInventory(token: string): Promise<InventoryRecord[]>
   setInventory(token: string, input: { itemId: string; quantity: number }): Promise<InventoryRecord>
   transferInventory(token: string, input: { toPlayerId: string; itemId: string; quantity: number; idempotencyKey: string }): Promise<{ duplicate: boolean; transferId: string }>
+  listNotes(token: string): Promise<TeamNote[]>
+  saveNote(token: string, input: { id?: string; title: string; body: string; status: TeamNote['status']; priority: TeamNote['priority']; playerIds: string[] }): Promise<TeamNote>
+  deleteNote(token: string, noteId: string): Promise<void>
 }
 
 export class ApiError extends Error {
