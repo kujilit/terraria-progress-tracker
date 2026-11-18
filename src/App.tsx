@@ -302,6 +302,7 @@ export default function App() {
     URL.revokeObjectURL(url)
   }
   const importProgress = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (isRemoteMode) { setSyncError('Импорт локальных резервных копий доступен только в демо-режиме.'); event.target.value = ''; return }
     const file = event.target.files?.[0]
     if (!file) return
     try {
@@ -569,7 +570,7 @@ export default function App() {
             </section>
             <section className="settings-section">
               <div className="settings-section-heading"><BookOpen size={19}/><div><h2>Данные и сохранения</h2><p>Создание резервной копии и перенос прохождения.</p></div></div>
-              <div className="settings-actions"><button type="button" className="small-button" onClick={exportProgress}><BookOpen size={15}/> Экспорт JSON</button><label className="small-button settings-file-button"><Search size={15}/> Импорт JSON<input type="file" accept="application/json,.json" onChange={importProgress}/></label></div>
+              <div className="settings-actions"><button type="button" className="small-button" onClick={exportProgress}><BookOpen size={15}/> Экспорт JSON</button><label className="small-button settings-file-button"><Search size={15}/> Импорт JSON<input type="file" accept="application/json,.json" onChange={importProgress} disabled={isRemoteMode}/></label></div>
               <div className="settings-warning"><b>Сброс прогресса</b><span>{isRemoteMode ? 'В сетевом режиме сброс недоступен — данные мира общие.' : 'Удаляет локальные отметки предметов и боссов.'}</span><button type="button" className="settings-danger" disabled={isRemoteMode} onClick={resetProgress}><RotateCcw size={14}/> Сбросить прогресс</button></div>
             </section>
             <div className="settings-footnote">Настройки интерфейса и фильтр экипировки сохраняются в этом браузере. Экспорт включает отметки предметов, боссов и основные предпочтения.</div>
