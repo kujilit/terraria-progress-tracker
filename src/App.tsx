@@ -355,7 +355,7 @@ export default function App() {
   const equippedSlotCount = ownedArmorSlots + Number(hasWeapon) + ownedAccessories + Number(hasAmmo)
   const total = Math.round(equippedSlotCount / equipmentSlotCount * 100)
   const setOptions = armorSetsForClass(player.gameClass).filter(set => classItems.some(item => set.pieces.some(piece => piece.name === item.name)))
-  const setCurrent = (value:string) => { const next={...currentLoadouts,[player.id]:value}; setCurrentLoadouts(next); localStorage.setItem('terraria-current-loadouts',JSON.stringify(next)) }
+  const setCurrentSet = (value:string) => { const next={...currentLoadouts,[player.id]:value}; setCurrentLoadouts(next); localStorage.setItem('terraria-current-loadouts',JSON.stringify(next)) }
   const stageCurrent = currentStages[player.id] || progressionStageGroups[0]?.stage || ''
   const setStageCurrent = (value:string) => { const next={...currentStages,[player.id]:value}; setCurrentStages(next); localStorage.setItem('terraria-current-stages',JSON.stringify(next)) }
   const teamCount = catalogItems.filter(i => categoryKey(i.category) !== 'material' && (isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)))).length
