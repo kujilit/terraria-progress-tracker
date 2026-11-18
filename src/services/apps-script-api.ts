@@ -47,6 +47,9 @@ export class AppsScriptTrackerApi implements TrackerApi {
   async logout(token: string) { await this.request<{loggedOut:boolean}>('auth.logout',{},token) }
   worldInfo(token: string) { return this.request<TrackerWorld>('world.info',{},token) }
   listPlayers(token: string) { return this.request<TrackerPlayer[]>('players.list',{},token) }
+  setPlayerAdmin(_token: string, _playerId: string, _isAdmin: boolean): Promise<TrackerPlayer> {
+    throw new ApiError('Управление администраторами поддерживается только в Supabase mode.', 'NOT_SUPPORTED')
+  }
   getProgress(token: string) { return this.request<ProgressRecord[]>('progress.list',{},token) }
   setProgress(token: string,input: {itemId:string;status:ProgressRecord['status'];quantity:number}) {
     return this.request<ProgressRecord>('progress.set',input,token)
