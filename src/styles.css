@@ -910,14 +910,17 @@ footer{border-color:#394052;color:#9297b5}
 /* Ambient preview of the next undefeated boss */
 .app-shell{position:relative;isolation:isolate;overflow:hidden}
 .boss-ambient{position:fixed;z-index:0;right:4vw;top:20vh;width:190px;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;opacity:.22;filter:drop-shadow(0 0 18px #d6a85b88);animation:boss-drift 18s ease-in-out infinite alternate}
-.boss-ambient-sprite{font-size:104px;line-height:1;image-rendering:pixelated;animation:boss-hover 3.8s ease-in-out infinite;filter:saturate(.75)}
+.boss-ambient-sprite{width:190px;height:150px;display:flex;align-items:center;justify-content:center;gap:0;animation:boss-hover 5s ease-in-out infinite;filter:drop-shadow(0 8px 12px #0008)}
+.boss-ambient-sprite img{display:block;max-width:100%;max-height:145px;width:auto;height:auto;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 2px 5px #0009)}
+.boss-ambient-mechs{width:230px;gap:5px}
+.boss-ambient-mechs img{max-width:31%;max-height:125px}
 .boss-ambient-label{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;color:#e8c47e;text-shadow:0 2px 5px #000;font-size:10px;letter-spacing:1.5px}
 .boss-ambient-label b{font-size:12px;letter-spacing:.3px;color:#f0e6d2}
 .main{position:relative;z-index:1}
-@keyframes boss-hover{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-18px) rotate(5deg)}}
+@keyframes boss-hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
 @keyframes boss-drift{0%{transform:translate(0,0)}50%{transform:translate(-24px,12vh)}100%{transform:translate(-8vw,24vh)}}
 .ui-no-animations .boss-ambient,.ui-no-animations .boss-ambient-sprite{animation:none}
-@media(max-width:700px){.boss-ambient{right:-18px;top:23vh;opacity:.12;transform:scale(.72);transform-origin:top right}.boss-ambient-sprite{font-size:82px}}
+@media(max-width:700px){.boss-ambient{right:-18px;top:23vh;opacity:.16;transform:scale(.72);transform-origin:top right}.boss-ambient-sprite{width:150px;height:115px}.boss-ambient-sprite img{max-height:110px}}
 @media(prefers-reduced-motion:reduce){.boss-ambient,.boss-ambient-sprite{animation:none}}
 
 
