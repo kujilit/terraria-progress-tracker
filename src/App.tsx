@@ -306,6 +306,15 @@ export default function App() {
   const groupedArmorNames = new Set(playerArmorSets.flatMap(group => group.items.map(item => item.name)))
   const standalonePlayerItems = playerFilteredItems.filter(item => !groupedArmorNames.has(item.name))
   const visiblePlayerItems = standalonePlayerItems.slice(0, playerVisibleCount)
+  const gearStageOrder: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Post-Mechanical': 2, 'Post-Plantera': 3, 'Post-Golem': 4, 'Post-Moon Lord': 5, 'Not specified': 6 }
+  const standaloneGearGroups = Array.from(new Set(visiblePlayerItems.map(item => item.stage || 'Not specified')))
+    .sort((a,b)=>(gearStageOrder[a] ?? 99)-(gearStageOrder[b] ?? 99))
+    .map(stage => ({
+      stage,
+      categories: Array.from(new Set(visiblePlayerItems.filter(item => (item.stage || 'Not specified') === stage).map(item => categoryKey(item.category))))
+        .sort((a,b)=>({weapon:0,armor:1,accessory:2,ammo:3,material:4}[a] ?? 9)-({weapon:0,armor:1,accessory:2,ammo:3,material:4}[b] ?? 9))
+        .map(category=>({category,items:visiblePlayerItems.filter(item=>(item.stage || 'Not specified')===stage && categoryKey(item.category)===category)})),
+    }))
   const visibleGearCount = visiblePlayerItems.length + playerArmorSets.reduce((sum, group) => sum + group.items.length, 0)
   const categoryCounts = classItems.reduce<Record<string, number>>((counts, item) => {
     const category = categoryKey(item.category)
@@ -529,23 +538,33 @@ export default function App() {
               </button>)}
             </div>
 
-            {playerArmorSets.length > 0 && <div className="player-armor-sets">
-              <div className="player-armor-set-section-title"><h3>Комплекты брони</h3><span>{playerArmorSets.length} подходящих вариантов</span></div>
-              {playerArmorSets.map(({ set, items: setItems, matched }) => <PlayerArmorSetCard
-                key={set.id}
-                set={set}
-                items={setItems}
-                allItems={allClassItems}
-                matchedCount={matched}
-                statusForItem={itemId => statusForPlayer(player.id, itemId)}
-                onStatus={setStatus}
-                onCraft={setCraftModalItem}
-                disabled={isRemoteMode && selected !== session?.player.id}
-              />)}
-            </div>}
-            {visiblePlayerItems.length > 0 && <div className="player-gear-grid">
-              {visiblePlayerItems.map(item => <PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id, item.id)} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected !== session?.player.id}/>)}
-            </div>}
+            {playerArmorSets.length > 0 && <details className="gear-group gear-armor-group">
+              <summary><span><b>Комплекты брони</b><small>{playerArmorSets.length} комплектов · {playerArmorSets.reduce((n,g)=>n+g.items.length,0)} предметов</small></span><ChevronRight size={17}/></summary>
+              <div className="player-armor-sets">
+                {playerArmorSets.map(({ set, items: setItems, matched }) => <PlayerArmorSetCard
+                  key={set.id}
+                  set={set}
+                  items={setItems}
+                  allItems={allClassItems}
+                  matchedCount={matched}
+                  statusForItem={itemId => statusForPlayer(player.id, itemId)}
+                  onStatus={setStatus}
+                  onCraft={setCraftModalItem}
+                  disabled={isRemoteMode && selected !== session?.player.id}
+                />)}
+              </div>
+            </details>}
+            {standaloneGearGroups.map(group => <details className="gear-group" key={group.stage}>
+              <summary><span><b>{stageLabel(group.stage)}</b><small>{group.categories.reduce((n,cat)=>n+cat.items.length,0)} предметов · {group.categories.length} категорий</small></span><ChevronRight size={17}/></summary>
+              <div className="gear-stage-categories">
+                {group.categories.map(category => <section className="gear-category-group" key={category.category}>
+                  <h3>{categoryLabel(category.category)} <small>{category.items.length}</small></h3>
+                  <div className="player-gear-grid">
+                    {category.items.map(item => <PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id, item.id)} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected !== session?.player.id}/>)}
+                  </div>
+                </section>)}
+              </div>
+            </details>)}
             {visibleGearCount === 0 && <div className="player-gear-empty"><Search size={22}/><b>Предметы не найдены</b><span>Попробуй изменить запрос или фильтры.</span><button type="button" onClick={() => { setPlayerQuery(''); setPlayerStage('all'); setPlayerStatus('all'); setPlayerCategory('all') }}>Сбросить фильтры</button></div>}
 
             <div className="player-gear-pagination">
