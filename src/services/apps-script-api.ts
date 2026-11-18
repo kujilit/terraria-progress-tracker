@@ -1,6 +1,6 @@
 import type {
   AuthInput, BossRecord, CreateWorldInput, InventoryRecord, JoinWorldInput,
-  ProgressRecord, TrackerApi, TrackerSession, TrackerWorld, TrackerPlayer,
+  ProgressRecord, TeamNote, TrackerApi, TrackerSession, TrackerWorld, TrackerPlayer,
 } from './api'
 import { ApiError } from './api'
 import type { Item } from '../types'
@@ -65,6 +65,9 @@ export class AppsScriptTrackerApi implements TrackerApi {
   setInventory(token:string,input:{itemId:string;quantity:number}) {
     return this.request<InventoryRecord>('inventory.set',input,token)
   }
+  listNotes(_token: string): Promise<TeamNote[]> { throw new ApiError('Командные заметки поддерживаются в Supabase mode.', 'NOT_SUPPORTED') }
+  saveNote(_token: string, _input: { id?: string; title: string; body: string; status: TeamNote['status']; priority: TeamNote['priority']; playerIds: string[] }): Promise<TeamNote> { throw new ApiError('Командные заметки поддерживаются в Supabase mode.', 'NOT_SUPPORTED') }
+  async deleteNote(_token: string, _noteId: string): Promise<void> { throw new ApiError('Командные заметки поддерживаются в Supabase mode.', 'NOT_SUPPORTED') }
   transferInventory(token:string,input:{toPlayerId:string;itemId:string;quantity:number;idempotencyKey:string}) {
     return this.request<{duplicate:boolean;transferId:string}>('inventory.transfer',input,token)
   }
