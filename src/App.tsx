@@ -10,6 +10,7 @@ import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 import { PixelAvatar } from './components/PixelAvatar'
+import { PotionItemIcon } from './components/PotionItemIcon'
 
 type Tab = 'players' | 'companion' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
 const nav: { id: Tab; label: string; icon: typeof Swords; tabs: Tab[] }[] = [
@@ -25,42 +26,41 @@ const subnav: Partial<Record<Tab, { id: Tab; label: string }[]>> = {
   notes: [{ id: 'notes', label: 'Заметки' }, { id: 'inventory', label: 'Инвентарь команды' }],
 }
 const potionIngredientImages: Record<string, string> = {
-  'Бутылка воды': 'Bottled_Water.png',
-  'Лилейник': 'Daybloom.png',
-  'Железная руда или свинцовая руда': 'Iron_Ore.png',
-  'Гриб': 'Mushroom.png',
-  'Миражник': 'Blinkroot.png',
-  'Кактус': 'Cactus.png',
-  'Бронированная пещерная рыба': 'Armored_Cavefish.png',
-  'Призмит': 'Prismite.png',
-  'Лунное сияние': 'Moonglow.png',
-  'Морозный цветок': 'Shiverthorn.png',
-  'Воднолист': 'Waterleaf.png',
-  'Мертвецвет': 'Deathweed.png',
-  'Кровавая пиранья': 'Hemopiranha.png',
-  'Эбонкой': 'Ebonkoi.png',
-  'Пёстрая жирная рыба': 'Variegated_Lardfish.png',
-  'Линза': 'Lens.png',
-  '2 малых зелья маны': 'Lesser_Mana_Potion.png',
-  'Светящийся гриб': 'Glowing_Mushroom.png',
-  '10 паутины': 'Cobweb.png',
-  'Челюсть муравьиного льва': 'Antlion_Mandible.png',
+  'Бутылка воды': 'water_bottle',
+  'Лилейник': 'daybloom',
+  'Железная руда или свинцовая руда': 'iron_ore',
+  'Гриб': 'mushroom',
+  'Миражник': 'blinkroot',
+  'Кактус': 'cactus',
+  'Бронированная пещерная рыба': 'armored_cavefish',
+  'Призмит': 'prismite',
+  'Лунное сияние': 'moonglow',
+  'Морозный цветок': 'shiverthorn',
+  'Воднолист': 'waterleaf',
+  'Мертвецвет': 'deathweed',
+  'Кровавая пиранья': 'hemopiranha',
+  'Эбонкой': 'ebonkoi',
+  'Пёстрая жирная рыба': 'variegated_lardfish',
+  'Линза': 'lens',
+  '2 малых зелья маны': 'lesser_mana_potion',
+  'Светящийся гриб': 'glowing_mushroom',
+  '10 паутины': 'cobweb',
+  'Челюсть муравьиного льва': 'antlion_mandible',
 }
 const potionImageFiles: Record<string, string> = {
-  'Зелье железной кожи': 'Ironskin_Potion.png',
-  'Зелье регенерации': 'Regeneration_Potion.png',
-  'Зелье скорости': 'Swiftness_Potion.png',
-  'Зелье выносливости': 'Endurance_Potion.png',
-  'Зелье жизненной силы': 'Lifeforce_Potion.png',
-  'Зелье ярости': 'Rage_Potion.png',
-  'Зелье гнева': 'Wrath_Potion.png',
-  'Зелье призыва': 'Summoning_Potion.png',
-  'Зелье лучника': 'Archery_Potion.png',
-  'Зелье маны': 'Mana_Potion.png',
-  'Зелье опасности': 'Dangersense_Potion.png',
-  'Зелье шахтёра': 'Mining_Potion.png',
+  'Зелье железной кожи': 'ironskin_potion',
+  'Зелье регенерации': 'regeneration_potion',
+  'Зелье скорости': 'swiftness_potion',
+  'Зелье выносливости': 'endurance_potion',
+  'Зелье жизненной силы': 'lifeforce_potion',
+  'Зелье ярости': 'rage_potion',
+  'Зелье гнева': 'wrath_potion',
+  'Зелье призыва': 'summoning_potion',
+  'Зелье лучника': 'archery_potion',
+  'Зелье маны': 'mana_potion',
+  'Зелье опасности': 'dangersense_potion',
+  'Зелье шахтёра': 'mining_potion',
 }
-const wikiItemImage = (file: string) => `https://terraria.wiki.gg/wiki/Special:FilePath/${encodeURIComponent(file)}`
 
 const potionRecipes = [
  {name:'Зелье железной кожи',group:'Защита',effect:'+8 защиты на время действия',ingredients:['Бутылка воды','Лилейник','Железная руда или свинцовая руда'],amount:'1',station:'Бутылка / Алхимический стол'},
@@ -644,7 +644,7 @@ export default function App() {
         {tab === 'alchemy' && <section className="alchemy-page">
           <div className="alchemy-intro"><div><span className="eyebrow">CRAFTING COMPENDIUM</span><h2>Алхимия и полезные рецепты</h2><p>Подборка базовых боевых зелий для подготовки к боссам. Рецепты для версии Desktop 1.4.5.x.</p></div><div className="alchemy-station"><FlaskConical size={28}/><b>Алхимический стол</b><small>33% шанс не потратить каждый ингредиент</small></div></div>
           <div className="alchemy-filters"><input value={potionQuery} onChange={e=>setPotionQuery(e.target.value)} placeholder="Найти зелье или ингредиент..."/><select value={potionFilter} onChange={e=>setPotionFilter(e.target.value)}><option>Все</option><option>Бой</option><option>Защита</option><option>Исследование</option><option>Магия</option></select></div>
-          <div className="potion-grid">{potionRecipes.filter(recipe=>(potionFilter==='Все'||recipe.group===potionFilter)&&([recipe.name,recipe.effect,...recipe.ingredients].join(' ').toLowerCase().includes(potionQuery.toLowerCase()))).map(recipe=><article className="potion-card" key={recipe.name}><div className="potion-card-top"><span>{recipe.group}</span><small>{recipe.station}</small></div><div className="potion-card-title"><img crossOrigin="anonymous" className="potion-art" src={wikiItemImage(potionImageFiles[recipe.name])} alt="" loading="lazy" onError={event=>{event.currentTarget.style.visibility='hidden'}}/><div><h3>{recipe.name}</h3><p>{recipe.effect}</p></div></div><div className="potion-ingredients"><b>Ингредиенты</b>{recipe.ingredients.map(ingredient=><span className="potion-ingredient" key={ingredient}><img crossOrigin="anonymous" src={wikiItemImage(potionIngredientImages[ingredient])} alt="" loading="lazy" onError={event=>{event.currentTarget.style.display='none'}}/><span>{ingredient}</span></span>)}</div><small className="potion-amount">Выход: {recipe.amount}</small></article>)}</div>
+          <div className="potion-grid">{potionRecipes.filter(recipe=>(potionFilter==='Все'||recipe.group===potionFilter)&&([recipe.name,recipe.effect,...recipe.ingredients].join(' ').toLowerCase().includes(potionQuery.toLowerCase()))).map(recipe=><article className="potion-card" key={recipe.name}><div className="potion-card-top"><span>{recipe.group}</span><small>{recipe.station}</small></div><div className="potion-card-title"><PotionItemIcon icon={potionImageFiles[recipe.name]} className="potion-art" label={recipe.name}/><div><h3>{recipe.name}</h3><p>{recipe.effect}</p></div></div><div className="potion-ingredients"><b>Ингредиенты</b>{recipe.ingredients.map(ingredient=><span className="potion-ingredient" key={ingredient}><PotionItemIcon icon={potionIngredientImages[ingredient]} className="potion-ingredient-art" label={ingredient}/><span>{ingredient}</span></span>)}</div><small className="potion-amount">Выход: {recipe.amount}</small></article>)}</div>
           <div className="alchemy-tips"><h3>Полезно знать</h3><ul><li>Алхимический стол находится в Данже и после победы над Скелетроном может быть получен также рыбалкой в Данже.</li><li>Алхимический стол даёт отдельный шанс 1/3 не потратить каждую единицу каждого ингредиента.</li><li>Колба алхимика заменяет алхимический стол и увеличивает длительность большинства эффектов зелий на 20%.</li><li>Колбы для оружия создаются не на алхимическом столе, а на станции для настоев (Imbuing Station).</li></ul><a href="https://terraria.wiki.gg/wiki/Alchemy" target="_blank" rel="noreferrer">Официальная Terraria Wiki: зелья и алхимия</a></div>
         </section>}
         {tab === 'progression' && <>
