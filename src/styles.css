@@ -962,3 +962,46 @@ footer{border-color:#394052;color:#9297b5}
 .team-note-actions .danger{background:#f4d8c9;color:#853528;border-color:#853528}
 @media(max-width:900px){.notes-layout{grid-template-columns:1fr}.notes-list{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.notes-editor,.notes-board{padding:13px}.notes-list{grid-template-columns:1fr}.notes-form-row{grid-template-columns:1fr}}
+
+
+/* Contrast fixes for light gear panels */
+.player-gear-section{color:var(--os-ink)}
+.player-gear-heading h2,
+.player-gear-heading h3,
+.player-gear-section h2,
+.player-gear-section h3,
+.player-gear-section .player-armor-set-section-title h3{color:var(--os-ink)!important}
+.player-gear-heading p,
+.player-gear-section>p,
+.player-gear-section .player-gear-heading p{color:#405d62!important}
+.player-gear-section .eyebrow,
+.player-gear-section .player-gear-total,
+.player-gear-section .player-armor-set-section-title span{color:#31565d!important}
+.player-gear-section .player-category-tabs button,
+.player-gear-section .player-status-filters button{
+  background:#17313c!important;color:#f7edda!important;border:2px solid #123c49!important;
+}
+.player-gear-section .player-category-tabs button b,
+.player-gear-section .player-status-filters button b{color:#f2c978!important}
+.player-gear-section .player-category-tabs button.selected,
+.player-gear-section .player-status-filters button.selected{
+  background:#e5b85f!important;color:#172f39!important;border-color:#123c49!important;
+}
+.player-gear-section .player-category-tabs button.selected b,
+.player-gear-section .player-status-filters button.selected b{color:#172f39!important}
+.player-gear-section .player-gear-filters label,
+.player-gear-section .player-gear-filters label span,
+.player-gear-section .player-status-filters>span{color:#31545b!important}
+.player-gear-section .player-gear-search{background:#fff0cf!important;border:2px solid #123c49!important}
+.player-gear-section .player-gear-search input{background:transparent!important;color:#123c49!important}
+.player-gear-section .player-gear-search input::placeholder{color:#526d72!important;opacity:1}
+.player-gear-section .player-gear-card h3,
+.player-gear-section .player-gear-card .player-gear-ru,
+.player-gear-section .player-gear-card .player-gear-description,
+.player-gear-section .player-gear-card .player-gear-source{color:#123c49!important}
+.player-gear-section .player-gear-card .player-gear-tags span,
+.player-gear-section .player-gear-card .player-gear-highlights>span:not(.player-gear-buff){color:#244a52!important}
+.player-gear-section .player-gear-pagination,
+.player-gear-section .player-gear-pagination span{color:#31545b!important}
+.player-gear-section .player-gear-empty{color:#31545b!important}
+.player-gear-section .player-gear-empty b{color:#123c49!important}
