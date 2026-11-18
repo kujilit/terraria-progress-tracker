@@ -79,18 +79,18 @@ end; $$;
 create or replace function public.tracker_note_delete(p_token text,p_note_id uuid)
 returns jsonb language plpgsql security definer set search_path = ''
 as $$
-declare v_ctx record; v_deleted boolean;
+declare v_ctx record; v_deleted integer;
 begin
   select * into v_ctx from private.tracker_session_context(p_token);
   if not found then raise exception using errcode='28000', message='UNAUTHORIZED: Session is invalid or expired.'; end if;
   delete from public.tracker_world_notes where id=p_note_id and world_id=v_ctx.world_id;
   get diagnostics v_deleted = row_count;
-  return jsonb_build_object('deleted',v_deleted);
+  return jsonb_build_object('deleted',v_deleted > 0);
 end; $$;
 
-revoke all on function public.tracker_notes_list(text) from public, anon;
+revoke all on function public.tracker_notes_list(text) from public;
 revoke all on function public.tracker_note_save(text,uuid,text,text,text,text,uuid[]) from public, anon;
 revoke all on function public.tracker_note_delete(text,uuid) from public, anon;
-grant execute on function public.tracker_notes_list(text) to authenticated, service_role;
+grant execute on function public.tracker_notes_list(text) to anon, authenticated, service_role;
 grant execute on function public.tracker_note_save(text,uuid,text,text,text,text,uuid[]) to authenticated, service_role;
 grant execute on function public.tracker_note_delete(text,uuid) to authenticated, service_role;
