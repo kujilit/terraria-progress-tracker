@@ -107,6 +107,10 @@ export class SupabaseTrackerApi implements TrackerApi {
     return this.rpc<TrackerPlayer[]>('tracker_players_list', { p_token: token })
   }
 
+  removePlayer(token: string, playerId: string) {
+    return this.rpc<{ playerId: string }>('tracker_player_remove', { p_token: token, p_player_id: playerId })
+  }
+
   setPlayerAdmin(token: string, playerId: string, isAdmin: boolean) {
     return this.rpc<TrackerPlayer>('tracker_player_set_admin', { p_token: token, p_player_id: playerId, p_is_admin: isAdmin })
   }
