@@ -970,38 +970,6 @@ function WeakerGearToggle({ checked, onChange }: { checked: boolean; onChange: (
   </label>
 }
 
-function ProgressionStageCard({ stage, items, statusForItem, onStatus, onCraft, disabled }: {
-  stage: string
-  items: Item[]
-  statusForItem: (itemId: string) => ItemStatus
-  onStatus: (id: string, status: ItemStatus) => void
-  onCraft: (item: Item) => void
-  disabled: boolean
-}) {
-  const activeItems = items.filter(item => statusForItem(item.id) !== 'skipped')
-  const ownedCount = activeItems.filter(item => statusForItem(item.id) === 'owned').length
-  const percent = Math.round(ownedCount / Math.max(activeItems.length, 1) * 100)
-  return <details className="progression-stage">
-    <summary>
-      <span className="progression-stage-title"><b>{stageLabel(stage)}</b><small>{items.length} предметов в этапе</small></span>
-      <span className="progression-stage-percent">{percent}%</span>
-      <span className="progression-stage-track"><i style={{ width: percent + '%' }}/></span>
-      <span className="progression-stage-count">{ownedCount}/{activeItems.length}</span>
-      <ChevronRight className="progression-stage-chevron" size={17}/>
-    </summary>
-    <div className="progression-stage-items">
-      {items.map(item => <PlayerGearCard
-        key={item.id}
-        item={item}
-        status={statusForItem(item.id)}
-        onStatus={onStatus}
-        onCraft={onCraft}
-        disabled={disabled}
-      />)}
-    </div>
-  </details>
-}
-
 function PlayerGearCard({ item, status, onStatus, onCraft, disabled = false }: {
   item: Item
   status: ItemStatus
