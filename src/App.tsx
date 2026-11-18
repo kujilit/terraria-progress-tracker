@@ -178,6 +178,18 @@ export default function App() {
       localStorage.setItem('terraria-bosses',JSON.stringify(current))
     }
   }
+  const removeWorldPlayer = async (player: TrackerPlayer) => {
+    if (!session || !canSeeAdmin || player.id === session.player.id || player.role === 'owner') return
+    const confirmed = window.confirm(`Исключить игрока «${player.name}» из мира? Его активные сессии будут завершены.`)
+    if (!confirmed) return
+    try {
+      await trackerApi.removePlayer(session.token, player.id)
+      setRemotePlayers(current => current.filter(member => member.id !== player.id))
+      setRemoteProgress(current => current.filter(record => record.playerId !== player.id))
+      setRemoteInventory(current => current.filter(record => record.playerId !== player.id))
+      setSyncError('')
+    } catch (error) { setSyncError(error instanceof Error ? error.message : 'Не удалось исключить игрока') }
+  }
   const changePlayerAdmin = async (playerId: string, isAdmin: boolean) => {
     if (!session || !canManageAdmins) return
     try {
@@ -591,6 +603,7 @@ export default function App() {
                 <div className="admin-player-identity"><b>{member.name}</b><small>{({Melee:'Ближний бой',Ranger:'Стрелок',Mage:'Маг',Summoner:'Призыватель'})[member.gameClass]}</small></div>
                 <span className={'admin-player-role role-' + member.role}>{member.role === 'owner' ? 'Создатель' : member.role === 'admin' ? 'Администратор' : 'Участник'}</span>
                 {canManageAdmins && member.role !== 'owner' && <button type="button" className="small-button" onClick={() => changePlayerAdmin(member.id, member.role !== 'admin')}>{member.role === 'admin' ? 'Снять права' : 'Назначить админом'}</button>}
+                {canSeeAdmin && member.role !== 'owner' && member.id !== session?.player.id && (canManageAdmins || member.role === 'member') && <button type="button" className="small-button danger" onClick={() => removeWorldPlayer(member)}>Исключить</button>}
               </div>)}
             </div>
           </section>
