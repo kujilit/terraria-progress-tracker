@@ -149,6 +149,11 @@ export default function App() {
       return saved[bossId] || (bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending')
     } catch { return bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending' }
   }
+  const nextBoss = bosses.find(boss => bossStatus(boss.id) !== 'defeated')
+  const bossAmbientIcons: Record<string, string> = {
+    king_slime: '👑', eye: '👁️', eater: '🪱', skeletron: '💀', wof: '🔥',
+    mechs: '⚙️', plantera: '🌺', golem: '🗿', cultist: '🌙', moon_lord: '☄️',
+  }
   const saveInventoryQuantity = async () => {
     try {
       const row = await trackerApi.setInventory(session?.token || selected,{itemId:inventoryItemId,quantity:Number(inventoryQty)})
@@ -393,6 +398,10 @@ export default function App() {
         <button className={'nav-item ' + (tab === 'settings' ? 'active' : '')} onClick={() => { setTab('settings'); setMobileNavOpen(false) }}><Settings size={17}/>Настройки</button>
       </div>
     </aside>
+    {nextBoss && <div className="boss-ambient" aria-hidden="true">
+      <div className="boss-ambient-sprite">{bossAmbientIcons[nextBoss.id] || '☠️'}</div>
+      <div className="boss-ambient-label"><span>СЛЕДУЮЩИЙ БОСС</span><b>{nextBoss.name}</b></div>
+    </div>}
     <main className="main">
       <header className="topbar">
         <div className="crumb">МИРЫ <ChevronRight size={13}/> <b>{(session?.world.name || 'FOR THE WORTHY').toUpperCase()}</b> <ChevronRight size={13}/> {pageTitle.toUpperCase()}</div>

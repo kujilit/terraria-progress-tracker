@@ -905,3 +905,17 @@ footer{border-color:#394052;color:#9297b5}
 
 .admin-player-row .small-button.danger{border-color:#9b3b2d;background:#f4d8c9;color:#853528}
 .admin-player-row .small-button.danger:hover{background:#e9bca9}
+
+
+/* Ambient preview of the next undefeated boss */
+.app-shell{position:relative;isolation:isolate;overflow:hidden}
+.boss-ambient{position:fixed;z-index:0;right:4vw;top:20vh;width:190px;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;opacity:.22;filter:drop-shadow(0 0 18px #d6a85b88);animation:boss-drift 18s ease-in-out infinite alternate}
+.boss-ambient-sprite{font-size:104px;line-height:1;image-rendering:pixelated;animation:boss-hover 3.8s ease-in-out infinite;filter:saturate(.75)}
+.boss-ambient-label{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;color:#e8c47e;text-shadow:0 2px 5px #000;font-size:10px;letter-spacing:1.5px}
+.boss-ambient-label b{font-size:12px;letter-spacing:.3px;color:#f0e6d2}
+.main{position:relative;z-index:1}
+@keyframes boss-hover{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-18px) rotate(5deg)}}
+@keyframes boss-drift{0%{transform:translate(0,0)}50%{transform:translate(-24px,12vh)}100%{transform:translate(-8vw,24vh)}}
+.ui-no-animations .boss-ambient,.ui-no-animations .boss-ambient-sprite{animation:none}
+@media(max-width:700px){.boss-ambient{right:-18px;top:23vh;opacity:.12;transform:scale(.72);transform-origin:top right}.boss-ambient-sprite{font-size:82px}}
+@media(prefers-reduced-motion:reduce){.boss-ambient,.boss-ambient-sprite{animation:none}}
