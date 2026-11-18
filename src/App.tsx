@@ -556,7 +556,7 @@ export default function App() {
               </div>
             </details>}
             {standaloneGearGroups.map(group => <details className="gear-group" key={group.stage}>
-              <summary><span><b>{/^\\d+$/.test(group.stage) ? (classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.title || stageLabel(group.stage)) : stageLabel(group.stage)}</b><small>{/^\\d+$/.test(group.stage) ? classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.unlock+' · ' : ''}{group.categories.reduce((n,cat)=>n+cat.items.length,0)} предметов · {group.categories.length} категорий</small></span><ChevronRight size={17}/></summary>
+              <summary><span><b>{/^\d+$/.test(group.stage) ? (classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.title || stageLabel(group.stage)) : stageLabel(group.stage)}</b><small>{/^\d+$/.test(group.stage) ? classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.unlock+' · ' : ''}{group.categories.reduce((n,cat)=>n+cat.items.length,0)} предметов · {group.categories.length} категорий</small></span><ChevronRight size={17}/></summary>
               <div className="gear-stage-categories">
                 {group.categories.map(category => <section className="gear-category-group" key={category.category}>
                   <h3>{categoryLabel(category.category)} <small>{category.items.length}</small></h3>
@@ -613,7 +613,7 @@ export default function App() {
                     const done=active.filter(item=>statusForPlayer(player.id,item.id)==='owned').length
                     const percent=active.length?Math.round(done/active.length*100):0
                     return <div className="stage-chart-row" key={stage}>
-                      <div className="stage-chart-label"><b>{/^\\d+$/.test(stage)?(classStages[player.gameClass].find(value=>value.id.endsWith('-'+stage))?.title||stageLabel(stage)):stageLabel(stage)}</b><small>{done}/{active.length}</small></div>
+                      <div className="stage-chart-label"><b>{/^\d+$/.test(stage)?(classStages[player.gameClass].find(value=>value.id.endsWith('-'+stage))?.title||stageLabel(stage)):stageLabel(stage)}</b><small>{done}/{active.length}</small></div>
                       <div className="stage-chart-track"><i style={{width:percent+'%'}}/></div><strong>{percent}%</strong>
                     </div>
                   })}
@@ -1024,7 +1024,7 @@ function categoryLabel(category: string) {
 }
 
 function stageLabel(stage: string) {
-  if (/^\\d+$/.test(stage)) return `Этап ${stage}`
+  if (/^\d+$/.test(stage)) return `Этап ${stage}`
   if (stage === 'Pre-Hardmode') return 'Pre-Hardmode'
   if (stage === 'Hardmode') return 'Hardmode'
   if (stage === 'Post-Mechanical') return 'После механических боссов'
