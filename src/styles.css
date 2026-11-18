@@ -1107,3 +1107,31 @@ footer{border-color:#394052;color:#9297b5}
 .companion-boss-select{display:flex;align-items:center;gap:12px;color:#aab9bd;font-size:12px;margin:10px 0 14px}.companion-boss-select select{max-width:none;min-width:220px}.companion-target-card{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:17px;background:#203541;border:1px solid #506571;margin-bottom:13px}.companion-target-card h3{margin:5px 0;font-size:20px}.companion-target-card p{margin:0;color:#91a6af;font-size:12px}
 .companion-checklist{background:#192a35;border:1px solid #354a56;padding:15px;margin-top:12px}.companion-checklist .panel-head{margin-bottom:10px}.companion-checklist .panel-head h3{font-size:14px;margin:0;display:flex;align-items:center;gap:7px}.companion-checklist .panel-head>b{color:#e9c47e;font-size:12px}.companion-check-row{display:flex;align-items:center;gap:10px;padding:10px 2px;border-top:1px solid #2d414d;color:#bdc9c9;font-size:12px;cursor:pointer}.companion-check-row input{accent-color:#d3a052;width:15px;height:15px}.companion-check-row.checked span{text-decoration:line-through;color:#7f969e}.companion-potion-row{display:flex;align-items:center;gap:9px;padding:9px 2px;border-top:1px solid #2d414d;color:#c3cecc;font-size:12px}.companion-potion-row svg{color:#d9ad65}.companion-potion-row small{margin-left:auto;color:#8499a3;font-size:10px}
 @media(max-width:700px){.companion-hero{padding:18px;align-items:flex-start}.companion-hero h2{font-size:22px}.companion-hero-stat{grid-template-columns:auto;justify-items:end}.companion-hero-stat small{grid-column:auto}.companion-tabs button{flex:1;justify-content:center;padding:10px 7px;font-size:11px}.companion-boss-node{grid-template-columns:27px minmax(0,1fr);gap:8px}.companion-node-rail span{width:25px;height:25px}.companion-node-card{display:block;padding:12px}.companion-node-actions{justify-content:flex-start;margin-top:10px}.companion-recommendation{gap:8px;flex-wrap:wrap}.companion-item-copy{min-width:calc(100% - 100px)}.companion-recommendation select{margin-left:80px;max-width:calc(100% - 80px);width:100%}.companion-boss-select{align-items:flex-start;flex-direction:column}.companion-boss-select select{width:100%}.companion-target-card{align-items:flex-start}.companion-section-intro h3{font-size:17px}}
+
+
+/* Compact grouped navigation and page rhythm */
+.section-tabs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:-10px 0 20px;padding:5px;background:#14232d;border:1px solid #304552;width:fit-content;max-width:100%}
+.section-tabs button{border:1px solid transparent;background:transparent;color:#9eb0b8;padding:8px 12px;font-size:12px}
+.section-tabs button:hover{color:#f0d9a8;background:#213440}
+.section-tabs button.selected{background:#2b414c;border-color:#9c7846;color:#f0d9a8;box-shadow:inset 0 -2px 0 #d2a45d}
+.page-heading{margin-bottom:17px}
+.page-heading h1{font-size:26px;margin:4px 0 0}
+.content{padding-top:26px}
+.notes-layout{grid-template-columns:minmax(260px,.72fr) minmax(0,1.7fr);gap:12px}
+.notes-editor,.notes-board{padding:15px;box-shadow:2px 2px 0 #000}
+.notes-editor>.panel-head,.notes-board>.panel-head{padding-bottom:8px}
+.notes-form-row{gap:7px}
+.notes-filters{padding:8px 0}
+.team-note{padding:12px}
+.player-gear-grid{gap:6px}
+.player-gear-card{padding:8px;gap:8px}
+.player-gear-art{flex-basis:40px;width:40px;height:40px}
+.player-gear-art img{width:34px;height:34px}
+@media(max-width:700px){
+  .section-tabs{width:100%;margin:-6px 0 15px;overflow-x:auto;flex-wrap:nowrap}
+  .section-tabs button{white-space:nowrap;flex:0 0 auto}
+  .page-heading{margin-bottom:13px}
+  .page-heading h1{font-size:21px}
+  .notes-layout{grid-template-columns:1fr}
+  .notes-editor,.notes-board{padding:12px}
+}
