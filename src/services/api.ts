@@ -5,7 +5,7 @@ export interface TrackerWorld {
   difficulty: string; evilBiome: string; seed: string
 }
 export interface TrackerPlayer {
-  id: string; name: string; gameClass: GameClass; role: 'owner' | 'member'
+  id: string; name: string; gameClass: GameClass; role: 'owner' | 'admin' | 'member'
 }
 export interface TrackerSession {
   token: string; expiresAt: string; world: TrackerWorld; player: TrackerPlayer
@@ -39,6 +39,7 @@ export interface TrackerApi {
   logout(token: string): Promise<void>
   worldInfo(token: string): Promise<TrackerWorld>
   listPlayers(token: string): Promise<TrackerPlayer[]>
+  setPlayerAdmin(token: string, playerId: string, isAdmin: boolean): Promise<TrackerPlayer>
   getProgress(token: string): Promise<ProgressRecord[]>
   setProgress(token: string, input: { itemId: string; status: ItemStatus; quantity: number }): Promise<ProgressRecord>
   listBosses(token: string): Promise<BossRecord[]>

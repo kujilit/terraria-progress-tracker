@@ -8,7 +8,7 @@ import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 
-type Tab = 'players' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'settings'
+type Tab = 'players' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'settings' | 'admin'
 const nav: { id: Tab; label: string; icon: typeof Swords }[] = [
   { id: 'players', label: 'Игроки', icon: Users },
   { id: 'progression', label: 'Прогресс классов', icon: Swords },
@@ -90,6 +90,10 @@ export default function App() {
     }
   }
   useEffect(() => {
+    if (isRemoteMode || !session) return
+    trackerApi.listPlayers(session.token).then(setRemotePlayers).catch(() => undefined)
+  }, [session])
+  useEffect(() => {
     if (!isRemoteMode || !session) return
     let active = true
     const refresh = async () => {
@@ -102,6 +106,12 @@ export default function App() {
         ])
         if (!active) return
         setRemotePlayers(members)
+        const ownMember = members.find(member => member.id === session.player.id)
+        if (ownMember && ownMember.role !== session.player.role) {
+          const updatedSession = { ...session, player: ownMember }
+          sessionStorage.setItem('terraria-tracker-session', JSON.stringify(updatedSession))
+          setSession(updatedSession)
+        }
         setRemoteProgress(progressRows)
         setRemoteBosses(bossRows)
         setRemoteInventory(inventoryRows)
@@ -167,6 +177,14 @@ export default function App() {
       current[bossId] = status
       localStorage.setItem('terraria-bosses',JSON.stringify(current))
     }
+  }
+  const changePlayerAdmin = async (playerId: string, isAdmin: boolean) => {
+    if (!session || !canManageAdmins) return
+    try {
+      const updated = await trackerApi.setPlayerAdmin(session.token, playerId, isAdmin)
+      setRemotePlayers(current => current.map(member => member.id === updated.id ? updated : member))
+      setSyncError('')
+    } catch (error) { setSyncError(error instanceof Error ? error.message : 'Не удалось изменить роль игрока') }
   }
   const handleSession = (next: TrackerSession) => {
     sessionStorage.setItem('terraria-tracker-session',JSON.stringify(next))
@@ -288,7 +306,9 @@ export default function App() {
   }, [catalogItems, target, inventoryItemId])
   const tree = current ? buildRecipeTree(current.id, catalogItems, recipeIndex) : null
   useEffect(() => { setRecipeIndex(0) }, [target])
-  const pageTitle = tab === 'settings' ? 'Настройки' : nav.find(n => n.id === tab)?.label || 'Игроки'
+  const canSeeAdmin = Boolean(session && (session.player.role === 'owner' || session.player.role === 'admin'))
+  const canManageAdmins = Boolean(session?.player.role === 'owner')
+  const pageTitle = tab === 'settings' ? 'Настройки' : tab === 'admin' ? 'Администрирование' : nav.find(n => n.id === tab)?.label || 'Игроки'
   const exportProgress = () => {
     const payload = {
       format: 'terraria-progress-tracker', version: 1, exportedAt: new Date().toISOString(),
@@ -355,8 +375,9 @@ export default function App() {
       {nav.map(n => <button key={n.id} className={'nav-item ' + (tab === n.id ? 'active' : '')} onClick={() => { setTab(n.id); setMobileNavOpen(false) }}>
         <n.icon size={17}/>{n.label}{n.id === 'inventory' || n.id === 'crafting' ? <span className="new-dot"/> : null}
       </button>)}
+      {canSeeAdmin && <button className={'nav-item ' + (tab === 'admin' ? 'active' : '')} onClick={() => { setTab('admin'); setMobileNavOpen(false) }}><Settings size={17}/>Администрирование</button>}
       <div className="sidebar-bottom">
-        <div className="connection"><span className="status-dot"/> {isRemoteMode ? 'REMOTE API' : 'DEMO MODE'} <small>{isRemoteMode ? 'Supabase · синхронизация' : 'Локальное сохранение'}</small></div>
+        {canSeeAdmin && <div className="connection"><span className="status-dot"/> {isRemoteMode ? 'REMOTE API' : 'DEMO MODE'} <small>{isRemoteMode ? 'Supabase · синхронизация' : 'Локальное сохранение'}</small></div>}
         <button className={'nav-item ' + (tab === 'settings' ? 'active' : '')} onClick={() => { setTab('settings'); setMobileNavOpen(false) }}><Settings size={17}/>Настройки</button>
       </div>
     </aside>
@@ -561,6 +582,19 @@ export default function App() {
             </section>
           </div>
         </>}
+        {tab === 'admin' && canSeeAdmin && <>
+          <section className="admin-panel">
+            <div className="admin-panel-heading"><div><h2>Администрирование мира</h2><p>Управление участниками и правами доступа.</p></div><span className="admin-role">{session?.player.role === 'owner' ? 'СОЗДАТЕЛЬ' : 'АДМИНИСТРАТОР'}</span></div>
+            <div className="admin-summary"><b>{remotePlayers.length}</b><span>участников мира</span><small>{canManageAdmins ? 'Назначать администраторов может только создатель мира.' : 'Вы можете просматривать участников. Изменение ролей доступно создателю мира.'}</small></div>
+            <div className="admin-player-list">
+              {remotePlayers.map(member => <div className="admin-player-row" key={member.id}>
+                <div className="admin-player-identity"><b>{member.name}</b><small>{({Melee:'Ближний бой',Ranger:'Стрелок',Mage:'Маг',Summoner:'Призыватель'})[member.gameClass]}</small></div>
+                <span className={'admin-player-role role-' + member.role}>{member.role === 'owner' ? 'Создатель' : member.role === 'admin' ? 'Администратор' : 'Участник'}</span>
+                {canManageAdmins && member.role !== 'owner' && <button type="button" className="small-button" onClick={() => changePlayerAdmin(member.id, member.role !== 'admin')}>{member.role === 'admin' ? 'Снять права' : 'Назначить админом'}</button>}
+              </div>)}
+            </div>
+          </section>
+        </>}
         {tab === 'settings' && <>
           <div className="settings-layout">
             <div className="settings-column">
@@ -617,7 +651,7 @@ export default function App() {
             ? <div className="catalog-grid">{filtered.map(item => <CatalogItemCard key={item.id} item={item} status={statuses[item.id] || 'missing'} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
             : <div className="catalog-empty"><Search size={25}/><b>Ничего не найдено</b><span>Измени запрос или сбрось фильтры.</span><button onClick={resetCatalogFilters}>Сбросить фильтры</button></div>}
         </>}
-        <footer>TERRARIA PROGRESS TRACKER <span>НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · {isRemoteMode ? "REMOTE DATA" : "DEMO DATA"}</span></footer>
+        <footer>TERRARIA PROGRESS TRACKER {canSeeAdmin && <span>НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · {isRemoteMode ? "REMOTE DATA" : "DEMO DATA"}</span>}</footer>
       </div>
     </main>
     {craftModalItem && <RecipeModal
