@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
-import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw, Menu, X, ClipboardList, Plus, Trash2 } from 'lucide-react'
+import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw, Menu, X, ClipboardList, Plus, Trash2, FlaskConical } from 'lucide-react'
 import { AccessoryBuilds } from './AccessoryBuilds'
 import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
 import { getClassProgressItems, getItemStageRank } from './gear-progression'
@@ -9,7 +9,7 @@ import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 
-type Tab = 'players' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'notes' | 'settings' | 'admin'
+type Tab = 'players' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
 const nav: { id: Tab; label: string; icon: typeof Swords }[] = [
   { id: 'players', label: 'Игроки', icon: Users },
   { id: 'progression', label: 'Прогресс классов', icon: Swords },
@@ -18,8 +18,24 @@ const nav: { id: Tab; label: string; icon: typeof Swords }[] = [
   { id: 'bosses', label: 'Боссы и этапы', icon: Skull },
   { id: 'crafting', label: 'Дерево крафта', icon: GitBranch },
   { id: 'catalog', label: 'Каталог предметов', icon: BookOpen },
+  { id: 'alchemy', label: 'Зелья и алхимия', icon: FlaskConical },
   { id: 'notes', label: 'Заметки команды', icon: ClipboardList },
 ]
+const potionRecipes = [
+ {name:'Зелье железной кожи',group:'Защита',effect:'+8 защиты на время действия',ingredients:['Бутылка воды','Лилейник','Железная руда или свинцовая руда'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье регенерации',group:'Защита',effect:'Ускоряет восстановление здоровья',ingredients:['Бутылка воды','Лилейник','Гриб'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье скорости',group:'Исследование',effect:'Увеличивает скорость передвижения',ingredients:['Бутылка воды','Миражник','Кактус'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье выносливости',group:'Защита',effect:'Снижает получаемый урон на 10%',ingredients:['Бутылка воды','Миражник','Бронированная пещерная рыба'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье жизненной силы',group:'Защита',effect:'Увеличивает максимальное здоровье на 20%',ingredients:['Бутылка воды','Призмит','Лунное сияние','Морозный цветок','Воднолист'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье ярости',group:'Бой',effect:'Увеличивает шанс критического удара на 10%',ingredients:['Бутылка воды','Мертвецвет','Кровавая пиранья'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье гнева',group:'Бой',effect:'Увеличивает наносимый урон на 10%',ingredients:['Бутылка воды','Мертвецвет','Эбонкой'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье призыва',group:'Бой',effect:'Увеличивает максимальное число миньонов на 1',ingredients:['Бутылка воды','Лунное сияние','Пёстрая жирная рыба'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье лучника',group:'Бой',effect:'Увеличивает скорость и урон стрел',ingredients:['Бутылка воды','Лилейник','Линза'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье маны',group:'Магия',effect:'Восстанавливает 100 единиц маны',ingredients:['2 малых зелья маны','Светящийся гриб'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье опасности',group:'Исследование',effect:'Подсвечивает опасные объекты поблизости',ingredients:['Бутылка воды','Морозный цветок','10 паутины'],amount:'1',station:'Бутылка / Алхимический стол'},
+ {name:'Зелье шахтёра',group:'Исследование',effect:'Увеличивает скорость добычи',ingredients:['Бутылка воды','Миражник','Челюсть муравьиного льва'],amount:'1',station:'Бутылка / Алхимический стол'},
+] as const
+
 const initial: Record<string, ItemStatus> = {
   night_edge: 'owned', muramasa: 'owned', blade_grass: 'crafting',
   fiery_greatsword: 'missing', terra_blade: 'planned', megashark: 'owned',
@@ -73,6 +89,10 @@ export default function App() {
   const [craftQuery, setCraftQuery] = useState('')
   const [recipeIndex, setRecipeIndex] = useState(0)
   const [craftModalItem, setCraftModalItem] = useState<Item | null>(null)
+  const [currentLoadouts, setCurrentLoadouts] = useState<Record<string,string>>(() => { try { return JSON.parse(localStorage.getItem('terraria-current-loadouts') || '{}') } catch { return {} } })
+  const [currentStages, setCurrentStages] = useState<Record<string,string>>(() => { try { return JSON.parse(localStorage.getItem('terraria-current-stages') || '{}') } catch { return {} } })
+  const [potionQuery, setPotionQuery] = useState('')
+  const [potionFilter, setPotionFilter] = useState('Все')
   const classColors: Record<GameClass, string> = { Melee:'#d98d54', Ranger:'#79a8d8', Mage:'#a88add', Summoner:'#76b98c' }
   const currentPlayers: Player[] = isRemoteMode
     ? (remotePlayers.length ? remotePlayers : session ? [session.player] : []).map(p => ({...p,color:classColors[p.gameClass]}))
@@ -323,10 +343,21 @@ export default function App() {
     return counts
   }, {})
   useEffect(() => { setPlayerVisibleCount(60) }, [selected, playerQuery, playerCategory, playerStatus, playerStage, playerSort, hideWeakerGear])
-  const total = Math.round(
-    classItems.filter(item => statusForPlayer(player.id, item.id) !== 'skipped' && statusForPlayer(player.id, item.id) === 'owned').length /
-    Math.max(classItems.filter(item => statusForPlayer(player.id, item.id) !== 'skipped').length, 1) * 100,
-  )
+  const currentSetId = currentLoadouts[player.id] || ''
+  const currentSet = armorSetsForClass(player.gameClass).find(set => set.id === currentSetId)
+  const setOwnedPieces = currentSet?.pieces.filter(piece => classItems.some(item => item.name === piece.name && statusForPlayer(player.id,item.id) === 'owned')).length || 0
+  const armorSlots = new Set(armorSetsForClass(player.gameClass).flatMap(set => set.pieces.map(piece => piece.slot))).size || 3
+  const ownedArmorSlots = new Set(armorSetsForClass(player.gameClass).flatMap(set => set.pieces.filter(piece => classItems.some(item => item.name === piece.name && statusForPlayer(player.id,item.id) === 'owned')).map(piece => piece.slot))).size
+  const hasWeapon = classItems.some(item => (categoryKey(item.category) === 'weapon') && statusForPlayer(player.id,item.id) === 'owned')
+  const ownedAccessories = Math.min(5,classItems.filter(item => categoryKey(item.category) === 'accessory' && statusForPlayer(player.id,item.id) === 'owned').length)
+  const hasAmmo = player.gameClass !== 'Ranger' || classItems.some(item => categoryKey(item.category) === 'ammo' && statusForPlayer(player.id,item.id) === 'owned')
+  const equipmentSlotCount = armorSlots + 1 + 5 + (player.gameClass === 'Ranger' ? 1 : 0)
+  const equippedSlotCount = ownedArmorSlots + Number(hasWeapon) + ownedAccessories + Number(hasAmmo)
+  const total = Math.round(equippedSlotCount / equipmentSlotCount * 100)
+  const setOptions = armorSetsForClass(player.gameClass).filter(set => classItems.some(item => set.pieces.some(piece => piece.name === item.name)))
+  const setCurrentSet = (value:string) => { const next={...currentLoadouts,[player.id]:value}; setCurrentLoadouts(next); localStorage.setItem('terraria-current-loadouts',JSON.stringify(next)) }
+  const stageCurrent = currentStages[player.id] || progressionStageGroups[0]?.stage || ''
+  const setStageCurrent = (value:string) => { const next={...currentStages,[player.id]:value}; setCurrentStages(next); localStorage.setItem('terraria-current-stages',JSON.stringify(next)) }
   const teamCount = catalogItems.filter(i => categoryKey(i.category) !== 'material' && (isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)))).length
   const filtered = useMemo(() => {
     const statusOrder: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
@@ -577,6 +608,12 @@ export default function App() {
         {tab === 'accessories' && <AccessoryBuilds items={catalogItems} onOpenCraft={setCraftModalItem}/>}
         {tab === 'notes' && <section className="notes-layout"><form className="notes-editor" onSubmit={saveTeamNote}><div className="panel-head"><h2>{editingNote?'Редактировать заметку':'Новая заметка'}</h2><ClipboardList size={18}/></div><label>Заголовок<input required maxLength={120} value={noteTitle} onChange={e=>setNoteTitle(e.target.value)} placeholder="Задача команды"/></label><label>Описание / чек-лист<textarea rows={6} maxLength={10000} value={noteBody} onChange={e=>setNoteBody(e.target.value)} placeholder="План, ресурсы, детали..."/></label><div className="notes-form-row"><label>Статус<select value={noteStatus} onChange={e=>setNoteStatus(e.target.value as TeamNote['status'])}><option value="backlog">Бэклог</option><option value="doing">В работе</option><option value="done">Готово</option></select></label><label>Приоритет<select value={notePriority} onChange={e=>setNotePriority(e.target.value as TeamNote['priority'])}><option value="low">Низкий</option><option value="normal">Обычный</option><option value="high">Высокий</option></select></label></div><fieldset className="notes-players"><legend>Привязать игроков</legend>{currentPlayers.map(member=><label key={member.id}><input type="checkbox" checked={notePlayers.includes(member.id)} onChange={e=>setNotePlayers(old=>e.target.checked?[...old,member.id]:old.filter(id=>id!==member.id))}/>{member.name} · {classLabel(member.gameClass)}</label>)}</fieldset><div className="notes-actions"><button className="small-button" type="submit"><Plus size={14}/>{editingNote?'Сохранить':'Добавить заметку'}</button>{editingNote&&<button type="button" className="catalog-reset" onClick={resetNoteForm}>Отмена</button>}</div></form><section className="notes-board"><div className="panel-head"><div><h2>Бэклог команды</h2><small>{teamNotes.length} заметок</small></div><ClipboardList size={18}/></div><div className="notes-filters">{[['all','Все'],['backlog','Бэклог'],['doing','В работе'],['done','Готово']].map(([v,l])=><button type="button" key={v} className={noteFilter===v?'selected':''} onClick={()=>setNoteFilter(v as typeof noteFilter)}>{l}</button>)}</div><div className="notes-list">{teamNotes.filter(note=>noteFilter==='all'||note.status===noteFilter).map(note=><article className="team-note" key={note.id}><div className="team-note-top"><span>{note.priority==='high'?'ВЫСОКИЙ ПРИОРИТЕТ':note.priority==='low'?'НИЗКИЙ ПРИОРИТЕТ':'ОБЫЧНЫЙ ПРИОРИТЕТ'}</span><span>{note.status==='done'?'ГОТОВО':note.status==='doing'?'В РАБОТЕ':'БЭКЛОГ'}</span></div><h3>{note.title}</h3>{note.body&&<p>{note.body}</p>}<div className="team-note-players">{note.playerIds.map(id=>currentPlayers.find(member=>member.id===id)).filter(Boolean).map(member=><span key={member!.id}>{member!.name}</span>)}</div><small>{new Date(note.updatedAt).toLocaleString('ru-RU')}</small><div className="team-note-actions"><button type="button" className="small-button" onClick={()=>editNote(note)}>Изменить</button><button type="button" className="small-button danger" onClick={()=>deleteTeamNote(note.id)}><Trash2 size={13}/>Удалить</button></div></article>)}{teamNotes.length===0&&<p>Заметок пока нет. Добавь первую задачу.</p>}</div></section></section>}
 
+        {tab === 'alchemy' && <section className="alchemy-page">
+          <div className="alchemy-intro"><div><span className="eyebrow">CRAFTING COMPENDIUM</span><h2>Алхимия и полезные рецепты</h2><p>Подборка базовых боевых зелий для подготовки к боссам. Рецепты для версии Desktop 1.4.5.x.</p></div><div className="alchemy-station"><FlaskConical size={28}/><b>Алхимический стол</b><small>33% шанс не потратить каждый ингредиент</small></div></div>
+          <div className="alchemy-filters"><input value={potionQuery} onChange={e=>setPotionQuery(e.target.value)} placeholder="Найти зелье или ингредиент..."/><select value={potionFilter} onChange={e=>setPotionFilter(e.target.value)}><option>Все</option><option>Бой</option><option>Защита</option><option>Исследование</option><option>Магия</option></select></div>
+          <div className="potion-grid">{potionRecipes.filter(recipe=>(potionFilter==='Все'||recipe.group===potionFilter)&&([recipe.name,recipe.effect,...recipe.ingredients].join(' ').toLowerCase().includes(potionQuery.toLowerCase()))).map(recipe=><article className="potion-card" key={recipe.name}><div className="potion-card-top"><span>{recipe.group}</span><small>{recipe.station}</small></div><h3>{recipe.name}</h3><p>{recipe.effect}</p><div className="potion-ingredients"><b>Ингредиенты</b>{recipe.ingredients.map(ingredient=><span key={ingredient}>{ingredient}</span>)}</div><small className="potion-amount">Выход: {recipe.amount}</small></article>)}</div>
+          <div className="alchemy-tips"><h3>Полезно знать</h3><ul><li>Алхимический стол находится в Данже и после победы над Скелетроном может быть получен также рыбалкой в Данже.</li><li>Алхимический стол даёт отдельный шанс 1/3 не потратить каждую единицу каждого ингредиента.</li><li>Колба алхимика заменяет алхимический стол и увеличивает длительность большинства эффектов зелий на 20%.</li><li>Колбы для оружия создаются не на алхимическом столе, а на станции для настоев (Imbuing Station).</li></ul><a href="https://terraria.wiki.gg/wiki/Alchemy" target="_blank" rel="noreferrer">Официальная Terraria Wiki: зелья и алхимия</a></div>
+        </section>}
         {tab === 'progression' && <>
           <section className="progression-overview">
             <div className="progression-overview-heading">
@@ -590,12 +627,19 @@ export default function App() {
               <span><b>{playerStatusCounts.planned}</b> в планах</span>
               <span><b>{playerStatusCounts.missing}</b> не получено</span>
             </div>
+            <div className="current-loadout-panel">
+              <div><span className="eyebrow">CURRENT ARMOR SET</span><h3>Текущий комплект брони</h3><p>{currentSet ? `${currentSet.name} · ${setOwnedPieces}/3 частей собрано` : 'Выбери комплект, который сейчас используешь'}</p></div>
+              <select value={currentSetId} onChange={event=>setCurrentSet(event.target.value)} aria-label="Текущий комплект брони">
+                <option value="">Не выбран</option>
+                {setOptions.map(set=><option value={set.id} key={set.id}>{set.name}</option>)}
+              </select>
+            </div>
             <div className="progression-analytics">
               <section className="analytics-card status-chart-card">
                 <div className="analytics-card-heading"><div><span className="eyebrow">GEAR STATUS</span><h3>Состояние экипировки</h3></div><span className="analytics-total">{playerStatusCounts.owned + playerStatusCounts.crafting + playerStatusCounts.planned + playerStatusCounts.missing}</span></div>
                 <div className="status-chart-layout">
                   <div className="status-donut" style={{'--owned': playerStatusCounts.owned, '--crafting': playerStatusCounts.crafting, '--planned': playerStatusCounts.planned, '--missing': playerStatusCounts.missing, '--all': Math.max(1, playerStatusCounts.owned + playerStatusCounts.crafting + playerStatusCounts.planned + playerStatusCounts.missing)} as React.CSSProperties}>
-                    <div><b>{total}%</b><small>готово</small></div>
+                    <div><b>{total}%</b><small>слотов занято</small></div>
                   </div>
                   <div className="status-legend">
                     <span><i className="legend-owned"/><b>{playerStatusCounts.owned}</b> Получено</span>
@@ -636,17 +680,22 @@ export default function App() {
           </div>
           <WeakerGearToggle checked={hideWeakerGear} onChange={setHideWeakerGear}/>
           {progressionStageGroups.length > 0
-            ? <div className="progression-stage-list">{progressionStageGroups.map(({ stage, items: stageItems }) =>
-                <ProgressionStageCard
-                  key={stage}
-                  stage={stage}
-                  items={stageItems}
-                  statusForItem={itemId => statusForPlayer(player.id, itemId)}
-                  onStatus={setStatus}
-                  onCraft={setCraftModalItem}
-                  disabled={isRemoteMode && selected !== session?.player.id}
-                />
-              )}</div>
+            ? <div className="progression-tree">{progressionStageGroups.map(({stage,items:stageItems},index)=>{
+                const active=stageItems.filter(item=>statusForPlayer(player.id,item.id)!=='skipped')
+                const done=active.filter(item=>statusForPlayer(player.id,item.id)==='owned').length
+                const isCurrent=stage===stageCurrent
+                const title=/^\d+$/.test(stage)?(classStages[player.gameClass].find(value=>value.id.endsWith('-'+stage))?.title||stageLabel(stage)):stageLabel(stage)
+                return <section className={'progression-tree-node '+(isCurrent?'current':'')} key={stage}>
+                  <div className="progression-tree-marker"><span>{index+1}</span></div>
+                  <div className="progression-tree-content">
+                    <div className="progression-tree-heading">
+                      <div><span className="eyebrow">ЭТАП {index+1}</span><h3>{title}</h3><p>{/^\d+$/.test(stage)?classStages[player.gameClass].find(value=>value.id.endsWith('-'+stage))?.unlock||'Этап прогрессии': 'Экипировка этапа'}</p></div>
+                      <div className="progression-tree-actions"><b>{done}/{active.length}</b><button type="button" className={isCurrent?'selected':''} onClick={()=>setStageCurrent(stage)}>{isCurrent?'Текущий этап':'Я здесь'}</button></div>
+                    </div>
+                    <div className="progression-tree-items">{stageItems.map(item=><PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id,item.id)} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected!==session?.player.id}/>)}</div>
+                  </div>
+                </section>
+              })}</div>
             : <div className="player-gear-empty"><Swords size={22}/><b>Нет предметов для этого класса</b><span>В каталоге пока нет экипировки, которую можно отнести к классу {classLabel(player.gameClass).toLowerCase()}.</span></div>}
         </>}
         {tab === 'inventory' && <>
