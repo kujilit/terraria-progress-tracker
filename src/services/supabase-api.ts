@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type {
   AuthInput, BossRecord, CreateWorldInput, InventoryRecord, JoinWorldInput,
-  ProgressRecord, TrackerApi, TrackerPlayer, TrackerSession, TrackerWorld,
+  ProgressRecord, TeamNote, TrackerApi, TrackerPlayer, TrackerSession, TrackerWorld,
 } from './api'
 import { ApiError } from './api'
 import type { Item } from '../types'
@@ -151,6 +151,14 @@ export class SupabaseTrackerApi implements TrackerApi {
       p_quantity: input.quantity,
     })
   }
+
+  listNotes(token: string) { return this.rpc<TeamNote[]>('tracker_notes_list', { p_token: token }) }
+
+  saveNote(token: string, input: { id?: string; title: string; body: string; status: TeamNote['status']; priority: TeamNote['priority']; playerIds: string[] }) {
+    return this.rpc<TeamNote>('tracker_note_save', { p_token: token, p_note_id: input.id || null, p_title: input.title, p_body: input.body, p_status: input.status, p_priority: input.priority, p_player_ids: input.playerIds })
+  }
+
+  async deleteNote(token: string, noteId: string) { await this.rpc<{ deleted: boolean }>('tracker_note_delete', { p_token: token, p_note_id: noteId }) }
 
   transferInventory(
     token: string,
