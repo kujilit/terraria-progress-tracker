@@ -395,6 +395,7 @@ export default function App() {
   const canSeeAdmin = Boolean(session && (session.player.role === 'owner' || session.player.role === 'admin'))
   const canManageAdmins = Boolean(session?.player.role === 'owner')
   const pageTitle = tab === 'settings' ? 'Настройки' : tab === 'admin' ? 'Администрирование' : nav.find(n => n.id === tab)?.label || 'Игроки'
+  const activeGroup = nav.find(group => group.tabs.includes(tab))
   const exportProgress = () => {
     const payload = {
       format: 'terraria-progress-tracker', version: 1, exportedAt: new Date().toISOString(),
@@ -484,8 +485,8 @@ export default function App() {
           <div><div className="eyebrow">TERRARIA TRACKER / {pageTitle.toUpperCase()}</div><h1>{pageTitle}</h1><p>Отслеживайте экипировку, прогресс персонажей и развитие команды.</p></div>
           <button className="gold-button" onClick={() => setTab('players')}><Users size={16}/> Игроки мира</button>
         </div>
-        {subnav[tab] && <div className="section-tabs" role="tablist" aria-label="Подразделы">
-          {subnav[tab]!.map(entry => <button type="button" role="tab" aria-selected={tab === entry.id} className={tab === entry.id ? 'selected' : ''} key={entry.id} onClick={() => setTab(entry.id)}>{entry.label}</button>)}
+        {activeGroup && subnav[activeGroup.id] && <div className="section-tabs" role="tablist" aria-label="Подразделы">
+          {subnav[activeGroup.id]!.map(entry => <button type="button" role="tab" aria-selected={tab === entry.id} className={tab === entry.id ? 'selected' : ''} key={entry.id} onClick={() => setTab(entry.id)}>{entry.label}</button>)}
         </div>}
         {tab === 'players' && <>
           <section className="player-roster">
