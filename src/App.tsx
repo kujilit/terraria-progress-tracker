@@ -90,6 +90,10 @@ export default function App() {
     }
   }
   useEffect(() => {
+    if (isRemoteMode || !session) return
+    trackerApi.listPlayers(session.token).then(setRemotePlayers).catch(() => undefined)
+  }, [session])
+  useEffect(() => {
     if (!isRemoteMode || !session) return
     let active = true
     const refresh = async () => {
