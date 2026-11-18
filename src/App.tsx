@@ -159,14 +159,15 @@ export default function App() {
     return () => { active = false; window.clearInterval(intervalId) }
   }, [session])
   useEffect(() => {
-    if (!session) return
+    if (isRemoteMode && !session) return
     let active = true
-    const refresh = () => trackerApi.listNotes(session.token).then(rows => { if (active) setTeamNotes(rows) }).catch(error => { if (active) setSyncError(error instanceof Error ? error.message : 'Не удалось загрузить заметки') })
+    const token = session?.token || selected
+    const refresh = () => trackerApi.listNotes(token).then(rows => { if (active) setTeamNotes(rows) }).catch(error => { if (active) setSyncError(error instanceof Error ? error.message : 'Не удалось загрузить заметки') })
     void refresh()
     if (!isRemoteMode) return () => { active = false }
     const timer = window.setInterval(refresh, 10000)
     return () => { active = false; window.clearInterval(timer) }
-  }, [session])
+  }, [session, selected])
   useEffect(() => {
     if (!isRemoteMode || !session) return
     let active = true
@@ -255,8 +256,9 @@ export default function App() {
   }
   const resetNoteForm = () => { setNoteTitle(''); setNoteBody(''); setNoteStatus('backlog'); setNotePriority('normal'); setNotePlayers([]); setEditingNote(undefined) }
   const editNote = (note: TeamNote) => { setEditingNote(note.id); setNoteTitle(note.title); setNoteBody(note.body); setNoteStatus(note.status); setNotePriority(note.priority); setNotePlayers(note.playerIds) }
-  const saveTeamNote = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!session || !noteTitle.trim()) return; try { const saved=await trackerApi.saveNote(session.token,{id:editingNote,title:noteTitle,body:noteBody,status:noteStatus,priority:notePriority,playerIds:notePlayers}); setTeamNotes(current=>[...current.filter(note=>note.id!==saved.id),saved]); resetNoteForm(); setSyncError('') } catch(error) { setSyncError(error instanceof Error?error.message:'Не удалось сохранить заметку') } }
-  const deleteTeamNote = async (id:string) => { if(!session || !window.confirm('Удалить заметку?')) return; try { await trackerApi.deleteNote(session.token,id); setTeamNotes(current=>current.filter(note=>note.id!==id)); if(editingNote===id) resetNoteForm() } catch(error) { setSyncError(error instanceof Error?error.message:'Не удалось удалить заметку') } }
+  const noteToken = session?.token || selected
+  const saveTeamNote = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if ((isRemoteMode && !session) || !noteTitle.trim()) return; try { const saved=await trackerApi.saveNote(noteToken,{id:editingNote,title:noteTitle,body:noteBody,status:noteStatus,priority:notePriority,playerIds:notePlayers}); setTeamNotes(current=>[...current.filter(note=>note.id!==saved.id),saved]); resetNoteForm(); setSyncError('') } catch(error) { setSyncError(error instanceof Error?error.message:'Не удалось сохранить заметку') } }
+  const deleteTeamNote = async (id:string) => { if((isRemoteMode && !session) || !window.confirm('Удалить заметку?')) return; try { await trackerApi.deleteNote(noteToken,id); setTeamNotes(current=>current.filter(note=>note.id!==id)); if(editingNote===id) resetNoteForm() } catch(error) { setSyncError(error instanceof Error?error.message:'Не удалось удалить заметку') } }
   const handleSession = (next: TrackerSession) => {
     sessionStorage.setItem('terraria-tracker-session',JSON.stringify(next))
     setSession(next)
