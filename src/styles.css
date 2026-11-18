@@ -877,3 +877,8 @@ footer{border-color:#394052;color:#9297b5}
 .ui-compact .player-gear-card,.ui-compact .catalog-card,.ui-compact .player-armor-set-card,.ui-compact .accessory-card{padding:9px}
 .ui-compact .player-gear-grid,.ui-compact .catalog-grid{gap:10px}
 @media(max-width:700px){.ui-compact .content{padding:16px 10px}}
+
+
+/* Shared Terraria pixel mark used by the sidebar and browser favicon */
+.brand-mark{display:grid;place-items:center;overflow:hidden}
+.brand-mark img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
