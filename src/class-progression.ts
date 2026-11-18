@@ -121,5 +121,7 @@ const stageFor = (cls:GameClass,key:string) => {
 export const progressionItems: Item[] = rows.map(([gameClass,key,ru,name,category,description]) => {
  const stage=stageFor(gameClass,key)
  const id='wiki-'+gameClass.toLowerCase()+'-'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-')
- return {id,name,ru,gameClass:[gameClass],category,stage:String(stage),icon:category==='Броня'?'🛡️':category==='Призыв'?'🐾':'⚔️',description,source:'Список экипировки класса на русской Terraria Wiki',verified:true}
+ const imageFile = `${name.trim()}.png`
+ const imageUrl = `https://terraria.wiki.gg/wiki/Special:FilePath/${encodeURIComponent(imageFile)}`
+ return {id,name,ru,gameClass:[gameClass],category,stage:String(stage),icon:category==='Броня'?'🛡️':category==='Призыв'?'🐾':'⚔️',description,source:'Список экипировки класса на русской Terraria Wiki',verified:true,imageUrl,imagePageUrl:`https://terraria.wiki.gg/wiki/File:${encodeURIComponent(imageFile.replace(/ /g,'_'))}`}
 })
