@@ -11,18 +11,19 @@ import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlay
 import { trackerApi, isRemoteMode } from './services'
 
 type Tab = 'players' | 'companion' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
-const nav: { id: Tab; label: string; icon: typeof Swords }[] = [
-  { id: 'players', label: 'Игроки', icon: Users },
-  { id: 'companion', label: 'План приключения', icon: Target },
-  { id: 'progression', label: 'Прогресс классов', icon: Swords },
-  { id: 'accessories', label: 'Аксессуары и билды', icon: Shield },
-  { id: 'inventory', label: 'Командный инвентарь', icon: Backpack },
-  { id: 'bosses', label: 'Боссы и этапы', icon: Skull },
-  { id: 'crafting', label: 'Дерево крафта', icon: GitBranch },
-  { id: 'catalog', label: 'Каталог предметов', icon: BookOpen },
-  { id: 'alchemy', label: 'Зелья и алхимия', icon: FlaskConical },
-  { id: 'notes', label: 'Заметки команды', icon: ClipboardList },
+const nav: { id: Tab; label: string; icon: typeof Swords; tabs: Tab[] }[] = [
+  { id: 'players', label: 'Мир и игроки', icon: Users, tabs: ['players'] },
+  { id: 'progression', label: 'Экипировка', icon: Swords, tabs: ['progression', 'accessories'] },
+  { id: 'bosses', label: 'Боссы', icon: Skull, tabs: ['bosses', 'companion'] },
+  { id: 'crafting', label: 'Крафт', icon: GitBranch, tabs: ['crafting', 'catalog', 'alchemy'] },
+  { id: 'notes', label: 'Команда', icon: ClipboardList, tabs: ['notes', 'inventory'] },
 ]
+const subnav: Partial<Record<Tab, { id: Tab; label: string }[]>> = {
+  progression: [{ id: 'progression', label: 'Прогресс классов' }, { id: 'accessories', label: 'Аксессуары и билды' }],
+  bosses: [{ id: 'bosses', label: 'Боссы и этапы' }, { id: 'companion', label: 'План приключения' }],
+  crafting: [{ id: 'crafting', label: 'Дерево крафта' }, { id: 'catalog', label: 'Каталог' }, { id: 'alchemy', label: 'Зелья' }],
+  notes: [{ id: 'notes', label: 'Заметки' }, { id: 'inventory', label: 'Инвентарь команды' }],
+}
 const potionRecipes = [
  {name:'Зелье железной кожи',group:'Защита',effect:'+8 защиты на время действия',ingredients:['Бутылка воды','Лилейник','Железная руда или свинцовая руда'],amount:'1',station:'Бутылка / Алхимический стол'},
  {name:'Зелье регенерации',group:'Защита',effect:'Ускоряет восстановление здоровья',ingredients:['Бутылка воды','Лилейник','Гриб'],amount:'1',station:'Бутылка / Алхимический стол'},
@@ -456,9 +457,9 @@ export default function App() {
         </button>
       </div>
       <div className="world-switch"><span className="eyebrow">ТЕКУЩИЙ МИР</span><b>{session?.world.name || 'For The Worthy'}</b><small>{session ? `${session.world.difficulty} · ${session.world.evilBiome} · ${session.world.gameVersion}` : 'Master · Crimson · 1.4.5.x'}</small>{session && <button className="invite-code" onClick={() => navigator.clipboard.writeText(session.world.joinCode)}>КОД МИРА · {session.world.joinCode}</button>}</div>
-      <div className="nav-label">ПРИКЛЮЧЕНИЕ</div>
-      {nav.map(n => <button key={n.id} className={'nav-item ' + (tab === n.id ? 'active' : '')} onClick={() => { setTab(n.id); setMobileNavOpen(false) }}>
-        <n.icon size={17}/>{n.label}{n.id === 'inventory' || n.id === 'crafting' ? <span className="new-dot"/> : null}
+      <div className="nav-label">МИР</div>
+      {nav.map(n => <button key={n.id} className={'nav-item ' + (n.tabs.includes(tab) ? 'active' : '')} onClick={() => { setTab(n.id); setMobileNavOpen(false) }}>
+        <n.icon size={17}/>{n.label}
       </button>)}
       {canSeeAdmin && <button className={'nav-item ' + (tab === 'admin' ? 'active' : '')} onClick={() => { setTab('admin'); setMobileNavOpen(false) }}><Settings size={17}/>Администрирование</button>}
       <div className="sidebar-bottom">
@@ -483,6 +484,9 @@ export default function App() {
           <div><div className="eyebrow">TERRARIA TRACKER / {pageTitle.toUpperCase()}</div><h1>{pageTitle}</h1><p>Отслеживайте экипировку, прогресс персонажей и развитие команды.</p></div>
           <button className="gold-button" onClick={() => setTab('players')}><Users size={16}/> Игроки мира</button>
         </div>
+        {subnav[tab] && <div className="section-tabs" role="tablist" aria-label="Подразделы">
+          {subnav[tab]!.map(entry => <button type="button" role="tab" aria-selected={tab === entry.id} className={tab === entry.id ? 'selected' : ''} key={entry.id} onClick={() => setTab(entry.id)}>{entry.label}</button>)}
+        </div>}
         {tab === 'players' && <>
           <section className="player-roster">
             <div className="player-roster-heading">
