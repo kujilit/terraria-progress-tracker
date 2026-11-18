@@ -875,10 +875,6 @@ function ItemArtwork({ item, className }: { item: Pick<Item, 'icon' | 'imageUrl'
   </div>
 }
 
-function classIcon(gameClass: GameClass) {
-  return gameClass === 'Melee' ? '⚔' : gameClass === 'Ranger' ? '➶' : gameClass === 'Mage' ? '✦' : '♟'
-}
-
 function classLabel(gameClass: GameClass) {
   const labels: Record<GameClass, string> = {
     Melee: 'Ближний бой', Ranger: 'Стрелок', Mage: 'Маг', Summoner: 'Призыватель',
