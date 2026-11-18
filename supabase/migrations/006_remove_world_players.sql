@@ -49,14 +49,64 @@ returns jsonb
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $$
 declare
   v_world_id uuid;
   v_player public.tracker_players%rowtype;
   v_attempts integer;
   v_data jsonb;
 begin
-  if coalesce(p_join_code, '') !~ '^[A-Za-z0-9]{8}create or replace function public.tracker_players_list(p_token text)
+  if coalesce(p_join_code, '') !~ '^[A-Za-z0-9]{8}$'
+     or length(btrim(coalesce(p_player_name, ''))) not between 2 and 24
+     or coalesce(p_pin, '') !~ '^[0-9]{6,12}$' then
+    return jsonb_build_object('success', false, 'data', null,
+      'error', jsonb_build_object('code', 'AUTH_FAILED', 'message', 'World code, player name, or PIN is incorrect.'));
+  end if;
+
+  select id into v_world_id from public.tracker_worlds
+  where join_code = upper(btrim(p_join_code)) and status = 'active';
+  if v_world_id is null then
+    return jsonb_build_object('success', false, 'data', null,
+      'error', jsonb_build_object('code', 'AUTH_FAILED', 'message', 'World code, player name, or PIN is incorrect.'));
+  end if;
+
+  select * into v_player from public.tracker_players
+  where world_id = v_world_id and lower(name) = lower(btrim(p_player_name));
+  if not found then
+    return jsonb_build_object('success', false, 'data', null,
+      'error', jsonb_build_object('code', 'AUTH_FAILED', 'message', 'World code, player name, or PIN is incorrect.'));
+  end if;
+
+  if v_player.kicked_at is not null then
+    return jsonb_build_object('success', false, 'data', null,
+      'error', jsonb_build_object('code', 'PLAYER_REMOVED', 'message', 'You have been removed from this world.'));
+  end if;
+
+  if v_player.locked_until is not null and v_player.locked_until > now() then
+    return jsonb_build_object('success', false, 'data', null,
+      'error', jsonb_build_object('code', 'LOGIN_LOCKED', 'message', 'Too many failed attempts. Try again later.'));
+  end if;
+
+  if extensions.crypt(p_pin, v_player.pin_hash) <> v_player.pin_hash then
+    v_attempts := v_player.failed_attempts + 1;
+    update public.tracker_players set failed_attempts = v_attempts,
+      locked_until = case when v_attempts >= 5 then now() + interval '15 minutes' else null end
+    where id = v_player.id;
+    if v_attempts >= 5 then
+      return jsonb_build_object('success', false, 'data', null,
+        'error', jsonb_build_object('code', 'LOGIN_LOCKED', 'message', 'Too many failed attempts. Try again later.'));
+    end if;
+    return jsonb_build_object('success', false, 'data', null,
+      'error', jsonb_build_object('code', 'AUTH_FAILED', 'message', 'World code, player name, or PIN is incorrect.'));
+  end if;
+
+  update public.tracker_players set failed_attempts = 0, locked_until = null where id = v_player.id;
+  v_data := private.tracker_make_session(v_world_id, v_player.id);
+  return jsonb_build_object('success', true, 'data', v_data, 'error', null);
+end;
+$$;
+
+create or replace function public.tracker_players_list(p_token text)
 returns jsonb
 language plpgsql
 security definer
