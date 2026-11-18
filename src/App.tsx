@@ -14,13 +14,12 @@ type Tab = 'players' | 'companion' | 'progression' | 'accessories' | 'inventory'
 const nav: { id: Tab; label: string; icon: typeof Swords; tabs: Tab[] }[] = [
   { id: 'players', label: 'Мир и игроки', icon: Users, tabs: ['players'] },
   { id: 'progression', label: 'Экипировка', icon: Swords, tabs: ['progression', 'accessories'] },
-  { id: 'bosses', label: 'Боссы', icon: Skull, tabs: ['bosses', 'companion'] },
+  { id: 'companion', label: 'План приключения', icon: Skull, tabs: ['companion'] },
   { id: 'crafting', label: 'Крафт', icon: GitBranch, tabs: ['crafting', 'catalog', 'alchemy'] },
   { id: 'notes', label: 'Команда', icon: ClipboardList, tabs: ['notes', 'inventory'] },
 ]
 const subnav: Partial<Record<Tab, { id: Tab; label: string }[]>> = {
   progression: [{ id: 'progression', label: 'Прогресс классов' }, { id: 'accessories', label: 'Аксессуары и билды' }],
-  bosses: [{ id: 'bosses', label: 'Боссы и этапы' }, { id: 'companion', label: 'План приключения' }],
   crafting: [{ id: 'crafting', label: 'Дерево крафта' }, { id: 'catalog', label: 'Каталог' }, { id: 'alchemy', label: 'Зелья' }],
   notes: [{ id: 'notes', label: 'Заметки' }, { id: 'inventory', label: 'Инвентарь команды' }],
 }
