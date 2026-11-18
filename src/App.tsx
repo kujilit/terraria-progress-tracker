@@ -169,9 +169,17 @@ export default function App() {
     } catch { return bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending' }
   }
   const nextBoss = bosses.find(boss => bossStatus(boss.id) !== 'defeated')
-  const bossAmbientIcons: Record<string, string> = {
-    king_slime: '👑', eye: '👁️', eater: '🪱', skeletron: '💀', wof: '🔥',
-    mechs: '⚙️', plantera: '🌺', golem: '🗿', cultist: '🌙', moon_lord: '☄️',
+  const bossWikiSprites: Record<string, string[]> = {
+    king_slime: ['King Slime.gif'],
+    eye: ['Eye of Cthulhu.gif'],
+    eater: ['Eater of Worlds Head.png'],
+    skeletron: ['Skeletron Head.png'],
+    wof: ['Wall of Flesh.gif'],
+    mechs: ['Retinazer (first form).gif', 'Spazmatism (first form).gif', 'Skeletron Prime head.gif'],
+    plantera: ['Plantera.gif'],
+    golem: ['Golem.png'],
+    cultist: ['Lunatic Cultist.png'],
+    moon_lord: ['Moon Lord.png'],
   }
   const saveInventoryQuantity = async () => {
     try {
@@ -422,7 +430,9 @@ export default function App() {
       </div>
     </aside>
     {nextBoss && <div className="boss-ambient" aria-hidden="true">
-      <div className="boss-ambient-sprite">{bossAmbientIcons[nextBoss.id] || '☠️'}</div>
+      <div className={'boss-ambient-sprite ' + (nextBoss.id === 'mechs' ? 'boss-ambient-mechs' : '')}>
+        {(bossWikiSprites[nextBoss.id] || []).map(file => <img key={file} src={`https://terraria.wiki.gg/wiki/Special:FilePath/${encodeURIComponent(file)}`} alt="" loading="lazy" />)}
+      </div>
       <div className="boss-ambient-label"><span>СЛЕДУЮЩИЙ БОСС</span><b>{nextBoss.name}</b></div>
     </div>}
     <main className="main">
