@@ -1135,3 +1135,28 @@ footer{border-color:#394052;color:#9297b5}
   .notes-layout{grid-template-columns:1fr}
   .notes-editor,.notes-board{padding:12px}
 }
+
+
+/* Cleaner information hierarchy */
+.content{padding:22px 28px}
+.section-tabs{margin:0 0 16px;box-shadow:none}
+.section-tabs button{padding:7px 11px}
+.section-title{margin:20px 0 10px}
+.two-col{gap:10px;margin-top:14px}
+.panel{padding:14px;box-shadow:none}
+.player-grid{gap:10px}
+.player-card{padding:12px;box-shadow:none}
+.player-gear-card,.catalog-card,.potion-card,.accessory-card{box-shadow:none}
+.progression-tree-content{box-shadow:none;padding:13px}
+.progression-tree-node.current .progression-tree-content{box-shadow:inset 3px 0 #16845f}
+.alchemy-intro,.companion-hero{box-shadow:none}
+.alchemy-page{gap:12px}
+.potion-grid{gap:10px}
+.notes-layout{gap:10px}
+.notes-editor,.notes-board{box-shadow:none}
+.team-note{box-shadow:none}
+@media(max-width:700px){
+  .content{padding:16px 12px}
+  .section-tabs{margin-bottom:12px}
+  .panel{padding:12px}
+}
