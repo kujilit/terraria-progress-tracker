@@ -20,9 +20,9 @@ npm run dev
 1. Создай проект Supabase Cloud.
 2. Выполни SQL-миграцию `supabase/migrations/001_initial_schema.sql` в Supabase SQL Editor.
 3. После неё выполни `supabase/migrations/005_world_admin_roles.sql`, чтобы включить роли администраторов мира.
-3. Возьми Project URL и Publishable key в Supabase Dashboard.
-4. Добавь GitHub Actions Variables: `VITE_API_MODE=remote`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
-5. Повторно запусти workflow **Deploy to GitHub Pages**. Значения Actions Variables подставляются во время сборки; простого сохранения переменных недостаточно для обновления уже опубликованного сайта.
+4. Возьми Project URL и Publishable key в Supabase Dashboard.
+5. Добавь GitHub Actions Variables: `VITE_API_MODE=remote`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
+6. Повторно запусти workflow **Deploy to GitHub Pages**. Значения Actions Variables подставляются во время сборки; простого сохранения переменных недостаточно для обновления уже опубликованного сайта.
 
 Подробная инструкция: [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md).
 
