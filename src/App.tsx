@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
-import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw, Menu, X, ClipboardList, Plus, Trash2, FlaskConical } from 'lucide-react'
+import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw, Menu, X, ClipboardList, Plus, Trash2, FlaskConical, Target } from 'lucide-react'
 import { AccessoryBuilds } from './AccessoryBuilds'
+import { ProgressionCompanion } from './ProgressionCompanion'
 import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
 import { getClassProgressItems, getItemStageRank } from './gear-progression'
 import { itemsWithProgression as items, players, bosses } from './data'
@@ -9,9 +10,10 @@ import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 
-type Tab = 'players' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
+type Tab = 'players' | 'companion' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
 const nav: { id: Tab; label: string; icon: typeof Swords }[] = [
   { id: 'players', label: 'Игроки', icon: Users },
+  { id: 'companion', label: 'План приключения', icon: Target },
   { id: 'progression', label: 'Прогресс классов', icon: Swords },
   { id: 'accessories', label: 'Аксессуары и билды', icon: Shield },
   { id: 'inventory', label: 'Командный инвентарь', icon: Backpack },
@@ -669,6 +671,17 @@ export default function App() {
               })}</div>
             : <div className="player-gear-empty"><Swords size={22}/><b>Нет предметов для этого класса</b><span>В каталоге пока нет экипировки, которую можно отнести к классу {classLabel(player.gameClass).toLowerCase()}.</span></div>}
         </>}
+        {tab === 'companion' && <ProgressionCompanion
+          playerName={player.name}
+          gameClass={player.gameClass}
+          catalog={catalogItems}
+          bosses={bosses}
+          statusForItem={itemId => statusForPlayer(player.id, itemId)}
+          onItemStatus={setStatus}
+          bossStatus={bossId => bossStatus(bossId) as 'defeated' | 'pending'}
+          onBossStatus={setBossStatus}
+          disabled={isRemoteMode && selected !== session?.player.id}
+        />}
         {tab === 'inventory' && <>
           {isRemoteMode && session && <section className="panel inventory-controls">
             <div className="panel-head"><h2>Управление количеством</h2><Backpack size={17}/></div>
