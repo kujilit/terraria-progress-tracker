@@ -431,7 +431,7 @@ export default function App() {
     </aside>
     {nextBoss && <div className="boss-ambient" aria-hidden="true">
       <div className={'boss-ambient-sprite ' + (nextBoss.id === 'mechs' ? 'boss-ambient-mechs' : '')}>
-        {(bossWikiSprites[nextBoss.id] || []).map(file => <img key={file} src={`https://terraria.wiki.gg/wiki/Special:FilePath/${encodeURIComponent(file)}`} alt="" loading="lazy" />)}
+        {(bossWikiSprites[nextBoss.id] || []).map(file => <img key={file} src={`https://images.weserv.nl/?url=${encodeURIComponent(`terraria.wiki.gg/wiki/Special:FilePath/${file}`)}`} alt="" loading="lazy" />)}
       </div>
       <div className="boss-ambient-label"><span>СЛЕДУЮЩИЙ БОСС</span><b>{nextBoss.name}</b></div>
     </div>}
