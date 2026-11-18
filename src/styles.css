@@ -1005,3 +1005,26 @@ footer{border-color:#394052;color:#9297b5}
 .player-gear-section .player-gear-pagination span{color:#31545b!important}
 .player-gear-section .player-gear-empty{color:#31545b!important}
 .player-gear-section .player-gear-empty b{color:#123c49!important}
+
+
+/* Progressive disclosure: keep the gear page scannable */
+.gear-group{margin:12px 0;background:#f4e3bd;border:2px solid #173744;box-shadow:3px 3px 0 #10232d;color:#173744}
+.gear-group>summary{display:flex;align-items:center;justify-content:space-between;gap:14px;list-style:none;cursor:pointer;padding:14px 17px;background:#e9d4a7}
+.gear-group>summary::-webkit-details-marker{display:none}
+.gear-group>summary>span{display:flex;align-items:center;gap:12px;min-width:0}
+.gear-group>summary b{font-size:14px;color:#173744}
+.gear-group>summary small{font-size:11px;color:#52676a}
+.gear-group>summary>svg{flex:0 0 auto;transition:transform .15s}
+.gear-group[open]>summary>svg{transform:rotate(90deg)}
+.gear-group[open]>summary{border-bottom:2px solid #173744}
+.gear-stage-categories{padding:14px}
+.gear-category-group+.gear-category-group{margin-top:18px;padding-top:15px;border-top:1px dashed #9b895f}
+.gear-category-group h3{display:flex;align-items:center;gap:8px;margin:0 0 10px;color:#173744;font-size:13px;text-transform:uppercase;letter-spacing:.7px}
+.gear-category-group h3 small{padding:3px 6px;background:#d7c294;color:#36545b;font-size:10px}
+.gear-armor-group .player-armor-sets{padding:14px}
+.gear-armor-group .player-armor-set-section-title{display:none}
+@media(max-width:600px){
+ .gear-group>summary{padding:12px}
+ .gear-group>summary>span{align-items:flex-start;flex-direction:column;gap:3px}
+ .gear-stage-categories{padding:10px}
+}
