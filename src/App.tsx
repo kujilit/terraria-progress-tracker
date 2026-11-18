@@ -590,6 +590,36 @@ export default function App() {
               <span><b>{playerStatusCounts.planned}</b> в планах</span>
               <span><b>{playerStatusCounts.missing}</b> не получено</span>
             </div>
+            <div className="progression-analytics">
+              <section className="analytics-card status-chart-card">
+                <div className="analytics-card-heading"><div><span className="eyebrow">GEAR STATUS</span><h3>Состояние экипировки</h3></div><span className="analytics-total">{playerStatusCounts.owned + playerStatusCounts.crafting + playerStatusCounts.planned + playerStatusCounts.missing}</span></div>
+                <div className="status-chart-layout">
+                  <div className="status-donut" style={{'--owned': playerStatusCounts.owned, '--crafting': playerStatusCounts.crafting, '--planned': playerStatusCounts.planned, '--missing': playerStatusCounts.missing, '--all': Math.max(1, playerStatusCounts.owned + playerStatusCounts.crafting + playerStatusCounts.planned + playerStatusCounts.missing)} as React.CSSProperties}>
+                    <div><b>{total}%</b><small>готово</small></div>
+                  </div>
+                  <div className="status-legend">
+                    <span><i className="legend-owned"/><b>{playerStatusCounts.owned}</b> Получено</span>
+                    <span><i className="legend-crafting"/><b>{playerStatusCounts.crafting}</b> В работе</span>
+                    <span><i className="legend-planned"/><b>{playerStatusCounts.planned}</b> В планах</span>
+                    <span><i className="legend-missing"/><b>{playerStatusCounts.missing}</b> Не получено</span>
+                  </div>
+                </div>
+              </section>
+              <section className="analytics-card stage-chart-card">
+                <div className="analytics-card-heading"><div><span className="eyebrow">STAGE OVERVIEW</span><h3>Готовность по этапам</h3></div><small>Получено / всего</small></div>
+                <div className="stage-chart">
+                  {progressionStageGroups.map(({stage,items:stageItems}) => {
+                    const active=stageItems.filter(item=>statusForPlayer(player.id,item.id)!=='skipped')
+                    const done=active.filter(item=>statusForPlayer(player.id,item.id)==='owned').length
+                    const percent=active.length?Math.round(done/active.length*100):0
+                    return <div className="stage-chart-row" key={stage}>
+                      <div className="stage-chart-label"><b>{/^\\d+$/.test(stage)?(classStages[player.gameClass].find(value=>value.id.endsWith('-'+stage))?.title||stageLabel(stage)):stageLabel(stage)}</b><small>{done}/{active.length}</small></div>
+                      <div className="stage-chart-track"><i style={{width:percent+'%'}}/></div><strong>{percent}%</strong>
+                    </div>
+                  })}
+                </div>
+              </section>
+            </div>
           </section>
           <div className="class-tabs progression-class-tabs">
             {(['Melee', 'Ranger', 'Mage', 'Summoner'] as GameClass[]).map(gameClass => {
