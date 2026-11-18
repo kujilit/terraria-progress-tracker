@@ -1170,3 +1170,22 @@ footer{border-color:#394052;color:#9297b5}
 .admin-player-identity{display:flex;align-items:center;gap:10px}
 .admin-player-avatar{width:38px;height:38px;border:2px solid #071b22;border-radius:50%}
 .admin-player-identity>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+
+
+/* Refine pixel avatars: keep the sprite inside its grid cell and remove badge framing. */
+.avatar,.roster-emblem,.player-emblem,.admin-player-avatar{
+  display:block;
+  padding:0;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  background-color:#86c06c;
+  background-size:400% 400%;
+  background-repeat:no-repeat;
+  image-rendering:pixelated;
+  flex-shrink:0;
+}
+.avatar{width:38px;height:38px}
+.roster-emblem{width:36px;height:36px}
+.player-emblem.big{width:64px;height:64px}
+.admin-player-avatar{width:36px;height:36px}
