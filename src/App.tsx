@@ -556,7 +556,7 @@ export default function App() {
               </div>
             </details>}
             {standaloneGearGroups.map(group => <details className="gear-group" key={group.stage}>
-              <summary><span><b>{stageLabel(group.stage)}</b><small>{group.categories.reduce((n,cat)=>n+cat.items.length,0)} предметов · {group.categories.length} категорий</small></span><ChevronRight size={17}/></summary>
+              <summary><span><b>{/^\\d+$/.test(group.stage) ? (classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.title || stageLabel(group.stage)) : stageLabel(group.stage)}</b><small>{/^\\d+$/.test(group.stage) ? classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.unlock+' · ' : ''}{group.categories.reduce((n,cat)=>n+cat.items.length,0)} предметов · {group.categories.length} категорий</small></span><ChevronRight size={17}/></summary>
               <div className="gear-stage-categories">
                 {group.categories.map(category => <section className="gear-category-group" key={category.category}>
                   <h3>{categoryLabel(category.category)} <small>{category.items.length}</small></h3>
