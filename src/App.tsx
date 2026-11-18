@@ -9,6 +9,7 @@ import { classStages } from './class-progression'
 import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
+import { PixelAvatar } from './components/PixelAvatar'
 
 type Tab = 'players' | 'companion' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
 const nav: { id: Tab; label: string; icon: typeof Swords; tabs: Tab[] }[] = [
@@ -477,7 +478,7 @@ export default function App() {
     <main className="main">
       <header className="topbar">
         <div className="crumb">МИРЫ <ChevronRight size={13}/> <b>{(session?.world.name || 'FOR THE WORTHY').toUpperCase()}</b> <ChevronRight size={13}/> {pageTitle.toUpperCase()}</div>
-        <div className="top-actions"><span className="version">{session?.world.gameVersion || 'VANILLA 1.4.5.x'}</span><div className="avatar">{player.name[0]}</div><span className="player-name">{player.name}</span>{session && <button className="logout-button" onClick={handleLogout}>Выйти</button>}</div>
+        <div className="top-actions"><span className="version">{session?.world.gameVersion || 'VANILLA 1.4.5.x'}</span><PixelAvatar playerId={player.id} className="avatar"/><span className="player-name">{player.name}</span>{session && <button className="logout-button" onClick={handleLogout}>Выйти</button>}</div>
       </header>
       <div className="content">
         {syncError && <div className="notice sync-error">Синхронизация: {syncError}</div>}
@@ -502,9 +503,8 @@ export default function App() {
               )
               const collected = gear.filter(item => statusForPlayer(p.id, item.id) === 'owned').length
               const percent = Math.round(collected / Math.max(gear.length, 1) * 100)
-              const icon = classIcon(p.gameClass)
               return <button type="button" className={'player-roster-card ' + (selected === p.id ? 'selected' : '')} onClick={() => setSelected(p.id)} key={p.id}>
-                <span className="roster-emblem" style={{ background: p.color }}>{icon}</span>
+                <PixelAvatar playerId={p.id} className="roster-emblem"/>
                 <span className="roster-identity"><b>{p.name}</b><small>{classLabel(p.gameClass)}</small></span>
                 <span className="roster-progress"><b>{percent}%</b><small>{collected}/{gear.length}</small></span>
                 <span className="roster-progress-track"><i style={{ width: percent + '%' }}/></span>
@@ -514,7 +514,7 @@ export default function App() {
 
           <section className="player-profile-panel">
             <div className="player-profile-identity">
-              <div className="player-emblem big" style={{ background: player.color }}>{classIcon(player.gameClass)}</div>
+              <PixelAvatar playerId={player.id} className="player-emblem big"/>
               <div><span className="eyebrow">АКТИВНЫЙ ПЕРСОНАЖ</span><h2>{player.name}</h2><p>{classLabel(player.gameClass)} · Master Mode</p></div>
             </div>
           </section>
@@ -736,7 +736,7 @@ export default function App() {
             <div className="admin-summary"><b>{remotePlayers.length}</b><span>участников мира</span><small>{canManageAdmins ? 'Назначать администраторов может только создатель мира.' : 'Вы можете просматривать участников. Изменение ролей доступно создателю мира.'}</small></div>
             <div className="admin-player-list">
               {remotePlayers.map(member => <div className="admin-player-row" key={member.id}>
-                <div className="admin-player-identity"><b>{member.name}</b><small>{({Melee:'Ближний бой',Ranger:'Стрелок',Mage:'Маг',Summoner:'Призыватель'})[member.gameClass]}</small></div>
+                <div className="admin-player-identity"><PixelAvatar playerId={member.id} className="admin-player-avatar"/><div><b>{member.name}</b><small>{({Melee:'Ближний бой',Ranger:'Стрелок',Mage:'Маг',Summoner:'Призыватель'})[member.gameClass]}</small></div></div>
                 <span className={'admin-player-role role-' + member.role}>{member.role === 'owner' ? 'Создатель' : member.role === 'admin' ? 'Администратор' : 'Участник'}</span>
                 {canManageAdmins && member.role !== 'owner' && <button type="button" className="small-button" onClick={() => changePlayerAdmin(member.id, member.role !== 'admin')}>{member.role === 'admin' ? 'Снять права' : 'Назначить админом'}</button>}
                 {canSeeAdmin && member.role !== 'owner' && member.id !== session?.player.id && (canManageAdmins || member.role === 'member') && <button type="button" className="small-button danger" onClick={() => removeWorldPlayer(member)}>Исключить</button>}
