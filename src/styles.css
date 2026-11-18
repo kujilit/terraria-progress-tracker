@@ -882,3 +882,5 @@ footer{border-color:#394052;color:#9297b5}
 /* Shared Terraria pixel mark used by the sidebar and browser favicon */
 .brand-mark{display:grid;place-items:center;overflow:hidden}
 .brand-mark img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+
+.brand-mark svg{display:block;width:100%;height:100%;overflow:visible}
