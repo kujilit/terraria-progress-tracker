@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, Check, Circle, Crosshair, FlaskConical, Shield, Sparkles, Swords, Target, Trophy } from 'lucide-react'
+import { ArrowRight, Check, Crosshair, FlaskConical, Shield, Sparkles, Swords, Target, Trophy } from 'lucide-react'
 import { isItemUsefulForClass } from './armor-sets'
 import { getItemStageRank } from './gear-progression'
 import type { Boss, GameClass, Item, ItemStatus } from './types'
@@ -60,7 +60,7 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
     .sort((a, b) => {
       const ar = getItemStageRank(a.stage), br = getItemStageRank(b.stage)
       const aRank = ar < 0 ? 99 : ar, bRank = br < 0 ? 99 : br
-      return aRank - bRank || (category(a.category) === 'armor' ? -1 : 1) || a.name.localeCompare(b.name)
+      return aRank - bRank || (category(a.category) === 'armor' ? 0 : 1) - (category(b.category) === 'armor' ? 0 : 1) || a.name.localeCompare(b.name)
     })
     .slice(0, 8)
   const toggleTask = (task: string) => {
