@@ -1,3 +1,4 @@
+import { progressionItems } from './class-progression'
 import type {Boss, Item, Player} from './types'
 export const players:Player[]=[
 {id:'p1',name:'Misha',gameClass:'Melee',color:'#d98d54'},
@@ -18,6 +19,7 @@ export const items:Item[]=[
 {id:'meteor_staff',name:'Meteor Staff',ru:'Метеоритный посох',gameClass:['Mage'],category:'Оружие',stage:'Hardmode',icon:'☄️',description:'Магическое оружие.',source:'Crafting',verified:false},
 {id:'spider_staff',name:'Spider Staff',ru:'Паучий посох',gameClass:['Summoner'],category:'Призыв',stage:'Hardmode',icon:'🕷️',description:'Посох призыва пауков.',source:'Spider Caves',verified:false}
 ]
+export const itemsWithProgression: Item[] = [...items, ...progressionItems]
 export const bosses:Boss[]=[
 {id:'king_slime',name:'King Slime',stage:'Pre-Hardmode',requires:[]},
 {id:'eye',name:'Eye of Cthulhu',stage:'Pre-Hardmode',requires:[]},

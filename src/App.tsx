@@ -3,7 +3,8 @@ import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, 
 import { AccessoryBuilds } from './AccessoryBuilds'
 import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
 import { getClassProgressItems, getItemStageRank } from './gear-progression'
-import { items, players, bosses } from './data'
+import { itemsWithProgression as items, players, bosses } from './data'
+import { classStages } from './class-progression'
 import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
@@ -306,7 +307,7 @@ export default function App() {
   const groupedArmorNames = new Set(playerArmorSets.flatMap(group => group.items.map(item => item.name)))
   const standalonePlayerItems = playerFilteredItems.filter(item => !groupedArmorNames.has(item.name))
   const visiblePlayerItems = standalonePlayerItems.slice(0, playerVisibleCount)
-  const gearStageOrder: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Post-Mechanical': 2, 'Post-Plantera': 3, 'Post-Golem': 4, 'Post-Moon Lord': 5, 'Not specified': 6 }
+  const gearStageOrder: Record<string, number> = Object.fromEntries(Array.from({length:10},(_,i)=>[String(i+1),i]).concat([['Pre-Hardmode',0],['Hardmode',1],['Post-Mechanical',2],['Post-Plantera',3],['Post-Golem',4],['Post-Moon Lord',5],['Not specified',99]]))
   const standaloneGearGroups = Array.from(new Set(visiblePlayerItems.map(item => item.stage || 'Not specified')))
     .sort((a,b)=>(gearStageOrder[a] ?? 99)-(gearStageOrder[b] ?? 99))
     .map(stage => ({
@@ -555,7 +556,7 @@ export default function App() {
               </div>
             </details>}
             {standaloneGearGroups.map(group => <details className="gear-group" key={group.stage}>
-              <summary><span><b>{stageLabel(group.stage)}</b><small>{group.categories.reduce((n,cat)=>n+cat.items.length,0)} предметов · {group.categories.length} категорий</small></span><ChevronRight size={17}/></summary>
+              <summary><span><b>{/^\\d+$/.test(group.stage) ? (classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.title || stageLabel(group.stage)) : stageLabel(group.stage)}</b><small>{/^\\d+$/.test(group.stage) ? classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.unlock+' · ' : ''}{group.categories.reduce((n,cat)=>n+cat.items.length,0)} предметов · {group.categories.length} категорий</small></span><ChevronRight size={17}/></summary>
               <div className="gear-stage-categories">
                 {group.categories.map(category => <section className="gear-category-group" key={category.category}>
                   <h3>{categoryLabel(category.category)} <small>{category.items.length}</small></h3>
@@ -993,6 +994,7 @@ function categoryLabel(category: string) {
 }
 
 function stageLabel(stage: string) {
+  if (/^\\d+$/.test(stage)) return `Этап ${stage}`
   if (stage === 'Pre-Hardmode') return 'Pre-Hardmode'
   if (stage === 'Hardmode') return 'Hardmode'
   if (stage === 'Post-Mechanical') return 'После механических боссов'
