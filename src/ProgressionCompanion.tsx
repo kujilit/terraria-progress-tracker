@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, Check, Crosshair, FlaskConical, Shield, Sparkles, Swords, Target, Trophy } from 'lucide-react'
+import { ArrowRight, Check, Crosshair, FlaskConical, Shield, Sparkles, Swords, Target, Trophy, type LucideIcon } from 'lucide-react'
 import { isItemUsefulForClass } from './armor-sets'
 import { getItemStageRank } from './gear-progression'
 import type { Boss, GameClass, Item, ItemStatus } from './types'
@@ -71,7 +71,7 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
     if (activeBoss) localStorage.setItem(storageKey(activeBoss.id), JSON.stringify(next))
   }
   const defeatedCount = orderedBosses.filter(boss => bossStatus(boss.id) === 'defeated').length
-  const tabs: { id: 'tree' | 'gear' | 'boss'; label: string; icon: typeof GitTreeIcon }[] = [{ id: 'tree', label: 'Прогрессия', icon: GitTreeIcon }, { id: 'gear', label: 'Экипировка', icon: Shield }, { id: 'boss', label: 'Подготовка к боссу', icon: Crosshair }]
+  const tabs: { id: 'tree' | 'gear' | 'boss'; label: string; icon: LucideIcon }[] = [{ id: 'tree', label: 'Прогрессия', icon: Swords }, { id: 'gear', label: 'Экипировка', icon: Shield }, { id: 'boss', label: 'Подготовка к боссу', icon: Crosshair }]
   return <section className="companion-page">
     <header className="companion-hero">
       <div><span className="eyebrow">ADVENTURE COMPANION</span><h2>План приключения</h2><p>{playerName} · {classNames[gameClass]} · персональный маршрут прохождения</p></div>
@@ -113,4 +113,3 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
   </section>
 }
 
-function GitTreeIcon() { return <Swords size={16}/> }
