@@ -346,14 +346,6 @@ export default function App() {
   const currentSetId = currentLoadouts[player.id] || ''
   const currentSet = armorSetsForClass(player.gameClass).find(set => set.id === currentSetId)
   const setOwnedPieces = currentSet?.pieces.filter(piece => classItems.some(item => item.name === piece.name && statusForPlayer(player.id,item.id) === 'owned')).length || 0
-  const armorSlots = new Set(armorSetsForClass(player.gameClass).flatMap(set => set.pieces.map(piece => piece.slot))).size || 3
-  const ownedArmorSlots = new Set(armorSetsForClass(player.gameClass).flatMap(set => set.pieces.filter(piece => classItems.some(item => item.name === piece.name && statusForPlayer(player.id,item.id) === 'owned')).map(piece => piece.slot))).size
-  const hasWeapon = classItems.some(item => (categoryKey(item.category) === 'weapon') && statusForPlayer(player.id,item.id) === 'owned')
-  const ownedAccessories = Math.min(5,classItems.filter(item => categoryKey(item.category) === 'accessory' && statusForPlayer(player.id,item.id) === 'owned').length)
-  const hasAmmo = player.gameClass !== 'Ranger' || classItems.some(item => categoryKey(item.category) === 'ammo' && statusForPlayer(player.id,item.id) === 'owned')
-  const equipmentSlotCount = armorSlots + 1 + 5 + (player.gameClass === 'Ranger' ? 1 : 0)
-  const equippedSlotCount = ownedArmorSlots + Number(hasWeapon) + ownedAccessories + Number(hasAmmo)
-  const total = Math.round(equippedSlotCount / equipmentSlotCount * 100)
   const setOptions = armorSetsForClass(player.gameClass).filter(set => classItems.some(item => set.pieces.some(piece => piece.name === item.name)))
   const setCurrentSet = (value:string) => { const next={...currentLoadouts,[player.id]:value}; setCurrentLoadouts(next); localStorage.setItem('terraria-current-loadouts',JSON.stringify(next)) }
   const stageCurrent = currentStages[player.id] || progressionStageGroups[0]?.stage || ''
@@ -517,11 +509,6 @@ export default function App() {
               <div className="player-emblem big" style={{ background: player.color }}>{classIcon(player.gameClass)}</div>
               <div><span className="eyebrow">АКТИВНЫЙ ПЕРСОНАЖ</span><h2>{player.name}</h2><p>{classLabel(player.gameClass)} · Master Mode</p></div>
             </div>
-            <div className="player-profile-progress">
-              <div className="player-profile-progress-head"><span>Прогресс экипировки</span><b>{total}%</b></div>
-              <div className="player-profile-track"><i style={{ width: total + '%' }}/></div>
-              <small>{playerStatusCounts.owned} из {classItems.length - playerStatusCounts.skipped} предметов получено</small>
-            </div>
           </section>
 
           <div className="player-stat-grid">
@@ -618,9 +605,7 @@ export default function App() {
           <section className="progression-overview">
             <div className="progression-overview-heading">
               <div><span className="eyebrow">CLASS PROGRESSION</span><h2>{classLabel(player.gameClass)} · {player.name}</h2><p>Этапы и предметы рассчитаны по каталогу и фактическим статусам выбранного персонажа.</p></div>
-              <div className="progression-total"><b>{total}%</b><small>общий прогресс</small></div>
             </div>
-            <div className="player-profile-track"><i style={{ width: total + '%' }}/></div>
             <div className="progression-counts">
               <span><b>{playerStatusCounts.owned}</b> получено</span>
               <span><b>{playerStatusCounts.crafting}</b> в работе</span>
@@ -635,20 +620,6 @@ export default function App() {
               </select>
             </div>
             <div className="progression-analytics">
-              <section className="analytics-card status-chart-card">
-                <div className="analytics-card-heading"><div><span className="eyebrow">GEAR STATUS</span><h3>Состояние экипировки</h3></div><span className="analytics-total">{playerStatusCounts.owned + playerStatusCounts.crafting + playerStatusCounts.planned + playerStatusCounts.missing}</span></div>
-                <div className="status-chart-layout">
-                  <div className="status-donut" style={{'--owned': playerStatusCounts.owned, '--crafting': playerStatusCounts.crafting, '--planned': playerStatusCounts.planned, '--missing': playerStatusCounts.missing, '--all': Math.max(1, playerStatusCounts.owned + playerStatusCounts.crafting + playerStatusCounts.planned + playerStatusCounts.missing)} as React.CSSProperties}>
-                    <div><b>{total}%</b><small>слотов занято</small></div>
-                  </div>
-                  <div className="status-legend">
-                    <span><i className="legend-owned"/><b>{playerStatusCounts.owned}</b> Получено</span>
-                    <span><i className="legend-crafting"/><b>{playerStatusCounts.crafting}</b> В работе</span>
-                    <span><i className="legend-planned"/><b>{playerStatusCounts.planned}</b> В планах</span>
-                    <span><i className="legend-missing"/><b>{playerStatusCounts.missing}</b> Не получено</span>
-                  </div>
-                </div>
-              </section>
               <section className="analytics-card stage-chart-card">
                 <div className="analytics-card-heading"><div><span className="eyebrow">STAGE OVERVIEW</span><h3>Готовность по этапам</h3></div><small>Получено / всего</small></div>
                 <div className="stage-chart">
