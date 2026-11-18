@@ -503,7 +503,6 @@ export default function App() {
               )
               const collected = gear.filter(item => statusForPlayer(p.id, item.id) === 'owned').length
               const percent = Math.round(collected / Math.max(gear.length, 1) * 100)
-              const icon = classIcon(p.gameClass)
               return <button type="button" className={'player-roster-card ' + (selected === p.id ? 'selected' : '')} onClick={() => setSelected(p.id)} key={p.id}>
                 <PixelAvatar playerId={p.id} className="roster-emblem"/>
                 <span className="roster-identity"><b>{p.name}</b><small>{classLabel(p.gameClass)}</small></span>
