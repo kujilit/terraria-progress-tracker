@@ -395,7 +395,8 @@ export default function App() {
   const canSeeAdmin = Boolean(session && (session.player.role === 'owner' || session.player.role === 'admin'))
   const canManageAdmins = Boolean(session?.player.role === 'owner')
   const activeGroup = nav.find(group => group.tabs.includes(tab))
-  const pageTitle = tab === 'settings' ? 'Настройки' : tab === 'admin' ? 'Администрирование' : subnav[activeGroup?.id || '']?.find(entry => entry.id === tab)?.label || activeGroup?.label || 'Игроки'
+  const activeSubnav = activeGroup ? subnav[activeGroup.id] : undefined
+  const pageTitle = tab === 'settings' ? 'Настройки' : tab === 'admin' ? 'Администрирование' : activeSubnav?.find((entry: { id: Tab; label: string }) => entry.id === tab)?.label || activeGroup?.label || 'Игроки'
   const exportProgress = () => {
     const payload = {
       format: 'terraria-progress-tracker', version: 1, exportedAt: new Date().toISOString(),
