@@ -556,7 +556,7 @@ export default function App() {
               </div>
             </details>}
             {standaloneGearGroups.map(group => <details className="gear-group" key={group.stage}>
-              <summary><span><b>{/^\\d+$/.test(group.stage) ? (classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.title || stageLabel(group.stage)) : stageLabel(group.stage)}</b><small>{/^\\d+$/.test(group.stage) ? classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.unlock+' · ' : ''}{group.categories.reduce((n,cat)=>n+cat.items.length,0)} предметов · {group.categories.length} категорий</small></span><ChevronRight size={17}/></summary>
+              <summary><span><b>{/^\d+$/.test(group.stage) ? (classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.title || stageLabel(group.stage)) : stageLabel(group.stage)}</b><small>{/^\d+$/.test(group.stage) ? classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.unlock+' · ' : ''}{group.categories.reduce((n,cat)=>n+cat.items.length,0)} предметов · {group.categories.length} категорий</small></span><ChevronRight size={17}/></summary>
               <div className="gear-stage-categories">
                 {group.categories.map(category => <section className="gear-category-group" key={category.category}>
                   <h3>{categoryLabel(category.category)} <small>{category.items.length}</small></h3>
@@ -589,6 +589,36 @@ export default function App() {
               <span><b>{playerStatusCounts.crafting}</b> в работе</span>
               <span><b>{playerStatusCounts.planned}</b> в планах</span>
               <span><b>{playerStatusCounts.missing}</b> не получено</span>
+            </div>
+            <div className="progression-analytics">
+              <section className="analytics-card status-chart-card">
+                <div className="analytics-card-heading"><div><span className="eyebrow">GEAR STATUS</span><h3>Состояние экипировки</h3></div><span className="analytics-total">{playerStatusCounts.owned + playerStatusCounts.crafting + playerStatusCounts.planned + playerStatusCounts.missing}</span></div>
+                <div className="status-chart-layout">
+                  <div className="status-donut" style={{'--owned': playerStatusCounts.owned, '--crafting': playerStatusCounts.crafting, '--planned': playerStatusCounts.planned, '--missing': playerStatusCounts.missing, '--all': Math.max(1, playerStatusCounts.owned + playerStatusCounts.crafting + playerStatusCounts.planned + playerStatusCounts.missing)} as React.CSSProperties}>
+                    <div><b>{total}%</b><small>готово</small></div>
+                  </div>
+                  <div className="status-legend">
+                    <span><i className="legend-owned"/><b>{playerStatusCounts.owned}</b> Получено</span>
+                    <span><i className="legend-crafting"/><b>{playerStatusCounts.crafting}</b> В работе</span>
+                    <span><i className="legend-planned"/><b>{playerStatusCounts.planned}</b> В планах</span>
+                    <span><i className="legend-missing"/><b>{playerStatusCounts.missing}</b> Не получено</span>
+                  </div>
+                </div>
+              </section>
+              <section className="analytics-card stage-chart-card">
+                <div className="analytics-card-heading"><div><span className="eyebrow">STAGE OVERVIEW</span><h3>Готовность по этапам</h3></div><small>Получено / всего</small></div>
+                <div className="stage-chart">
+                  {progressionStageGroups.map(({stage,items:stageItems}) => {
+                    const active=stageItems.filter(item=>statusForPlayer(player.id,item.id)!=='skipped')
+                    const done=active.filter(item=>statusForPlayer(player.id,item.id)==='owned').length
+                    const percent=active.length?Math.round(done/active.length*100):0
+                    return <div className="stage-chart-row" key={stage}>
+                      <div className="stage-chart-label"><b>{/^\d+$/.test(stage)?(classStages[player.gameClass].find(value=>value.id.endsWith('-'+stage))?.title||stageLabel(stage)):stageLabel(stage)}</b><small>{done}/{active.length}</small></div>
+                      <div className="stage-chart-track"><i style={{width:percent+'%'}}/></div><strong>{percent}%</strong>
+                    </div>
+                  })}
+                </div>
+              </section>
             </div>
           </section>
           <div className="class-tabs progression-class-tabs">
@@ -994,7 +1024,7 @@ function categoryLabel(category: string) {
 }
 
 function stageLabel(stage: string) {
-  if (/^\\d+$/.test(stage)) return `Этап ${stage}`
+  if (/^\d+$/.test(stage)) return `Этап ${stage}`
   if (stage === 'Pre-Hardmode') return 'Pre-Hardmode'
   if (stage === 'Hardmode') return 'Hardmode'
   if (stage === 'Post-Mechanical') return 'После механических боссов'
