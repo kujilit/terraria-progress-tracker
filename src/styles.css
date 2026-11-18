@@ -608,3 +608,233 @@
   .player-gear-card{gap:8px}
   .content{padding-left:12px;padding-right:12px}
 }
+
+
+/* RETRO PIXEL OS — visual refresh. App behavior and component structure remain unchanged. */
+:root{
+  color-scheme:dark;
+  --os-bg:#171927;
+  --os-panel:#f5e3bb;
+  --os-panel-2:#e8d2a2;
+  --os-ink:#123c49;
+  --os-black:#101015;
+  --os-blue:#00bce9;
+  --os-green:#55e69a;
+  --os-violet:#6744f5;
+  --os-muted:#557078;
+  font-family:'Roboto Condensed',sans-serif;
+  background:var(--os-bg);
+  color:var(--os-panel);
+  image-rendering:auto;
+}
+html{background:var(--os-bg)}
+body{
+  min-width:320px;
+  background:
+    linear-gradient(90deg,#ffffff05 1px,transparent 1px),
+    linear-gradient(#ffffff05 1px,transparent 1px),
+    radial-gradient(ellipse at 50% -20%,#2a3150 0,#171927 58%);
+  background-size:16px 16px,16px 16px,auto;
+}
+button,input,select{border-radius:0!important}
+button{transition:transform .08s,filter .12s,background-color .12s}
+button:active{transform:translate(2px,2px)}
+.sidebar{
+  background:var(--os-panel);
+  color:var(--os-ink);
+  border-right:4px solid var(--os-black);
+  box-shadow:5px 0 0 #00bce9;
+}
+.brand{border-bottom:2px solid var(--os-ink)}
+.brand-mark{
+  background:var(--os-green);color:var(--os-ink);
+  border:3px solid var(--os-ink);
+  box-shadow:4px 4px 0 var(--os-black);
+}
+.brand b{font:12px 'Press Start 2P';color:var(--os-ink);letter-spacing:-.5px;line-height:1.8}
+.brand small,.eyebrow,.nav-label{color:#49656b}
+.world-switch{
+  background:#fff0cf;border:2px solid var(--os-ink);
+  box-shadow:4px 4px 0 var(--os-black);
+}
+.world-switch b{color:var(--os-ink);font-family:'Press Start 2P';font-size:10px;line-height:1.8}
+.world-switch small{color:var(--os-muted)}
+.nav-item{color:var(--os-ink);border:2px solid transparent;font-weight:700}
+.nav-item:hover,.nav-item.active{
+  background:var(--os-green);color:var(--os-ink);
+  border:2px solid var(--os-ink);box-shadow:3px 3px 0 var(--os-black);
+}
+.new-dot{border-radius:0;background:#ff5b55}
+.connection{border-color:#9ab0a8;color:var(--os-ink)}
+.connection small{color:var(--os-muted)}
+.main{background:transparent}
+.topbar{
+  background:var(--os-black);border-bottom:3px solid var(--os-blue);
+  box-shadow:0 4px 0 #0008;
+}
+.crumb{color:#9caeb8}.crumb b{color:var(--os-green)}
+.version{border:1px solid var(--os-green);color:var(--os-green)}
+.avatar{border:2px solid var(--os-green);background:var(--os-violet);color:white}
+.content{max-width:1560px}
+.page-heading h1,.hero-panel h2,.section-title h2,.panel h2{
+  font-family:'Press Start 2P',monospace;
+  text-transform:uppercase;line-height:1.65;
+  letter-spacing:-1px;
+}
+.page-heading h1{font-size:20px;color:var(--os-panel)}
+.page-heading p{color:#b3c5c4}
+.gold-button,.auth-submit{
+  background:var(--os-green);color:var(--os-ink);
+  border:2px solid var(--os-black);box-shadow:4px 4px 0 var(--os-black);
+  font-weight:900;
+}
+.gold-button:hover,.auth-submit:hover{filter:brightness(1.07)}
+.hero-panel{
+  background:var(--os-panel);color:var(--os-ink);
+  border:3px solid var(--os-black);
+  box-shadow:7px 7px 0 var(--os-blue),inset 0 0 0 3px var(--os-panel-2);
+}
+.hero-panel h2{color:var(--os-ink);font-size:20px}
+.hero-panel p,.hero-stats{color:#47666b}
+.gold{color:#087d65}
+.progress-meta{color:var(--os-ink)}
+.progress-meta b,.hero-stats b{color:#087d65}
+.progress-track,.mini-progress{background:#c4b58f;border:2px solid var(--os-ink);height:12px;padding:1px}
+.progress-track div,.mini-progress span{background:var(--os-green);box-shadow:none}
+.pixel-sun{color:var(--os-violet);text-shadow:4px 4px 0 var(--os-blue);opacity:.8}
+.hero-ground{border-top:5px solid #087d65;background:repeating-linear-gradient(90deg,#55e69a 0 26px,#9beec2 26px 52px)}
+.section-title h2,.panel h2{color:var(--os-ink);font-size:12px}
+.text-button{color:#087d65;font-weight:800}
+.panel,.player-card,.stat-card,.boss-card,.item-card,.stage-card,.catalog-toolbar,
+.catalog-card,.progression-overview,.progression-stage,.player-gear-section,
+.player-roster,.player-profile-panel,.player-armor-set-card,.accessory-card{
+  background:var(--os-panel);color:var(--os-ink);
+  border:2px solid var(--os-black);
+  box-shadow:4px 4px 0 #000;
+  border-radius:0!important;
+}
+.player-card:hover,.player-card.chosen{background:#e4f8d9;border-color:var(--os-black);box-shadow:4px 4px 0 var(--os-violet)}
+.player-card h3,.goal-info b,.boss-row span:nth-child(2),
+.item-details b,.boss-card b,.stage-main b,.catalog-card-body h3,
+.player-gear-main h3,.player-armor-set-head h3,.player-profile-panel h2{color:var(--os-ink)}
+.player-card small,.goal-info small,.boss-row small,.item-details small,
+.boss-card small,.stage-main small,.muted,.catalog-card-description,
+.player-gear-description,.player-gear-ru,.player-gear-source{color:var(--os-muted)}
+.player-emblem,.player-emblem.big,.item-icon,.item-art,.item-card .item-art,
+.boss-portrait,.catalog-card-art,.player-gear-art{
+  background:#e9d5a8;border:2px solid var(--os-ink);border-radius:0!important;
+}
+.class-tag,.player-switch button,.class-tabs button,.catalog-filter-chips button{
+  background:#e8d4a7;border:2px solid var(--os-ink);color:var(--os-ink)
+}
+.player-switch button.selected,.class-tabs button.selected,.catalog-filter-chips button.active{
+  background:var(--os-green);border-color:var(--os-black);color:var(--os-ink);box-shadow:3px 3px 0 var(--os-black)
+}
+.state{border:1px solid var(--os-ink);color:var(--os-ink);background:#ead9b2}
+.state.owned{background:#a9f1bd;color:#14583e;border-color:#14583e}
+.state.planned{background:#ffe09a;color:#68420b;border-color:#68420b}
+.state.crafting{background:#bceafa;color:#124d6b;border-color:#124d6b}
+.item-card select,.player-gear-status select,.player-armor-piece select,
+.catalog-sort select,.catalog-select-row select,.catalog-search,
+.search-bar,.inventory-form input,.inventory-form select,
+.auth-card input,.auth-card select{
+  background:#fff0cf;color:var(--os-ink);border:2px solid var(--os-ink);border-radius:0;
+}
+.search-bar input,.catalog-search input{color:var(--os-ink)}
+.search-bar,.catalog-search{background:#fff0cf;color:var(--os-ink)}
+.notice{background:#d8f4e3;color:var(--os-ink);border:2px solid var(--os-ink)}
+.notice svg{color:#087d65}
+.stats-row .stat-card small{color:var(--os-muted)}
+.stat-card b,.progression-total b,.progression-stage-percent{color:#087d65}
+.boss-icon{border-radius:0;color:var(--os-muted)}
+.boss-icon.defeated{color:#087d65;border-color:#087d65}
+.small-button,.catalog-reset,.player-gear-empty button,.player-gear-pagination button{
+  background:var(--os-green);border:2px solid var(--os-ink);color:var(--os-ink);box-shadow:2px 2px 0 var(--os-black)
+}
+.craft-picker,.tree-panel{background:var(--os-panel);border:2px solid var(--os-black);box-shadow:4px 4px 0 #000;color:var(--os-ink)}
+.craft-choice{border-color:#c4b58f;color:var(--os-ink)}
+.craft-choice.selected{color:#087d65}
+.tree-item{background:#fff0cf;border:2px solid var(--os-ink);color:var(--os-ink)}
+.tree-item b{color:var(--os-ink)}
+.tree-item small{color:var(--os-muted)}
+.tree-item button{background:var(--os-green);color:var(--os-ink);border:1px solid var(--os-ink)}
+.tree-item.has-item{border-color:#087d65;background:#e1f7dc}
+.progression-overview{background:#e5f5dc}
+.progression-overview-heading h2{color:var(--os-ink)}
+.progression-overview-heading p,.progression-counts{color:var(--os-muted)}
+.progression-counts b{color:var(--os-ink)}
+.progression-stage{background:#fff0cf}
+.progression-stage[open]{border-color:#087d65}
+.progression-stage-title b{color:var(--os-ink)}
+.progression-stage-title small,.progression-stage-count{color:var(--os-muted)}
+.progression-stage-track{background:#c4b58f;border:1px solid var(--os-ink)}
+.progression-stage-track i{background:var(--os-green)}
+.weaker-gear-toggle{background:#e6f4dc;border:2px solid var(--os-ink);color:var(--os-ink)}
+.weaker-gear-toggle b{color:var(--os-ink)}
+.weaker-gear-toggle small{color:var(--os-muted)}
+.weaker-gear-toggle input{accent-color:#087d65}
+.player-armor-set-head{background:#d9efcf;border-bottom:2px solid var(--os-ink)}
+.player-armor-set-head h3{color:var(--os-ink)}
+.player-armor-set-classes span,.player-armor-bonus{background:#fff0cf;border:1px solid var(--os-ink);color:var(--os-ink)}
+.player-armor-set-count{color:#087d65}
+.player-armor-block-label,.player-armor-set-bonus .player-armor-block-label{color:#087d65}
+.player-armor-set-bonus{background:#e8d5a7;border-color:var(--os-ink)}
+.player-armor-set-bonus p{color:var(--os-ink)}
+.player-armor-piece{background:#fff0cf;border:1px solid var(--os-ink)}
+.player-armor-piece-info b,.player-armor-piece> b{color:var(--os-ink)}
+.player-armor-piece-info small{color:var(--os-muted)}
+.player-armor-piece-slot{color:#087d65}
+.player-gear-buff{background:#d8f4e3;border:1px solid #087d65;color:var(--os-ink)}
+.player-gear-buff b{color:var(--os-ink)}
+.catalog-card{background:#fff0cf;border:2px solid var(--os-black);box-shadow:4px 4px 0 #000}
+.catalog-card-tags span{background:#e8d5a7;border:1px solid var(--os-ink);color:var(--os-ink)}
+.catalog-card-tags span:first-child{color:#087d65;border-color:#087d65}
+.catalog-card-classes span{background:#d8f4e3;border:1px solid var(--os-ink);color:var(--os-ink)}
+.player-gear-card{background:#fff0cf;border:2px solid var(--os-ink);box-shadow:3px 3px 0 #a99b77}
+.player-gear-tags span,.player-gear-highlights>span:not(.player-gear-buff){background:#e8d5a7;border:1px solid var(--os-ink);color:var(--os-ink)}
+.player-gear-status .state{color:var(--os-ink)}
+.player-gear-status select{background:#fff0cf;color:var(--os-ink);border:2px solid var(--os-ink)}
+.profile-banner{background:#e4f5da;border:2px solid var(--os-black);box-shadow:4px 4px 0 #000;color:var(--os-ink)}
+.profile-banner h2{color:var(--os-ink)}.profile-banner p{color:var(--os-muted)}
+.profile-percent b{color:#087d65}
+.recipe-modal-backdrop{background:#101015d9;backdrop-filter:none}
+.recipe-modal{background:var(--os-panel);border:3px solid var(--os-black);box-shadow:8px 8px 0 var(--os-blue);color:var(--os-ink);border-radius:0}
+.recipe-modal-header{background:var(--os-green);border-bottom:3px solid var(--os-black)}
+.recipe-modal-item h2{color:var(--os-ink)}
+.recipe-modal-item small,.recipe-modal-footer{color:var(--os-muted)}
+.recipe-modal-close{background:var(--os-panel);border:2px solid var(--os-ink);color:var(--os-ink);box-shadow:2px 2px 0 var(--os-black)}
+.recipe-modal-variant{color:var(--os-ink);border-color:#c4b58f}
+.recipe-modal-variant select{background:#fff0cf;color:var(--os-ink);border:2px solid var(--os-ink)}
+.recipe-modal-body .tree-item{background:#fff0cf}
+.recipe-modal-empty{background:#e8d5a7;border:2px dashed var(--os-ink)}
+.recipe-modal-empty b{color:var(--os-ink)}
+.recipe-modal-empty p{color:var(--os-muted)}
+.recipe-modal-footer{background:#e8d5a7;border-color:var(--os-ink)}
+.item-recipe-link,.tree-recipe-link{color:#087d65}
+.item-recipe-link:hover,.tree-recipe-link:hover{color:#5c36dc}
+.auth-shell{background:var(--os-violet)}
+.auth-card{background:var(--os-panel);border:3px solid var(--os-black);box-shadow:8px 8px 0 #000;color:var(--os-ink)}
+.auth-card h1{font-family:'Press Start 2P';font-size:17px;line-height:1.8;color:var(--os-ink)}
+.auth-card label{color:var(--os-ink)}
+.auth-tabs button{background:#e8d5a7;border:2px solid var(--os-ink);color:var(--os-ink)}
+.auth-tabs button.selected{background:var(--os-green);border-color:var(--os-black);color:var(--os-ink)}
+.auth-help{color:var(--os-muted)}
+.auth-error{background:#ffe0d6;border:2px solid #8c2f2f;color:#8c2f2f}
+.logout-button{background:#fff0cf;border:2px solid var(--os-ink);color:var(--os-ink)}
+footer{border-color:#394052;color:#9297b5}
+.mobile-nav-toggle{background:var(--os-green)!important;color:var(--os-ink)!important;border:2px solid var(--os-black)!important;box-shadow:3px 3px 0 var(--os-black)}
+@media(max-width:700px){
+  .sidebar{background:var(--os-panel);border-bottom:4px solid var(--os-black);box-shadow:0 4px 0 var(--os-blue)}
+  .sidebar.mobile-nav-open{box-shadow:0 8px 0 var(--os-blue),0 14px 24px #0008}
+  .main{margin:0}
+  .content{padding:22px 14px}
+  .page-heading h1{font-size:15px}
+  .hero-panel h2{font-size:16px}
+  .section-title h2,.panel h2{font-size:10px}
+  .player-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two-col{grid-template-columns:1fr}
+  .recipe-modal{box-shadow:5px 5px 0 var(--os-blue)}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
