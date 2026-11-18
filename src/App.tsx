@@ -563,6 +563,11 @@ export default function App() {
               <div className="settings-section-heading"><SlidersHorizontal size={19}/><div><h2>Игровой процесс</h2><p>Управление расчётом прогресса и отображением экипировки.</p></div></div>
               <label className="settings-row"><span><b>Скрывать более слабую экипировку</b><small>Не учитывать старое оружие и броню, если уже есть более сильная замена.</small></span><input type="checkbox" checked={hideWeakerGear} onChange={event => setHideWeakerGear(event.target.checked)}/></label>
             </section>
+            <section className="settings-section">
+              <div className="settings-section-heading"><BookOpen size={19}/><div><h2>Данные и сохранения</h2><p>Создание резервной копии и перенос прохождения.</p></div></div>
+              <div className="settings-actions"><button type="button" className="small-button" onClick={exportProgress}><BookOpen size={15}/> Экспорт JSON</button><label className="small-button settings-file-button"><Search size={15}/> Импорт JSON<input type="file" accept="application/json,.json" onChange={importProgress} disabled={isRemoteMode}/></label></div>
+              <div className="settings-warning"><b>Сброс прогресса</b><span>{isRemoteMode ? 'В сетевом режиме сброс недоступен — данные мира общие.' : 'Удаляет локальные отметки предметов и боссов.'}</span><button type="button" className="settings-danger" disabled={isRemoteMode} onClick={resetProgress}><RotateCcw size={14}/> Сбросить прогресс</button></div>
+            </section>
             </div>
             <div className="settings-column">
             <section className="settings-section">
@@ -570,11 +575,6 @@ export default function App() {
               <label className="settings-row"><span><b>Компактный режим</b><small>Уменьшает отступы и плотнее размещает карточки.</small></span><input type="checkbox" checked={compactMode} onChange={event => setCompactMode(event.target.checked)}/></label>
               <label className="settings-row"><span><b>Анимации</b><small>Отключает анимации и переходы интерфейса.</small></span><input type="checkbox" checked={animationsEnabled} onChange={event => setAnimationsEnabled(event.target.checked)}/></label>
               <label className="settings-scale"><span><b>Масштаб интерфейса</b><strong>{uiScale}%</strong></span><input type="range" min="90" max="110" step="5" value={uiScale} onChange={event => setUiScale(Number(event.target.value))}/><small>Изменяет базовый размер текста. Для мобильных устройств масштаб лучше оставить 100%.</small></label>
-            </section>
-            <section className="settings-section">
-              <div className="settings-section-heading"><BookOpen size={19}/><div><h2>Данные и сохранения</h2><p>Создание резервной копии и перенос прохождения.</p></div></div>
-              <div className="settings-actions"><button type="button" className="small-button" onClick={exportProgress}><BookOpen size={15}/> Экспорт JSON</button><label className="small-button settings-file-button"><Search size={15}/> Импорт JSON<input type="file" accept="application/json,.json" onChange={importProgress} disabled={isRemoteMode}/></label></div>
-              <div className="settings-warning"><b>Сброс прогресса</b><span>{isRemoteMode ? 'В сетевом режиме сброс недоступен — данные мира общие.' : 'Удаляет локальные отметки предметов и боссов.'}</span><button type="button" className="settings-danger" disabled={isRemoteMode} onClick={resetProgress}><RotateCcw size={14}/> Сбросить прогресс</button></div>
             </section>
             </div>
             <div className="settings-footnote">Настройки интерфейса и фильтр экипировки сохраняются в этом браузере. Экспорт включает отметки предметов, боссов и основные предпочтения.</div>
