@@ -340,7 +340,7 @@ export default function App() {
     <div className={'app-shell ' + (compactMode ? 'ui-compact ' : '') + (!animationsEnabled ? 'ui-no-animations' : '')} style={{ fontSize: `${uiScale}%` }}>
     <aside className={"sidebar " + (mobileNavOpen ? "mobile-nav-open" : "")}>
       <div className="sidebar-header">
-        <div className="brand"><div className="brand-mark">T</div><div><b>TERRARIA</b><small>PROGRESS TRACKER</small></div></div>
+        <div className="brand"><div className="brand-mark"><img src="/terraria-mark.svg" alt="" /></div><div><b>TERRARIA</b><small>PROGRESS TRACKER</small></div></div>
         <button type="button" className="mobile-nav-toggle" aria-label={mobileNavOpen ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen(value => !value)}>
           {mobileNavOpen ? <X size={22}/> : <Menu size={22}/>}
         </button>
