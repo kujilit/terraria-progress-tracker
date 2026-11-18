@@ -1201,3 +1201,17 @@ footer{border-color:#394052;color:#9297b5}
 .potion-ingredient img{width:24px;height:24px;object-fit:contain;image-rendering:pixelated;flex:0 0 24px}
 .potion-ingredient span{min-width:0}
 @media(max-width:700px){.potion-art{width:42px;height:42px;flex-basis:42px}.potion-ingredient{font-size:10px}}
+
+
+/* Local bundled Terraria-style potion and ingredient sprites */
+.potion-art,.potion-ingredient-art{
+  display:block;
+  flex:0 0 auto;
+  background-repeat:no-repeat;
+  image-rendering:pixelated;
+}
+.potion-art{width:48px;height:48px;filter:none}
+.potion-ingredient-art{width:24px;height:24px}
+.potion-ingredient{display:flex;align-items:center;gap:8px;min-height:28px}
+.potion-card-title{align-items:center}
+@media(max-width:700px){.potion-art{width:42px;height:42px}}
