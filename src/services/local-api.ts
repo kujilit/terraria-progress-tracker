@@ -56,6 +56,14 @@ export const localApi: TrackerApi = {
   async logout(_token: string) {},
   async worldInfo(_token: string) { return read().world },
   async listPlayers(_token: string) { return read().players },
+  async setPlayerAdmin(_token: string, playerId: string, isAdmin: boolean) {
+    const state=read()
+    const actor=state.players.find(p=>p.id===_token) || state.players[0]
+    if(actor.role!=='owner') throw new Error('Назначать администраторов может только создатель мира')
+    const target=state.players.find(p=>p.id===playerId)
+    if(!target || target.role==='owner') throw new Error('Игрок не найден или является создателем мира')
+    target.role=isAdmin?'admin':'member';write(state);return target
+  },
   async getProgress(_token: string) { return read().progress },
   async setProgress(token, input) {
     const state=read()
