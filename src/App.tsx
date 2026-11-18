@@ -60,6 +60,7 @@ export default function App() {
   const [catalogStatusFilter, setCatalogStatusFilter] = useState('all')
   const [catalogSort, setCatalogSort] = useState<'name' | 'stage' | 'status'>('name')
   const [target, setTarget] = useState('terra_blade')
+  const [craftQuery, setCraftQuery] = useState('')
   const [recipeIndex, setRecipeIndex] = useState(0)
   const [craftModalItem, setCraftModalItem] = useState<Item | null>(null)
   const classColors: Record<GameClass, string> = { Melee:'#d98d54', Ranger:'#79a8d8', Mage:'#a88add', Summoner:'#76b98c' }
@@ -594,7 +595,10 @@ export default function App() {
         {tab === 'crafting' && <>
           <div className="craft-layout">
             <section className="panel craft-picker"><div className="panel-head"><h2>Целевой предмет</h2><Hammer size={17}/></div>
-              {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><ItemArtwork item={i} className="craft-choice-art"/><b>{i.name}</b><ChevronRight size={15}/></button>)}
+              <label className="craft-search"><Search size={16}/><input type="search" value={craftQuery} onChange={event => setCraftQuery(event.target.value)} placeholder="Поиск предмета..." aria-label="Поиск предмета для дерева крафта"/>{craftQuery && <button type="button" onClick={() => setCraftQuery('')} aria-label="Очистить поиск"><X size={14}/></button>}</label>
+              <div className="craft-search-count">{catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).length} предметов</div>
+              {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><ItemArtwork item={i} className="craft-choice-art"/><b>{i.name}</b><ChevronRight size={15}/></button>)}
+              {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).length === 0 && <p className="craft-search-empty">Ничего не найдено</p>}
             </section>
             <section className="panel tree-panel"><div className="panel-head"><div><h2>{current?.name || 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {tree?.station || current?.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
               {(current?.recipes?.length || 0) > 1 && <label className="recipe-select">Вариант рецепта<select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>{current.recipes?.map((recipe, index) => <option value={index} key={recipe.id}>{recipe.station || 'Без станции'} · {recipe.version || 'Все версии'} · ×{recipe.amount}</option>)}</select></label>}

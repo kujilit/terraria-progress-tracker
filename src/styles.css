@@ -919,3 +919,11 @@ footer{border-color:#394052;color:#9297b5}
 .ui-no-animations .boss-ambient,.ui-no-animations .boss-ambient-sprite{animation:none}
 @media(max-width:700px){.boss-ambient{right:-18px;top:23vh;opacity:.12;transform:scale(.72);transform-origin:top right}.boss-ambient-sprite{font-size:82px}}
 @media(prefers-reduced-motion:reduce){.boss-ambient,.boss-ambient-sprite{animation:none}}
+
+
+.craft-search{display:flex;align-items:center;gap:9px;margin:0 0 8px;padding:9px 10px;background:var(--os-panel);border:1px solid #8f8b79;color:var(--os-muted)}
+.craft-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--os-ink);font:inherit;font-size:13px}
+.craft-search input::placeholder{color:var(--os-muted)}
+.craft-search button{display:grid;place-items:center;padding:2px;border:0;background:transparent;color:var(--os-muted)}
+.craft-search-count{margin:0 0 8px;color:var(--os-muted);font-size:10px;letter-spacing:.5px}
+.craft-search-empty{padding:12px 4px;color:var(--os-muted);font-size:12px}
