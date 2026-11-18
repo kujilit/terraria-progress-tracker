@@ -871,3 +871,8 @@ footer{border-color:#394052;color:#9297b5}
 .ui-no-animations *, .ui-no-animations *::before, .ui-no-animations *::after{animation:none!important;transition:none!important}
 @media(max-width:850px){.settings-layout{grid-template-columns:1fr}.settings-footnote{grid-column:auto}}
 @media(max-width:700px){.settings-section{padding:14px}.settings-section-heading h2{font-size:10px}.settings-row{gap:10px}.settings-row b{font-size:13px}}
+
+.ui-compact .content{padding:26px 30px}
+.ui-compact .player-gear-card,.ui-compact .catalog-card,.ui-compact .player-armor-set-card,.ui-compact .accessory-card{padding:9px}
+.ui-compact .player-gear-grid,.ui-compact .catalog-grid{gap:10px}
+@media(max-width:700px){.ui-compact .content{padding:16px 10px}}
