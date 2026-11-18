@@ -842,6 +842,7 @@ footer{border-color:#394052;color:#9297b5}
 
 /* Settings page */
 .settings-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.settings-column{display:flex;flex-direction:column;gap:18px;min-width:0}
 .settings-section{min-width:0;padding:20px;background:var(--os-panel);color:var(--os-ink);border:2px solid var(--os-black);box-shadow:4px 4px 0 #000}
 .settings-section-heading{display:flex;align-items:flex-start;gap:12px;padding-bottom:15px;margin-bottom:6px;border-bottom:2px solid #c4b58f}
 .settings-section-heading>svg{flex:0 0 auto;color:#087d65}
@@ -869,7 +870,7 @@ footer{border-color:#394052;color:#9297b5}
 .ui-compact .settings-section{padding:14px}
 .ui-compact .settings-row{padding:10px 0}
 .ui-no-animations *, .ui-no-animations *::before, .ui-no-animations *::after{animation:none!important;transition:none!important}
-@media(max-width:850px){.settings-layout{grid-template-columns:1fr}.settings-footnote{grid-column:auto}}
+@media(max-width:850px){.settings-layout{grid-template-columns:1fr}.settings-column{gap:14px}.settings-footnote{grid-column:auto}}
 @media(max-width:700px){.settings-section{padding:14px}.settings-section-heading h2{font-size:10px}.settings-row{gap:10px}.settings-row b{font-size:13px}}
 
 .ui-compact .content{padding:26px 30px}
