@@ -481,9 +481,9 @@ export default function App() {
       </header>
       <div className="content">
         {syncError && <div className="notice sync-error">Синхронизация: {syncError}</div>}
-        <div className="page-heading">
-          <div><div className="eyebrow">{activeGroup?.label.toUpperCase() || 'TERRARIA TRACKER'}</div><h1>{pageTitle}</h1></div>
-        </div>
+        {(tab === 'settings' || tab === 'admin') && <div className="page-heading">
+          <div><div className="eyebrow">TERRARIA TRACKER</div><h1>{pageTitle}</h1></div>
+        </div>}
         {activeGroup && subnav[activeGroup.id] && <div className="section-tabs" role="tablist" aria-label="Подразделы">
           {subnav[activeGroup.id]!.map(entry => <button type="button" role="tab" aria-selected={tab === entry.id} className={tab === entry.id ? 'selected' : ''} key={entry.id} onClick={() => setTab(entry.id)}>{entry.label}</button>)}
         </div>}
