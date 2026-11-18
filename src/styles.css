@@ -1215,3 +1215,18 @@ footer{border-color:#394052;color:#9297b5}
 .potion-ingredient{display:flex;align-items:center;gap:8px;min-height:28px}
 .potion-card-title{align-items:center}
 @media(max-width:700px){.potion-art{width:42px;height:42px}}
+
+
+/* Original Terraria Wiki sprite atlas: center the exact pixel-art item crop. */
+.potion-art,.potion-ingredient-art{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:visible;
+  background:none;
+  image-rendering:pixelated;
+  flex:0 0 auto;
+}
+.potion-art{width:48px;height:48px;filter:none}
+.potion-ingredient-art{width:24px;height:24px}
+.potion-ingredient{display:flex;align-items:center;gap:8px;min-height:28px}
