@@ -639,7 +639,7 @@ export default function App() {
                 <div className="analytics-card-heading"><div><span className="eyebrow">GEAR STATUS</span><h3>Состояние экипировки</h3></div><span className="analytics-total">{playerStatusCounts.owned + playerStatusCounts.crafting + playerStatusCounts.planned + playerStatusCounts.missing}</span></div>
                 <div className="status-chart-layout">
                   <div className="status-donut" style={{'--owned': playerStatusCounts.owned, '--crafting': playerStatusCounts.crafting, '--planned': playerStatusCounts.planned, '--missing': playerStatusCounts.missing, '--all': Math.max(1, playerStatusCounts.owned + playerStatusCounts.crafting + playerStatusCounts.planned + playerStatusCounts.missing)} as React.CSSProperties}>
-                    <div><b>{total}%</b><small>готово</small></div>
+                    <div><b>{total}%</b><small>слотов занято</small></div>
                   </div>
                   <div className="status-legend">
                     <span><i className="legend-owned"/><b>{playerStatusCounts.owned}</b> Получено</span>
