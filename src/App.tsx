@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
-import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw, Menu, X, ClipboardList, Plus, Trash2, FlaskConical, Target } from 'lucide-react'
+import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, SlidersHorizontal, RotateCcw, Menu, X, ClipboardList, Plus, Trash2, FlaskConical } from 'lucide-react'
 import { AccessoryBuilds } from './AccessoryBuilds'
 import { ProgressionCompanion } from './ProgressionCompanion'
 import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
