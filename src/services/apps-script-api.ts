@@ -47,6 +47,9 @@ export class AppsScriptTrackerApi implements TrackerApi {
   async logout(token: string) { await this.request<{loggedOut:boolean}>('auth.logout',{},token) }
   worldInfo(token: string) { return this.request<TrackerWorld>('world.info',{},token) }
   listPlayers(token: string) { return this.request<TrackerPlayer[]>('players.list',{},token) }
+  removePlayer(_token: string, _playerId: string): Promise<{ playerId: string }> {
+    throw new ApiError('Исключение игроков поддерживается только в Supabase mode.', 'NOT_SUPPORTED')
+  }
   setPlayerAdmin(_token: string, _playerId: string, _isAdmin: boolean): Promise<TrackerPlayer> {
     throw new ApiError('Управление администраторами поддерживается только в Supabase mode.', 'NOT_SUPPORTED')
   }

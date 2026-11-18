@@ -56,6 +56,17 @@ export const localApi: TrackerApi = {
   async logout(_token: string) {},
   async worldInfo(_token: string) { return read().world },
   async listPlayers(_token: string) { return read().players },
+  async removePlayer(_token: string, playerId: string) {
+    const state=read()
+    const actor=state.players[0]
+    const target=state.players.find(p=>p.id===playerId)
+    if(actor?.role!=='owner') throw new Error('Исключать участников может только создатель мира')
+    if(!target || target.role==='owner' || target.id===actor.id) throw new Error('Нельзя исключить создателя мира')
+    state.players=state.players.filter(p=>p.id!==playerId)
+    state.progress=state.progress.filter(x=>x.playerId!==playerId)
+    state.inventory=state.inventory.filter(x=>x.playerId!==playerId)
+    write(state);return {playerId}
+  },
   async setPlayerAdmin(_token: string, playerId: string, isAdmin: boolean) {
     const state=read()
     const actor=state.players.find(p=>p.id===_token) || state.players[0]
