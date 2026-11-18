@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react'
 import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, Shield, SlidersHorizontal, RotateCcw, Menu, X } from 'lucide-react'
 import { AccessoryBuilds } from './AccessoryBuilds'
 import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
@@ -301,7 +301,7 @@ export default function App() {
     link.href = url; link.download = 'terraria-progress-backup.json'; link.click()
     URL.revokeObjectURL(url)
   }
-  const importProgress = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const importProgress = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
     try {
@@ -335,7 +335,7 @@ export default function App() {
   }
   if (isRemoteMode && !session) return <AuthScreen onSession={handleSession}/>
   
-  return <div className="app-shell">
+  return <div className="app-root">
     <div className={'app-shell ' + (compactMode ? 'ui-compact ' : '') + (!animationsEnabled ? 'ui-no-animations' : '')} style={{ fontSize: `${uiScale}%` }}>
     <aside className={"sidebar " + (mobileNavOpen ? "mobile-nav-open" : "")}>
       <div className="sidebar-header">
