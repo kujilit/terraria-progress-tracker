@@ -558,10 +558,13 @@ export default function App() {
         </>}
         {tab === 'settings' && <>
           <div className="settings-layout">
+            <div className="settings-column">
             <section className="settings-section">
               <div className="settings-section-heading"><SlidersHorizontal size={19}/><div><h2>Игровой процесс</h2><p>Управление расчётом прогресса и отображением экипировки.</p></div></div>
               <label className="settings-row"><span><b>Скрывать более слабую экипировку</b><small>Не учитывать старое оружие и броню, если уже есть более сильная замена.</small></span><input type="checkbox" checked={hideWeakerGear} onChange={event => setHideWeakerGear(event.target.checked)}/></label>
             </section>
+            </div>
+            <div className="settings-column">
             <section className="settings-section">
               <div className="settings-section-heading"><Settings size={19}/><div><h2>Интерфейс</h2><p>Настрой внешний вид под размер экрана.</p></div></div>
               <label className="settings-row"><span><b>Компактный режим</b><small>Уменьшает отступы и плотнее размещает карточки.</small></span><input type="checkbox" checked={compactMode} onChange={event => setCompactMode(event.target.checked)}/></label>
@@ -573,6 +576,7 @@ export default function App() {
               <div className="settings-actions"><button type="button" className="small-button" onClick={exportProgress}><BookOpen size={15}/> Экспорт JSON</button><label className="small-button settings-file-button"><Search size={15}/> Импорт JSON<input type="file" accept="application/json,.json" onChange={importProgress} disabled={isRemoteMode}/></label></div>
               <div className="settings-warning"><b>Сброс прогресса</b><span>{isRemoteMode ? 'В сетевом режиме сброс недоступен — данные мира общие.' : 'Удаляет локальные отметки предметов и боссов.'}</span><button type="button" className="settings-danger" disabled={isRemoteMode} onClick={resetProgress}><RotateCcw size={14}/> Сбросить прогресс</button></div>
             </section>
+            </div>
             <div className="settings-footnote">Настройки интерфейса и фильтр экипировки сохраняются в этом браузере. Экспорт включает отметки предметов, боссов и основные предпочтения.</div>
           </div>
         </>}
