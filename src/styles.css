@@ -1189,3 +1189,15 @@ footer{border-color:#394052;color:#9297b5}
 .roster-emblem{width:36px;height:36px}
 .player-emblem.big{width:64px;height:64px}
 .admin-player-avatar{width:36px;height:36px}
+
+
+/* Potion recipe artwork */
+.potion-card-title{display:flex;align-items:center;gap:12px;min-width:0;margin:12px 0 8px}
+.potion-card-title h3{margin:0 0 5px}
+.potion-card-title p{margin:0}
+.potion-art{width:48px;height:48px;object-fit:contain;image-rendering:pixelated;flex:0 0 48px;filter:drop-shadow(2px 2px 0 #07151d)}
+.potion-ingredients{display:flex;flex-direction:column;gap:7px}
+.potion-ingredient{display:flex;align-items:center;gap:8px;min-height:28px;color:#aebfc1;font-size:11px}
+.potion-ingredient img{width:24px;height:24px;object-fit:contain;image-rendering:pixelated;flex:0 0 24px}
+.potion-ingredient span{min-width:0}
+@media(max-width:700px){.potion-art{width:42px;height:42px;flex-basis:42px}.potion-ingredient{font-size:10px}}
