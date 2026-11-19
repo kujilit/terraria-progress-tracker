@@ -703,7 +703,7 @@ export default function App() {
                 const done=active.filter(item=>statusForPlayer(player.id,item.id)==='owned').length
                 const isCurrent=stage===stageCurrent
                 const title=/^\d+$/.test(stage)?(classStages[player.gameClass].find(value=>value.id.endsWith('-'+stage))?.title||stageLabel(stage)):stageLabel(stage)
-                return <section className={'progression-tree-node '+(isCurrent?'current':'')} key={stage}>
+                return <Panel as="section" className={'progression-tree-node '+(isCurrent?'current':'')} key={stage}>
                   <div className="progression-tree-marker"><span>{index+1}</span></div>
                   <div className="progression-tree-content">
                     <div className="progression-tree-heading">
@@ -712,7 +712,7 @@ export default function App() {
                     </div>
                     <div className="progression-tree-items">{stageItems.map(item=><PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id,item.id)} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected!==session?.player.id}/>)}</div>
                   </div>
-                </section>
+                </Panel>
               })}</div>
             : <div className="player-gear-empty"><Swords size={22}/><b>Нет предметов для этого класса</b><span>В каталоге пока нет экипировки, которую можно отнести к классу {classLabel(player.gameClass).toLowerCase()}.</span></div>}
         </>}
