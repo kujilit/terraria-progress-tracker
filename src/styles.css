@@ -2263,3 +2263,62 @@ input:focus-visible, textarea:focus-visible {
 .notes-players label {
   color: var(--os-ink);
 }
+
+
+/* Global dark-surface contrast pass.
+   Legacy light-theme selectors must not leak dark ink into dark panels. */
+.admin-panel .admin-player-identity b,
+.admin-panel .admin-summary > b {
+  color: var(--color-text);
+}
+.admin-panel .admin-player-identity small,
+.admin-panel .admin-summary,
+.admin-panel .admin-summary small {
+  color: var(--color-text-muted);
+}
+.admin-panel .admin-player-role.role-admin {
+  color: var(--color-success);
+}
+.admin-panel .admin-player-role.role-owner {
+  color: var(--color-violet-400, #c4b2ff);
+}
+
+/* Keep text readable in shared dark cards and their nested content. */
+.panel,
+.stat-card,
+.player-card,
+.item-card,
+.boss-card,
+.catalog-toolbar,
+.team-note,
+.notes-editor,
+.notes-board,
+.admin-panel,
+.companion-target-card,
+.companion-recommendation,
+.current-loadout-panel {
+  color: var(--color-text);
+}
+.panel h2,
+.panel h3,
+.stat-card b,
+.player-card h3,
+.item-details b,
+.boss-card b,
+.team-note h3,
+.companion-target-card h3,
+.companion-recommendation b {
+  color: var(--color-text);
+}
+.panel p,
+.panel small,
+.stat-card small,
+.player-card small,
+.item-details small,
+.boss-card small,
+.team-note p,
+.team-note > small,
+.companion-target-card p,
+.companion-recommendation small {
+  color: var(--color-text-muted);
+}
