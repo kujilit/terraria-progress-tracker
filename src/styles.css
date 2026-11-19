@@ -2400,3 +2400,20 @@ input:focus-visible, textarea:focus-visible {
 .terraria-equipment-group:has(.terraria-accessory-count){grid-template-columns:repeat(2,minmax(0,1fr))}
 
 .terraria-slot-image{display:block;width:42px;height:42px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 1px 2px #0009)}
+
+
+/* Image-based equipment item picker */
+.terraria-equipment-slot{position:relative}
+.terraria-picker-trigger{width:100%;min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;background:#101e27;border:1px solid #526b77;color:#e4e8df;text-align:left;font:inherit;font-size:11px}
+.terraria-picker-trigger:disabled{opacity:.5;cursor:not-allowed}
+.terraria-picker-trigger>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.terraria-picker-chevron{color:#e7bd67}
+.terraria-item-picker{position:absolute;z-index:30;top:100%;left:0;width:min(390px,90vw);max-height:340px;padding:8px;background:#101e27;border:1px solid #8a744b;box-shadow:0 12px 30px #000b;overflow:auto}
+.terraria-picker-empty{width:100%;padding:7px;margin-bottom:7px;background:#263b46;color:#d9e1df;border:1px solid #536b75;text-align:left;font-size:11px}
+.terraria-picker-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.terraria-picker-item{min-width:0;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;padding:7px 4px;background:#192d37;border:1px solid #3c5662;color:#e6e8df;text-align:center}
+.terraria-picker-item.selected{border-color:#e6bd69;background:#34414a}
+.terraria-picker-item img,.terraria-picker-item>span:first-child{width:42px;height:42px;display:grid;place-items:center;object-fit:contain;font-size:24px;image-rendering:pixelated}
+.terraria-picker-item>span:not(:first-child){font-size:10px;line-height:1.2;overflow-wrap:anywhere}
+.terraria-picker-item small{color:#a8b4b8;font-size:9px;line-height:1.2}
+@media(max-width:520px){.terraria-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.terraria-item-picker{width:min(320px,88vw)}}
