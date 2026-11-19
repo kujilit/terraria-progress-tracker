@@ -224,6 +224,17 @@ export default function App() {
     } catch { return bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending' }
   }
   const nextBoss = bosses.find(boss => bossStatus(boss.id) !== 'defeated')
+  const defeatedBossCount = bosses.filter(boss => bossStatus(boss.id) === 'defeated').length
+  const latestBacklogNote = [...teamNotes].filter(note => note.status !== 'done').sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0]
+  const openBacklogCount = teamNotes.filter(note => note.status === 'backlog').length
+  const doingNoteCount = teamNotes.filter(note => note.status === 'doing').length
+  const highPriorityCount = teamNotes.filter(note => note.status !== 'done' && note.priority === 'high').length
+  const teamGearSummary = currentPlayers.map(member => {
+    const gear = getClassProgressItems(catalogItems, member.gameClass, id => statusForPlayer(member.id,id), hideWeakerGear)
+    const ownedCount = gear.filter(item => statusForPlayer(member.id,item.id) === 'owned').length
+    return { member, ownedCount, total: gear.length, percent: Math.round(ownedCount / Math.max(gear.length,1) * 100) }
+  })
+  const teamAverageProgress = Math.round(teamGearSummary.reduce((sum,row) => sum + row.percent,0) / Math.max(teamGearSummary.length,1))
   const bossWikiSprites: Record<string, string[]> = {
     king_slime: ['King Slime.gif'],
     eye: ['Eye of Cthulhu.gif'],
@@ -443,6 +454,18 @@ export default function App() {
           {subnav[activeGroup.id]!.map(entry => <button type="button" role="tab" aria-selected={tab === entry.id} className={tab === entry.id ? 'selected' : ''} key={entry.id} onClick={() => setTab(entry.id)}>{entry.label}</button>)}
         </div>}
         {tab === 'players' && <>
+          <section className="world-overview">
+            <div className="world-overview-heading">
+              <div><span className="eyebrow">WORLD STATUS</span><h2>{session?.world.name || 'For The Worthy'}</h2><p>{session ? `${session.world.difficulty} · ${session.world.evilBiome} · Terraria ${session.world.gameVersion}` : 'Master · Crimson · Terraria 1.4.5.x'}</p></div>
+              <Badge tone="success">{currentPlayers.length} игроков онлайн в составе</Badge>
+            </div>
+            <div className="world-overview-stats">
+              <article className="world-stat"><span>Текущий этап</span><b>{nextBoss ? nextBoss.stage : 'Победа над финальным боссом'}</b><small>{nextBoss ? `Следующая цель: ${nextBoss.name}` : 'Все боссы отмечены побеждёнными'}</small><div className="world-stat-track"><i style={{width: (defeatedBossCount / Math.max(bosses.length,1) * 100) + '%'}}/></div><small>{defeatedBossCount}/{bosses.length} боссов побеждено</small></article>
+              <article className="world-stat"><span>Прогресс экипировки</span><b>{teamAverageProgress}%</b><small>Среднее по персонажам</small><div className="world-stat-track"><i style={{width: teamAverageProgress + '%'}}/></div><small>{teamGearSummary.reduce((sum,row)=>sum+row.ownedCount,0)} предметов собрано суммарно</small></article>
+              <article className="world-stat world-backlog-stat"><span>Последняя задача бэклога</span>{latestBacklogNote ? <><b>{latestBacklogNote.title}</b><small>{latestBacklogNote.status === 'doing' ? 'В работе' : 'В бэклоге'} · {new Date(latestBacklogNote.updatedAt).toLocaleDateString('ru-RU')}</small><p>{latestBacklogNote.body || 'Описание не добавлено.'}</p></> : <><b>Задач пока нет</b><small>Добавьте первую задачу команды</small></>}<div className="world-backlog-counts"><span>{openBacklogCount} в бэклоге</span><span>{doingNoteCount} в работе</span>{highPriorityCount > 0 && <strong>{highPriorityCount} срочных</strong>}</div></article>
+            </div>
+            <div className="world-player-progress">{teamGearSummary.map(row=><button type="button" key={row.member.id} onClick={()=>setSelected(row.member.id)} className={selected === row.member.id ? 'active' : ''}><PixelAvatar playerId={row.member.id} className="world-player-avatar"/><span><b>{row.member.name}</b><small>{classLabel(row.member.gameClass)}</small></span><strong>{row.percent}%</strong></button>)}</div>
+          </section>
           <section className="player-roster">
             <div className="player-roster-heading">
               <div><span className="eyebrow">WORLD ROSTER</span><h2>Персонажи мира</h2></div>
