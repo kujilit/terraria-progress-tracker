@@ -5,6 +5,7 @@ import { armorSetsForClass, isItemUsefulForClass } from './armor-sets'
 import { classStages } from './class-progression'
 import { getItemStageRank } from './gear-progression'
 import { accessoryBuilds } from './accessory-builds'
+import { ruClass, ruItem, ruStage } from './localization'
 
 type Slot = 'head' | 'body' | 'legs' | 'weapon' | 'whip' | 'accessory1' | 'accessory2' | 'accessory3' | 'accessory4' | 'accessory5' | 'accessory6' | 'accessory7'
 type Slots = Record<Slot, string>
@@ -23,7 +24,7 @@ const category = (value: string) => value.toLowerCase().includes('armor') || val
   : value.toLowerCase().includes('weapon') || value.toLowerCase().includes('оруж') ? 'weapon'
   : value.toLowerCase().includes('accessory') || value.toLowerCase().includes('аксесс') ? 'accessory' : value.toLowerCase().includes('summon') || value.toLowerCase().includes('призыв') ? 'weapon' : value.toLowerCase()
 const stageRank = (stage: string) => /^\d+$/.test(stage) ? Number(stage) : Math.max(1, getItemStageRank(stage) + 1)
-const stageTitle = (gameClass: Player['gameClass'], stage: string) => /^\d+$/.test(stage) ? (classStages[gameClass].find(entry => entry.id.endsWith('-' + stage))?.title || 'Этап ' + stage) : ({ 'Pre-Hardmode': 'До хардмода', Hardmode: 'Хардмод', 'Post-Mechanical': 'После механических боссов', 'Post-Plantera': 'После Плантеры', 'Post-Golem': 'После Голема', 'Post-Moon Lord': 'Финальный этап' } as Record<string, string>)[stage] || stage
+const stageTitle = (gameClass: Player['gameClass'], stage: string) => /^\d+$/.test(stage) ? (classStages[gameClass].find(entry => entry.id.endsWith('-' + stage))?.title || 'Этап ' + stage) : ruStage(stage)
 const armorSlotFor = (value: string): Slot | null => { const v = value.toLowerCase(); if (v.includes('head') || v.includes('голов') || v.includes('шлем')) return 'head'; if (v.includes('leg') || v.includes('ног') || v.includes('понож')) return 'legs'; if (v.includes('body') || v.includes('chest') || v.includes('тел') || v.includes('нагруд')) return 'body'; return null }
 
 export function CharacterLoadout({ player, items, statusForItem, disabled, onOpenCatalog, onOpenCraft }: {
@@ -84,12 +85,12 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
 
   return <section className="character-loadout-page">
     <header className="character-loadout-header">
-      <div><span className="eyebrow">ПЕРСОНАЖ / ЭКИПИРОВКА</span><h2>{player.name}</h2><p>{player.gameClass === 'Melee' ? 'Ближний бой' : player.gameClass === 'Ranger' ? 'Стрелок' : player.gameClass === 'Mage' ? 'Маг' : 'Призыватель'} · Текущие слоты и дальнейшее развитие</p></div>
+      <div><span className="eyebrow">ПЕРСОНАЖ / ЭКИПИРОВКА</span><h2>{player.name}</h2><p>{ruClass(player.gameClass)} · Текущие слоты и дальнейшее развитие</p></div>
       <div className="character-progress"><b>{equippedCount}/{totalSlots}</b><span>слотов заполнено</span><div><i style={{ width: (equippedCount / totalSlots * 100) + '%' }}/></div></div>
     </header>
     <div className="character-loadout-grid">
       <section className="character-equipment-panel">
-        <div className="character-panel-title"><div><span className="eyebrow">CURRENT LOADOUT</span><h3>Текущая экипировка</h3></div><span>{equippedCount}/{totalSlots} слотов</span></div>
+        <div className="character-panel-title"><div><span className="eyebrow">ТЕКУЩАЯ ЭКИПИРОВКА</span><h3>Текущая экипировка</h3></div><span>{equippedCount}/{totalSlots} слотов</span></div>
         <div className="terraria-equipment-layout">
           <div className="terraria-equipment-group">
             <div className="terraria-equipment-group-title">Броня</div>
@@ -106,7 +107,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
                 {openSlot === slot.id && <div className="terraria-item-picker">
                   <input className="terraria-picker-search" type="search" value={pickerSearch} onChange={event => setPickerSearch(event.target.value)} placeholder="Поиск предмета..." aria-label="Поиск предмета"/><button type="button" className="terraria-picker-empty" onClick={() => { setLoadout(current => ({ ...current, [slot.id]: '' })); setOpenSlot(null); setPickerSearch('') }}>Очистить слот</button>
                   <div className="terraria-picker-grid">{visibleOptions(slot).map(item => <button type="button" key={item.id} className={'terraria-picker-item' + (loadout[slot.id] === item.id ? ' selected' : '')} title={item.name} onClick={() => { setLoadout(current => ({ ...current, [slot.id]: item.id })); setOpenSlot(null) }}>
-                    <EquipmentIcon item={item}/><span>{item.ru || item.name}</span><small>{stageTitle(player.gameClass, item.stage)}</small>
+                    <EquipmentIcon item={item}/><span>{ruItem(item)}</span><small>{stageTitle(player.gameClass, item.stage)}</small>
                   </button>)}</div>
                 </div>}
                 
@@ -162,7 +163,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
         {disabled && <p className="character-readonly-note">Редактировать экипировку можно только у своего персонажа.</p>}
       </section>
       <aside className="character-roadmap-panel">
-        <div className="character-panel-title"><div><span className="eyebrow">NEXT UP</span><h3>Рекомендуемое развитие</h3></div><Sparkles size={19}/></div>
+        <div className="character-panel-title"><div><span className="eyebrow">СЛЕДУЮЩИЕ ЦЕЛИ</span><h3>Рекомендуемое развитие</h3></div><Sparkles size={19}/></div>
         {recommendations.length ? <>
           <div className="roadmap-current-stage"><span>Ближайшие цели</span><b>{stageTitle(player.gameClass, recommendations[0].stage)}</b></div>
           <div className="roadmap-track">{recommendations.map((item, index) => <article className="roadmap-node" key={item.id}>
