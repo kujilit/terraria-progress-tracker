@@ -2093,7 +2093,7 @@ input:focus-visible, textarea:focus-visible {
 }
 
 /* Reusable component primitives */
-.ui-panel {
+.ui-panel:not([data-ui-base="false"]) {
   min-width: 0;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
