@@ -286,17 +286,17 @@
           "name": "Cobalt Helmet",
           "slot": "Голова",
           "effect": "+15% к урону ближнего боя и +10% к скорости передвижения.",
-          "ru": "Cobalt Helmet"
+          "ru": "Кобальтовый шлем"
         },
         {
           "name": "Cobalt Breastplate",
           "slot": "Тело",
-          "ru": "Cobalt Breastplate"
+          "ru": "Кобальтовая кираса"
         },
         {
           "name": "Cobalt Leggings",
           "slot": "Ноги",
-          "ru": "Cobalt Leggings"
+          "ru": "Кобальтовые поножи"
         }
       ],
       "bonuses": [
@@ -319,17 +319,17 @@
           "name": "Cobalt Mask",
           "slot": "Голова",
           "effect": "+10% к урону и +10% к критическому шансу дальнего боя.",
-          "ru": "Cobalt Mask"
+          "ru": "Кобальтовая маска"
         },
         {
           "name": "Cobalt Breastplate",
           "slot": "Тело",
-          "ru": "Cobalt Breastplate"
+          "ru": "Кобальтовая кираса"
         },
         {
           "name": "Cobalt Leggings",
           "slot": "Ноги",
-          "ru": "Cobalt Leggings"
+          "ru": "Кобальтовые поножи"
         }
       ],
       "bonuses": [
@@ -352,17 +352,17 @@
           "name": "Cobalt Hat",
           "slot": "Голова",
           "effect": "+10% к магическому урону, +9% к магическому критическому шансу и +40 к максимуму маны.",
-          "ru": "Cobalt Hat"
+          "ru": "Кобальтовая шляпа"
         },
         {
           "name": "Cobalt Breastplate",
           "slot": "Тело",
-          "ru": "Cobalt Breastplate"
+          "ru": "Кобальтовая кираса"
         },
         {
           "name": "Cobalt Leggings",
           "slot": "Ноги",
-          "ru": "Cobalt Leggings"
+          "ru": "Кобальтовые поножи"
         }
       ],
       "bonuses": [
@@ -386,17 +386,17 @@
           "name": "Adamantite Helmet",
           "slot": "Голова",
           "effect": "+14% к урону и +7% к критическому шансу ближнего боя.",
-          "ru": "Adamantite Helmet"
+          "ru": "Адамантитовый шлем"
         },
         {
           "name": "Adamantite Breastplate",
           "slot": "Тело",
-          "ru": "Adamantite Breastplate"
+          "ru": "Адамантитовая кираса"
         },
         {
           "name": "Adamantite Leggings",
           "slot": "Ноги",
-          "ru": "Adamantite Leggings"
+          "ru": "Адамантитовые поножи"
         }
       ],
       "bonuses": [
@@ -419,17 +419,17 @@
           "name": "Adamantite Mask",
           "slot": "Голова",
           "effect": "+14% к урону и +10% к критическому шансу дальнего боя.",
-          "ru": "Adamantite Mask"
+          "ru": "Адамантитовая маска"
         },
         {
           "name": "Adamantite Breastplate",
           "slot": "Тело",
-          "ru": "Adamantite Breastplate"
+          "ru": "Адамантитовая кираса"
         },
         {
           "name": "Adamantite Leggings",
           "slot": "Ноги",
-          "ru": "Adamantite Leggings"
+          "ru": "Адамантитовые поножи"
         }
       ],
       "bonuses": [
@@ -452,17 +452,17 @@
           "name": "Adamantite Headgear",
           "slot": "Голова",
           "effect": "+12% к магическому урону, +12% к магическому критическому шансу и +80 к максимуму маны.",
-          "ru": "Adamantite Headgear"
+          "ru": "Адамантитовый головной убор"
         },
         {
           "name": "Adamantite Breastplate",
           "slot": "Тело",
-          "ru": "Adamantite Breastplate"
+          "ru": "Адамантитовая кираса"
         },
         {
           "name": "Adamantite Leggings",
           "slot": "Ноги",
-          "ru": "Adamantite Leggings"
+          "ru": "Адамантитовые поножи"
         }
       ],
       "bonuses": [
@@ -485,17 +485,17 @@
           "name": "Titanium Mask",
           "slot": "Голова",
           "effect": "+9% к урону, критическому шансу и скорости ближнего боя.",
-          "ru": "Titanium Mask"
+          "ru": "Титановая маска"
         },
         {
           "name": "Titanium Breastplate",
           "slot": "Тело",
-          "ru": "Titanium Breastplate"
+          "ru": "Титановая кираса"
         },
         {
           "name": "Titanium Leggings",
           "slot": "Ноги",
-          "ru": "Titanium Leggings"
+          "ru": "Титановые поножи"
         }
       ],
       "bonuses": [
@@ -521,17 +521,17 @@
           "name": "Titanium Helmet",
           "slot": "Голова",
           "effect": "+16% к урону и +7% к критическому шансу дальнего боя.",
-          "ru": "Titanium Helmet"
+          "ru": "Титановый шлем"
         },
         {
           "name": "Titanium Breastplate",
           "slot": "Тело",
-          "ru": "Titanium Breastplate"
+          "ru": "Титановая кираса"
         },
         {
           "name": "Titanium Leggings",
           "slot": "Ноги",
-          "ru": "Titanium Leggings"
+          "ru": "Титановые поножи"
         }
       ],
       "bonuses": [
@@ -558,17 +558,17 @@
           "name": "Titanium Headgear",
           "slot": "Голова",
           "effect": "+16% к магическому урону, +7% к магическому критическому шансу и +100 к максимуму маны.",
-          "ru": "Titanium Headgear"
+          "ru": "Титановый головной убор"
         },
         {
           "name": "Titanium Breastplate",
           "slot": "Тело",
-          "ru": "Titanium Breastplate"
+          "ru": "Титановая кираса"
         },
         {
           "name": "Titanium Leggings",
           "slot": "Ноги",
-          "ru": "Titanium Leggings"
+          "ru": "Титановые поножи"
         }
       ],
       "bonuses": [
@@ -596,17 +596,17 @@
           "name": "Shroomite Headgear",
           "slot": "Голова",
           "effect": "Множитель ×1,12 к урону луков, репитеров, стрел и кольев.",
-          "ru": "Shroomite Headgear"
+          "ru": "Грибной головной убор"
         },
         {
           "name": "Shroomite Breastplate",
           "slot": "Тело",
-          "ru": "Shroomite Breastplate"
+          "ru": "Грибная кираса"
         },
         {
           "name": "Shroomite Leggings",
           "slot": "Ноги",
-          "ru": "Shroomite Leggings"
+          "ru": "Грибные поножи"
         }
       ],
       "bonuses": [
@@ -630,17 +630,17 @@
           "name": "Shroomite Mask",
           "slot": "Голова",
           "effect": "Множитель ×1,12 к урону огнестрельного оружия и пуль.",
-          "ru": "Shroomite Mask"
+          "ru": "Грибная маска"
         },
         {
           "name": "Shroomite Breastplate",
           "slot": "Тело",
-          "ru": "Shroomite Breastplate"
+          "ru": "Грибная кираса"
         },
         {
           "name": "Shroomite Leggings",
           "slot": "Ноги",
-          "ru": "Shroomite Leggings"
+          "ru": "Грибные поножи"
         }
       ],
       "bonuses": [
@@ -664,17 +664,17 @@
           "name": "Shroomite Helmet",
           "slot": "Голова",
           "effect": "Множитель ×1,12 к специализированному дальнему оружию и боеприпасам.",
-          "ru": "Shroomite Helmet"
+          "ru": "Грибной шлем"
         },
         {
           "name": "Shroomite Breastplate",
           "slot": "Тело",
-          "ru": "Shroomite Breastplate"
+          "ru": "Грибная кираса"
         },
         {
           "name": "Shroomite Leggings",
           "slot": "Ноги",
-          "ru": "Shroomite Leggings"
+          "ru": "Грибные поножи"
         }
       ],
       "bonuses": [
@@ -697,17 +697,17 @@
         {
           "name": "Vortex Helmet",
           "slot": "Голова",
-          "ru": "Vortex Helmet"
+          "ru": "Шлем вихря"
         },
         {
           "name": "Vortex Breastplate",
           "slot": "Тело",
-          "ru": "Vortex Breastplate"
+          "ru": "Кираса вихря"
         },
         {
           "name": "Vortex Leggings",
           "slot": "Ноги",
-          "ru": "Vortex Leggings"
+          "ru": "Поножи вихря"
         }
       ],
       "bonuses": [
@@ -1096,17 +1096,17 @@
           "name": "Palladium Mask",
           "slot": "Голова",
           "effect": "+12% к урону ближнего боя.",
-          "ru": "Palladium Mask"
+          "ru": "Палладиевая маска"
         },
         {
           "name": "Palladium Breastplate",
           "slot": "Тело",
-          "ru": "Palladium Breastplate"
+          "ru": "Палладиевая кираса"
         },
         {
           "name": "Palladium Leggings",
           "slot": "Ноги",
-          "ru": "Palladium Leggings"
+          "ru": "Палладиевые поножи"
         }
       ],
       "bonuses": [
@@ -1131,17 +1131,17 @@
           "name": "Palladium Helmet",
           "slot": "Голова",
           "effect": "+9% к урону и +9% к критическому шансу дальнего боя.",
-          "ru": "Palladium Helmet"
+          "ru": "Палладиевый шлем"
         },
         {
           "name": "Palladium Breastplate",
           "slot": "Тело",
-          "ru": "Palladium Breastplate"
+          "ru": "Палладиевая кираса"
         },
         {
           "name": "Palladium Leggings",
           "slot": "Ноги",
-          "ru": "Palladium Leggings"
+          "ru": "Палладиевые поножи"
         }
       ],
       "bonuses": [
@@ -1165,17 +1165,17 @@
           "name": "Palladium Headgear",
           "slot": "Голова",
           "effect": "+9% к магическому урону, +9% к магическому криту, +60 к максимуму маны.",
-          "ru": "Palladium Headgear"
+          "ru": "Палладиевый головной убор"
         },
         {
           "name": "Palladium Breastplate",
           "slot": "Тело",
-          "ru": "Palladium Breastplate"
+          "ru": "Палладиевая кираса"
         },
         {
           "name": "Palladium Leggings",
           "slot": "Ноги",
-          "ru": "Palladium Leggings"
+          "ru": "Палладиевые поножи"
         }
       ],
       "bonuses": [
@@ -1200,17 +1200,17 @@
           "name": "Mythril Helmet",
           "slot": "Голова",
           "effect": "+10% к урону и +8% к критическому шансу ближнего боя.",
-          "ru": "Mythril Helmet"
+          "ru": "Мифриловый шлем"
         },
         {
           "name": "Mythril Chainmail",
           "slot": "Тело",
-          "ru": "Mythril Chainmail"
+          "ru": "Мифриловая кольчуга"
         },
         {
           "name": "Mythril Greaves",
           "slot": "Ноги",
-          "ru": "Mythril Greaves"
+          "ru": "Мифриловые поножи"
         }
       ],
       "bonuses": [
@@ -1234,17 +1234,17 @@
           "name": "Mythril Hat",
           "slot": "Голова",
           "effect": "+12% к дальнему урону и +7% к критическому шансу дальнего боя.",
-          "ru": "Mythril Hat"
+          "ru": "Мифриловая шляпа"
         },
         {
           "name": "Mythril Chainmail",
           "slot": "Тело",
-          "ru": "Mythril Chainmail"
+          "ru": "Мифриловая кольчуга"
         },
         {
           "name": "Mythril Greaves",
           "slot": "Ноги",
-          "ru": "Mythril Greaves"
+          "ru": "Мифриловые поножи"
         }
       ],
       "bonuses": [
@@ -1268,17 +1268,17 @@
           "name": "Mythril Hood",
           "slot": "Голова",
           "effect": "+15% к магическому урону и +60 к максимуму маны.",
-          "ru": "Mythril Hood"
+          "ru": "Мифриловый капюшон"
         },
         {
           "name": "Mythril Chainmail",
           "slot": "Тело",
-          "ru": "Mythril Chainmail"
+          "ru": "Мифриловая кольчуга"
         },
         {
           "name": "Mythril Greaves",
           "slot": "Ноги",
-          "ru": "Mythril Greaves"
+          "ru": "Мифриловые поножи"
         }
       ],
       "bonuses": [
@@ -1302,17 +1302,17 @@
           "name": "Orichalcum Mask",
           "slot": "Голова",
           "effect": "+11% к урону, скорости ближнего боя и +7% к скорости передвижения.",
-          "ru": "Orichalcum Mask"
+          "ru": "Орихалковая маска"
         },
         {
           "name": "Orichalcum Breastplate",
           "slot": "Тело",
-          "ru": "Orichalcum Breastplate"
+          "ru": "Орихалковая кираса"
         },
         {
           "name": "Orichalcum Leggings",
           "slot": "Ноги",
-          "ru": "Orichalcum Leggings"
+          "ru": "Орихалковые поножи"
         }
       ],
       "bonuses": [
@@ -1336,17 +1336,17 @@
           "name": "Orichalcum Helmet",
           "slot": "Голова",
           "effect": "+15% к критическому шансу дальнего боя и +8% к скорости передвижения.",
-          "ru": "Orichalcum Helmet"
+          "ru": "Орихалковый шлем"
         },
         {
           "name": "Orichalcum Breastplate",
           "slot": "Тело",
-          "ru": "Orichalcum Breastplate"
+          "ru": "Орихалковая кираса"
         },
         {
           "name": "Orichalcum Leggings",
           "slot": "Ноги",
-          "ru": "Orichalcum Leggings"
+          "ru": "Орихалковые поножи"
         }
       ],
       "bonuses": [
@@ -1369,17 +1369,17 @@
           "name": "Orichalcum Headgear",
           "slot": "Голова",
           "effect": "+18% к магическому критическому шансу и +80 к максимуму маны.",
-          "ru": "Orichalcum Headgear"
+          "ru": "Орихалковый головной убор"
         },
         {
           "name": "Orichalcum Breastplate",
           "slot": "Тело",
-          "ru": "Orichalcum Breastplate"
+          "ru": "Орихалковая кираса"
         },
         {
           "name": "Orichalcum Leggings",
           "slot": "Ноги",
-          "ru": "Orichalcum Leggings"
+          "ru": "Орихалковые поножи"
         }
       ],
       "bonuses": [
@@ -1403,17 +1403,17 @@
           "name": "Hallowed Mask",
           "slot": "Голова",
           "effect": "+10% к урону, криту и скорости ближнего боя.",
-          "ru": "Hallowed Mask"
+          "ru": "Освящённая маска"
         },
         {
           "name": "Hallowed Plate Mail",
           "slot": "Тело",
-          "ru": "Hallowed Plate Mail"
+          "ru": "Освящённая кираса"
         },
         {
           "name": "Hallowed Greaves",
           "slot": "Ноги",
-          "ru": "Hallowed Greaves"
+          "ru": "Освящённые поножи"
         }
       ],
       "bonuses": [
@@ -1440,17 +1440,17 @@
           "name": "Hallowed Helmet",
           "slot": "Голова",
           "effect": "+15% к дальнему урону и +8% к критическому шансу дальнего боя.",
-          "ru": "Hallowed Helmet"
+          "ru": "Освящённый шлем"
         },
         {
           "name": "Hallowed Plate Mail",
           "slot": "Тело",
-          "ru": "Hallowed Plate Mail"
+          "ru": "Освящённая кираса"
         },
         {
           "name": "Hallowed Greaves",
           "slot": "Ноги",
-          "ru": "Hallowed Greaves"
+          "ru": "Освящённые поножи"
         }
       ],
       "bonuses": [
@@ -1477,17 +1477,17 @@
           "name": "Hallowed Headgear",
           "slot": "Голова",
           "effect": "+12% к магическому урону и криту, +100 к максимуму маны.",
-          "ru": "Hallowed Headgear"
+          "ru": "Освящённый головной убор"
         },
         {
           "name": "Hallowed Plate Mail",
           "slot": "Тело",
-          "ru": "Hallowed Plate Mail"
+          "ru": "Освящённая кираса"
         },
         {
           "name": "Hallowed Greaves",
           "slot": "Ноги",
-          "ru": "Hallowed Greaves"
+          "ru": "Освящённые поножи"
         }
       ],
       "bonuses": [
@@ -1515,17 +1515,17 @@
           "name": "Hallowed Hood",
           "slot": "Голова",
           "effect": "+10% к урону призыва и +1 слот миньона.",
-          "ru": "Hallowed Hood"
+          "ru": "Освящённый капюшон"
         },
         {
           "name": "Hallowed Plate Mail",
           "slot": "Тело",
-          "ru": "Hallowed Plate Mail"
+          "ru": "Освящённая кираса"
         },
         {
           "name": "Hallowed Greaves",
           "slot": "Ноги",
-          "ru": "Hallowed Greaves"
+          "ru": "Освящённые поножи"
         }
       ],
       "bonuses": [
@@ -1552,17 +1552,17 @@
           "name": "Chlorophyte Mask",
           "slot": "Голова",
           "effect": "+16% к урону ближнего боя и +6% к критическому шансу ближнего боя.",
-          "ru": "Chlorophyte Mask"
+          "ru": "Хлорофитовая маска"
         },
         {
           "name": "Chlorophyte Plate Mail",
           "slot": "Тело",
-          "ru": "Chlorophyte Plate Mail"
+          "ru": "Хлорофитовая кираса"
         },
         {
           "name": "Chlorophyte Greaves",
           "slot": "Ноги",
-          "ru": "Chlorophyte Greaves"
+          "ru": "Хлорофитовые поножи"
         }
       ],
       "bonuses": [
@@ -1588,17 +1588,17 @@
           "name": "Chlorophyte Helmet",
           "slot": "Голова",
           "effect": "+16% к дальнему урону и 20% шанс сохранить боеприпас.",
-          "ru": "Chlorophyte Helmet"
+          "ru": "Хлорофитовый шлем"
         },
         {
           "name": "Chlorophyte Plate Mail",
           "slot": "Тело",
-          "ru": "Chlorophyte Plate Mail"
+          "ru": "Хлорофитовая кираса"
         },
         {
           "name": "Chlorophyte Greaves",
           "slot": "Ноги",
-          "ru": "Chlorophyte Greaves"
+          "ru": "Хлорофитовые поножи"
         }
       ],
       "bonuses": [
@@ -1624,17 +1624,17 @@
           "name": "Chlorophyte Headgear",
           "slot": "Голова",
           "effect": "+16% к магическому урону, +80 маны и −17% расхода маны.",
-          "ru": "Chlorophyte Headgear"
+          "ru": "Хлорофитовый головной убор"
         },
         {
           "name": "Chlorophyte Plate Mail",
           "slot": "Тело",
-          "ru": "Chlorophyte Plate Mail"
+          "ru": "Хлорофитовая кираса"
         },
         {
           "name": "Chlorophyte Greaves",
           "slot": "Ноги",
-          "ru": "Chlorophyte Greaves"
+          "ru": "Хлорофитовые поножи"
         }
       ],
       "bonuses": [
@@ -1661,17 +1661,17 @@
           "name": "Chlorophyte Visor",
           "slot": "Голова",
           "effect": "+16% к урону призыва и +3 слота миньонов.",
-          "ru": "Chlorophyte Visor"
+          "ru": "Хлорофитовый визор"
         },
         {
           "name": "Chlorophyte Plate Mail",
           "slot": "Тело",
-          "ru": "Chlorophyte Plate Mail"
+          "ru": "Хлорофитовая кираса"
         },
         {
           "name": "Chlorophyte Greaves",
           "slot": "Ноги",
-          "ru": "Chlorophyte Greaves"
+          "ru": "Хлорофитовые поножи"
         }
       ],
       "bonuses": [
