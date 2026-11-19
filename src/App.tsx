@@ -560,7 +560,7 @@ export default function App() {
           {isRemoteMode && session && <Panel className="panel inventory-controls">
             <div className="panel-head"><h2>Управление количеством</h2><Backpack size={17}/></div>
             <div className="inventory-form">
-              <label>Предмет<select value={inventoryItemId} onChange={e=>setInventoryItemId(e.target.value)}>{catalogItems.map(item=><option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
+              <label>Предмет<select value={inventoryItemId} onChange={e=>setInventoryItemId(e.target.value)}>{catalogItems.map(item=><option value={item.id} key={item.id}>{ruItem(item)}</option>)}</select></label>
               <label>Количество<input type="number" min="0" max="99999" value={inventoryQty} onChange={e=>setInventoryQty(e.target.value)}/></label>
               <Button size="sm" variant="primary" onClick={saveInventoryQuantity}>Сохранить у себя</Button>
             </div>
@@ -591,8 +591,8 @@ export default function App() {
               {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><ItemArtwork item={i} className="craft-choice-art"/><b>{ruItem(i)}</b><ChevronRight size={15}/></button>)}
               {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).length === 0 && <p className="craft-search-empty">Ничего не найдено</p>}
             </Panel>
-            <Panel className="panel tree-panel"><div className="panel-head"><div><h2>{current ? ruItem(current) : 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {tree?.station || current?.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
-              {(current?.recipes?.length || 0) > 1 && <label className="recipe-select">Вариант рецепта<select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>{current.recipes?.map((recipe, index) => <option value={index} key={recipe.id}>{recipe.station || 'Без станции'} · {recipe.version || 'Все версии'} · ×{recipe.amount}</option>)}</select></label>}
+            <Panel className="panel tree-panel"><div className="panel-head"><div><h2>{current ? ruItem(current) : 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {ruText(tree?.station || current?.station || 'Способ получения')}</small></div><GitBranch size={18}/></div>
+              {(current?.recipes?.length || 0) > 1 && <label className="recipe-select">Вариант рецепта<select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>{current.recipes?.map((recipe, index) => <option value={index} key={recipe.id}>{ruText(recipe.station || 'Без станции')} · {ruText(recipe.version || 'Все версии')} · ×{recipe.amount}</option>)}</select></label>}
               <div className="tree-root">{tree && <TreeNode node={tree} statuses={statuses} onOpenItem={setCraftModalItem}/>}</div>
               <div className="notice compact"><Sparkles size={16}/> Рецепты загружаются из Terraria Wiki. Проверьте версию игры и доступность конкретного рецепта для вашей платформы.</div>
             </Panel>
@@ -889,10 +889,10 @@ function RecipeModal({ item, catalogItems, statuses, onClose, onOpenItem }: {
       </select></label>}
       <div className="recipe-modal-body">
         {tree && <div className="tree-root"><TreeNode node={tree} statuses={statuses} onOpenItem={onOpenItem}/></div>}
-        {!hasRecipe && <div className="recipe-modal-empty"><b>Рецепт не найден в каталоге</b><p>{item.source || 'Для этого предмета пока не указаны компоненты крафта.'}</p></div>}
-        {hasRecipe && tree?.children.length === 0 && <div className="recipe-modal-empty"><b>Компоненты рецепта не удалось связать с каталогом</b><p>{item.source || 'Попробуй проверить предметы в каталоге.'}</p></div>}
+        {!hasRecipe && <div className="recipe-modal-empty"><b>Рецепт не найден в каталоге</b><p>{ruText(item.source || 'Для этого предмета пока не указаны компоненты крафта.')}</p></div>}
+        {hasRecipe && tree?.children.length === 0 && <div className="recipe-modal-empty"><b>Компоненты рецепта не удалось связать с каталогом</b><p>{ruText(item.source || 'Попробуй проверить предметы в каталоге.')}</p></div>}
       </div>
-      <footer className="recipe-modal-footer"><span>{item.source || 'Источник получения не указан'}</span>{item.station && <small>Станция: {item.station}</small>}</footer>
+      <footer className="recipe-modal-footer"><span>{ruText(item.source || 'Источник получения не указан')}</span>{item.station && <small>Станция: {ruText(item.station)}</small>}</footer>
     </Panel>
   </div>
 }
