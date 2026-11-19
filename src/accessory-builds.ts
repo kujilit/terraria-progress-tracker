@@ -2,6 +2,7 @@ import type { GameClass } from './types'
 
 export interface AccessoryBuildItem {
   name: string
+  ru: string
   effect: string
   stage: string
   role: string
@@ -15,8 +16,42 @@ export interface AccessoryBuildVariant {
   items: AccessoryBuildItem[]
 }
 
+const accessoryRu: Record<string,string> = {
+  "Warrior Emblem": "Эмблема воина",
+  "Mechanical Glove": "Механическая перчатка",
+  "Fire Gauntlet": "Огненная перчатка",
+  "Destroyer Emblem": "Эмблема разрушителя",
+  "Celestial Shell": "Небесная раковина",
+  "Master Ninja Gear": "Снаряжение мастера-ниндзя",
+  "Berserker's Glove": "Перчатка берсерка",
+  "Frozen Shield": "Замороженный щит",
+  "Terraspark Boots": "Терра-искрящиеся ботинки",
+  "Ankh Shield": "Щит Анкха",
+  "Worm Scarf": "Шарф червя",
+  "Charm of Myths": "Амулет мифов",
+  "Ranger Emblem": "Эмблема стрелка",
+  "Recon Scope": "Разведывательный прицел",
+  "Sniper Scope": "Снайперский прицел",
+  "Chaos Cylinder": "Цилиндр хаоса",
+  "Magic Quiver": "Волшебный колчан",
+  "Stalker's Quiver": "Колчан охотника",
+  "Sorcerer Emblem": "Эмблема мага",
+  "Celestial Emblem": "Небесная эмблема",
+  "Arcane Flower": "Магический цветок",
+  "Mana Cloak": "Мантия маны",
+  "Celestial Cuffs": "Небесные наручи",
+  "Mystic Arts Sash": "Пояс мистических искусств",
+  "Restoration Shield": "Щит восстановления",
+  "Summoner Emblem": "Эмблема призывателя",
+  "Papyrus Scarab": "Папирусный скарабей",
+  "Pygmy Necklace": "Карликовое ожерелье",
+  "Avenger Emblem": "Эмблема мстителя",
+  "Twilight Grasp": "Сумеречная хватка",
+  "Ouroboros Ring": "Кольцо Уробороса",
+  "Wicked Claws": "Зловещие когти"
+}
 const item = (name: string, effect: string, stage: string, role: string): AccessoryBuildItem => ({
-  name, effect, stage, role,
+  name, ru: accessoryRu[name] || name, effect, stage, role,
 })
 
 export const accessoryBuilds: Record<GameClass, AccessoryBuildVariant[]> = {
