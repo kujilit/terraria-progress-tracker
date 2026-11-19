@@ -57,7 +57,8 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
     return result
   }, [player.gameClass])
   const itemFor = (id: string) => classItems.find(item => item.id === id)
-  const isWhip = (item: Item) => /whip|кнут/i.test([item.name, item.ru, item.category, item.damageType || ''].join(' '))
+  const whipNames = new Set(['Leather Whip', 'Snapthorn', 'Spinal Tap', 'Firecracker', 'Cool Whip', 'Durendal', 'Dark Harvest', 'Morning Star', 'Kaleidoscope'])
+  const isWhip = (item: Item) => whipNames.has(item.name) || /whip|кнут|хлыст/i.test([item.name, item.ru, item.category, item.damageType || ''].join(' '))
   const options = (slot: typeof slots[number]) => classItems.filter(item => slot.category === 'whip'
     ? isWhip(item)
     : category(item.category) === slot.category && (slot.category !== 'armor' || armorSlot.get(item.name) === slot.id) && (slot.id !== 'weapon' || player.gameClass !== 'Summoner' || !isWhip(item)))
