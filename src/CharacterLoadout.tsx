@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, Sparkles, Shield } from 'lucide-react'
+import { ArrowRight, Sparkles, Shield, GitBranch } from 'lucide-react'
 import type { Item, Player } from './types'
 import { armorSetsForClass, isItemUsefulForClass } from './armor-sets'
 import { classStages } from './class-progression'
@@ -26,8 +26,8 @@ const stageRank = (stage: string) => /^\d+$/.test(stage) ? Number(stage) : Math.
 const stageTitle = (gameClass: Player['gameClass'], stage: string) => /^\d+$/.test(stage) ? (classStages[gameClass].find(entry => entry.id.endsWith('-' + stage))?.title || 'Этап ' + stage) : ({ 'Pre-Hardmode': 'До хардмода', Hardmode: 'Хардмод', 'Post-Mechanical': 'После механических боссов', 'Post-Plantera': 'После Плантеры', 'Post-Golem': 'После Голема', 'Post-Moon Lord': 'Финальный этап' } as Record<string, string>)[stage] || stage
 const armorSlotFor = (value: string): Slot | null => { const v = value.toLowerCase(); if (v.includes('head') || v.includes('голов') || v.includes('шлем')) return 'head'; if (v.includes('leg') || v.includes('ног') || v.includes('понож')) return 'legs'; if (v.includes('body') || v.includes('chest') || v.includes('тел') || v.includes('нагруд')) return 'body'; return null }
 
-export function CharacterLoadout({ player, items, statusForItem, disabled, onOpenCatalog }: {
-  player: Player; items: Item[]; statusForItem: (id: string) => string; disabled?: boolean; onOpenCatalog: () => void
+export function CharacterLoadout({ player, items, statusForItem, disabled, onOpenCatalog, onOpenCraft }: {
+  player: Player; items: Item[]; statusForItem: (id: string) => string; disabled?: boolean; onOpenCatalog: () => void; onOpenCraft: (item: Item) => void
 }) {
   const key = 'terraria-character-loadout:' + player.id
   const [openSlot, setOpenSlot] = useState<Slot | null>(null)
@@ -166,7 +166,10 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
         {recommendations.length ? <>
           <div className="roadmap-current-stage"><span>Ближайшие цели</span><b>{stageTitle(player.gameClass, recommendations[0].stage)}</b></div>
           <div className="roadmap-track">{recommendations.map((item, index) => <article className="roadmap-node" key={item.id}>
-            <span className="roadmap-node-index">{index + 1}</span><span className="roadmap-node-art"><EquipmentIcon item={item}/></span><div className="roadmap-node-copy"><small>{item.slotLabel} · {stageTitle(player.gameClass, item.stage)}</small><b>{item.ru || item.name}</b><span>{item.name}</span></div>
+            <span className="roadmap-node-index">{index + 1}</span><span className="roadmap-node-art"><EquipmentIcon item={item}/></span><div className="roadmap-node-copy"><small>{item.slotLabel} · {stageTitle(player.gameClass, item.stage)}</small><b>{item.ru || item.name}</b><span>{item.name}</span>
+              {(item.equipmentEffect || item.buffName || item.description) && <p className="roadmap-node-effect">{item.equipmentEffect || (item.buffName ? item.buffName + (item.buffDuration ? ' · ' + item.buffDuration : '') : item.description)}</p>}
+              <button type="button" className="roadmap-craft-button" onClick={() => onOpenCraft(item)}><GitBranch size={13}/> Посмотреть крафт</button>
+            </div>
             <span className={"roadmap-node-status status-" + item.status}>{item.status === 'crafting' ? 'В работе' : item.status === 'planned' ? 'В планах' : 'Не получено'}</span>
           </article>)}</div>
         </> : <div className="roadmap-complete"><Shield size={24}/><b>Основные цели закрыты</b><span>Для этого класса пока нет следующих рекомендаций.</span></div>}
