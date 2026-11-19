@@ -10,7 +10,7 @@ import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 import { PixelAvatar } from './components/PixelAvatar'
-import { Badge, Button, Panel } from './components/ui'
+import { Badge, Button, Panel, SectionHeading } from './components/ui'
 import { PotionItemIcon } from './components/PotionItemIcon'
 
 type Tab = 'players' | 'companion' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
@@ -771,7 +771,12 @@ export default function App() {
         </>}
         {tab === 'admin' && canSeeAdmin && <>
           <section className="admin-panel">
-            <div className="admin-panel-heading"><div><h2>Администрирование мира</h2><p>Управление участниками и правами доступа.</p></div><span className="admin-role">{session?.player.role === 'owner' ? 'СОЗДАТЕЛЬ' : 'АДМИНИСТРАТОР'}</span></div>
+            <SectionHeading
+              className="admin-panel-heading"
+              title="Администрирование мира"
+              description="Управление участниками и правами доступа."
+              action={<span className="admin-role">{session?.player.role === 'owner' ? 'СОЗДАТЕЛЬ' : 'АДМИНИСТРАТОР'}</span>}
+            />
             <div className="admin-summary"><b>{remotePlayers.length}</b><span>участников мира</span><small>{canManageAdmins ? 'Назначать администраторов может только создатель мира.' : 'Вы можете просматривать участников. Изменение ролей доступно создателю мира.'}</small></div>
             <div className="admin-player-list">
               {remotePlayers.map(member => <div className="admin-player-row" key={member.id}>
