@@ -327,7 +327,7 @@ export default function App() {
     const statusOrder: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
     const stageOrder: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Not specified': 2 }
     return catalogItems
-      .filter(item => (item.name + ' ' + item.ru + ' ' + cleanWikiText(item.description)).toLowerCase().includes(query.trim().toLowerCase()))
+      .filter(item => (item.name + ' ' + item.ru + ' ' + ruItem(item) + ' ' + cleanWikiText(item.description)).toLowerCase().includes(query.trim().toLowerCase()))
       .filter(item => catalogClassFilter === 'all' || item.gameClass.includes(catalogClassFilter))
       .filter(item => catalogCategoryFilter === 'all' || categoryKey(item.category) === catalogCategoryFilter)
       .filter(item => catalogStageFilter === 'all' || item.stage === catalogStageFilter)
@@ -577,7 +577,7 @@ export default function App() {
             const owner = currentPlayers.find(x => x.id === row.playerId)
             return <Panel as="article" className="item-card" key={row.id}><ItemArtwork item={item || { icon: '📦' }} className="item-art"/><div className="item-details"><b>{item ? <button type="button" className="item-recipe-link" onClick={() => setCraftModalItem(item)}>{ruItem(item)}<GitBranch size={13}/></button> : row.itemId}</b><small>{owner?.name || 'Участник'} · резерв: {row.reservedQuantity}</small><Badge tone="success">Количество: {row.quantity}</Badge></div></Panel>
           })}</div>}
-          {!isRemoteMode && <div className="item-grid">{catalogItems.filter(i => i.category !== 'material' && statuses[i.id] === 'owned').map(i => <Panel as="article" className="item-card" key={i.id}><ItemArtwork item={i} className="item-art"/><div className="item-details"><b><button type="button" className="item-recipe-link" onClick={() => setCraftModalItem(i)}>{i.name}<GitBranch size={13}/></button></b><small>{i.gameClass.join(', ')}</small><Badge tone="success">Есть в команде</Badge></div></Panel>)}</div>}
+          {!isRemoteMode && <div className="item-grid">{catalogItems.filter(i => i.category !== 'material' && statuses[i.id] === 'owned').map(i => <Panel as="article" className="item-card" key={i.id}><ItemArtwork item={i} className="item-art"/><div className="item-details"><b><button type="button" className="item-recipe-link" onClick={() => setCraftModalItem(i)}>{ruItem(i)}<GitBranch size={13}/></button></b><small>{i.gameClass.join(', ')}</small><Badge tone="success">Есть в команде</Badge></div></Panel>)}</div>}
         </>}
         {tab === 'bosses' && <>
           <div className="notice"><Skull size={18}/> Отметка о победе над боссом открывает следующие этапы. В демонстрационном режиме связи примерные — перед публикацией их нужно сверить с условиями игры версии 1.4.5.x.</div>
