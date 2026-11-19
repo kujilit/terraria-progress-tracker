@@ -505,6 +505,12 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
     if ("ammunition" in item_type or re.search(r"\bammo\b", item_type)) and not not_ammo:
         categories.append("ammo")
 
+    # Shield of Cthulhu occupies an accessory slot in Terraria. Some Cargo
+    # rows expose shield metadata that can look like armor; keep its catalog
+    # classification explicit and stable.
+    if name.casefold() == "shield of cthulhu":
+        categories = ["accessory"]
+
     if not categories:
         return None
 
