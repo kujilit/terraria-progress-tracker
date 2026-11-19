@@ -76,3 +76,19 @@ export function SectionHeading({ title, description, action, className = '', ...
     </div>
   )
 }
+
+type StatCardProps = HTMLAttributes<HTMLDivElement> & {
+  label: ReactNode
+  value: ReactNode
+  detail?: ReactNode
+}
+
+export function StatCard({ label, value, detail, className = '', ...props }: StatCardProps) {
+  return (
+    <div {...props} className={['ui-stat-card', className].filter(Boolean).join(' ')}>
+      <span className="ui-stat-card__label">{label}</span>
+      <strong className="ui-stat-card__value">{value}</strong>
+      {detail && <span className="ui-stat-card__detail">{detail}</span>}
+    </div>
+  )
+}
