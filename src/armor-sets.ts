@@ -3,6 +3,7 @@ import armorSetData from '../data/armor-sets.json'
 
 export interface ArmorSetPiece {
   name: string
+  ru: string
   slot: string
   effect?: string
 }
@@ -10,6 +11,7 @@ export interface ArmorSetPiece {
 export interface ArmorSetDefinition {
   id: string
   name: string
+  ru: string
   classes: GameClass[]
   stage: string
   pieces: ArmorSetPiece[]
