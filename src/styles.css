@@ -2497,3 +2497,32 @@ input:focus-visible, textarea:focus-visible {
 .world-player-progress button strong{color:#e7c783;font-size:12px}
 @media(max-width:850px){.world-overview-stats{grid-template-columns:1fr 1fr}.world-backlog-stat{grid-column:1/-1}}
 @media(max-width:560px){.world-overview{padding:12px}.world-overview-heading{flex-direction:column}.world-overview-heading h2{font-size:19px}.world-overview-stats{grid-template-columns:1fr}.world-backlog-stat{grid-column:auto}.world-stat{min-height:0}.world-player-progress{grid-template-columns:1fr 1fr}}
+
+/* Alchemy contrast repair — dark cards with readable foregrounds. */
+.alchemy-page .potion-card{
+  background:#1d3440!important;
+  color:#e9e4d7!important;
+  border:1px solid #58717c!important;
+  box-shadow:0 3px 10px #07131a66!important;
+}
+.alchemy-page .potion-card-top{color:#65d6ad!important}
+.alchemy-page .potion-card-top small{color:#b3c3c5!important}
+.alchemy-page .potion-card-title h3,
+.alchemy-page .potion-card h3{color:#f3e8d1!important}
+.alchemy-page .potion-card-title p,
+.alchemy-page .potion-card>p{color:#d0dcde!important}
+.alchemy-page .potion-ingredients{border-top:1px solid #58717c!important}
+.alchemy-page .potion-ingredients>b{color:#a9c0c5!important}
+.alchemy-page .potion-ingredient,
+.alchemy-page .potion-ingredients .potion-ingredient span{color:#d5e0df!important}
+.alchemy-page .potion-ingredient:before{background:#58c99c!important}
+.alchemy-page .potion-amount{color:#70d7ae!important}
+.alchemy-page .alchemy-intro,
+.alchemy-page .alchemy-station{color:#f1eadb!important}
+.alchemy-page .alchemy-filters input,
+.alchemy-page .alchemy-filters select{background:#fff0cf!important;color:#173744!important;border-color:#78939b!important}
+.alchemy-page .alchemy-filters input::placeholder{color:#657d83!important;opacity:1}
+.alchemy-page .alchemy-tips{background:#203b35!important;color:#e2eee2!important;border-color:#557b67!important}
+.alchemy-page .alchemy-tips h3,
+.alchemy-page .alchemy-tips li{color:#e2eee2!important}
+.alchemy-page .alchemy-tips a{color:#82dfb5!important}
