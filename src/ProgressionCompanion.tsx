@@ -4,6 +4,7 @@ import { isItemUsefulForClass } from './armor-sets'
 import { getItemStageRank } from './gear-progression'
 import type { Boss, GameClass, Item, ItemStatus } from './types'
 import { Badge, Button, Panel } from './components/ui'
+import { ruBoss, ruClass, ruItem, ruStage, ruText } from './localization'
 
 type BossStatus = 'defeated' | 'pending'
 type Props = {
@@ -83,14 +84,14 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
   const tabs: { id: 'tree' | 'gear' | 'boss'; label: string; icon: LucideIcon }[] = [{ id: 'tree', label: 'Прогрессия', icon: Swords }, { id: 'gear', label: 'Экипировка', icon: Shield }, { id: 'boss', label: 'Подготовка к боссу', icon: Crosshair }]
   return <section className="companion-page">
     <header className="companion-hero">
-      <div><span className="eyebrow">ADVENTURE COMPANION</span><h2>План приключения</h2><p>{playerName} · {classNames[gameClass]} · персональный маршрут прохождения</p></div>
+      <div><span className="eyebrow">ПЛАН ПРИКЛЮЧЕНИЯ</span><h2>План приключения</h2><p>{playerName} · {classNames[gameClass]} · персональный маршрут прохождения</p></div>
       <div className="companion-hero-stat"><Trophy size={20}/><b>{defeatedCount}/{mainBosses.length}</b><small>боссов побеждено</small></div>
     </header>
     <nav className="companion-tabs">{tabs.map(tab => <button type="button" key={tab.id} className={section === tab.id ? 'selected' : ''} onClick={() => setSection(tab.id)}><tab.icon size={16}/>{tab.label}</button>)}</nav>
 
     {section === 'tree' && <div className="companion-tree-layout">
       <section className="companion-tree companion-mainline">
-        <div className="companion-line-heading"><span className="eyebrow">MAIN PROGRESSION</span><h3>Основная линия</h3><p>Обязательные боссы и переходы между этапами.</p></div>
+        <div className="companion-line-heading"><span className="eyebrow">ОСНОВНОЕ ПРОХОЖДЕНИЕ</span><h3>Основная линия</h3><p>Обязательные боссы и переходы между этапами.</p></div>
         {orderedBosses.filter(boss => !boss.optional).map((boss, index, list) => {
           const defeated = bossStatus(boss.id) === 'defeated'
           const unlocked = boss.requires.every(required => bossStatus(required) === 'defeated')
@@ -98,14 +99,14 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
           return <Panel as="article" className={`companion-boss-node ${defeated ? 'defeated' : current ? 'current' : 'locked'}`} key={boss.id}>
             <div className="companion-node-rail"><span>{defeated ? <Check size={15}/> : index + 1}</span>{index < list.length - 1 && <i/>}</div>
             <div className="companion-node-card">
-              <div className="companion-node-copy"><span className="eyebrow">{boss.stage} · ЭТАП {index + 1}</span><h3>{boss.name}</h3><p>{defeated ? 'Победа зафиксирована' : unlocked ? 'Доступен для сражения' : 'Сначала победите предыдущих боссов'}</p></div>
+              <div className="companion-node-copy"><span className="eyebrow">{ruStage(boss.stage)} · ЭТАП {index + 1}</span><h3>{ruBoss(boss.name)}</h3><p>{defeated ? 'Победа зафиксирована' : unlocked ? 'Доступен для сражения' : 'Сначала победите предыдущих боссов'}</p></div>
               <div className="companion-node-actions"><Badge tone={defeated ? 'success' : current ? 'warning' : 'neutral'}>{defeated ? 'Побеждён' : unlocked ? 'Открыт' : 'Закрыт'}</Badge><Button size="sm" variant={defeated ? 'secondary' : 'primary'} disabled={disabled || !unlocked && !defeated} onClick={() => onBossStatus(boss.id, defeated ? 'pending' : 'defeated')}>{defeated ? 'Отменить' : 'Побеждён'}</Button><Button size="sm" variant="ghost" className="companion-detail-button" onClick={() => { setSelectedBoss(boss.id); setSection('boss') }}>Подготовка <ArrowRight size={13}/></Button></div>
             </div>
           </Panel>
         })}
       </section>
       <section className="companion-optional-line">
-        <div className="companion-line-heading"><span className="eyebrow">OPTIONAL CONTENT</span><h3>Необязательные боссы</h3><p>Дополнительные испытания. Не блокируют основное прохождение.</p></div>
+        <div className="companion-line-heading"><span className="eyebrow">НЕОБЯЗАТЕЛЬНЫЕ ИСПЫТАНИЯ</span><h3>Необязательные боссы</h3><p>Дополнительные испытания. Не блокируют основное прохождение.</p></div>
         <div className="companion-optional-grid">{orderedBosses.filter(boss => boss.optional).map(boss => {
           const defeated = bossStatus(boss.id) === 'defeated'
           const unlocked = boss.requires.every(required => bossStatus(required) === 'defeated')
@@ -120,19 +121,19 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
     </div>}
 
     {section === 'gear' && <div className="companion-gear">
-      <div className="companion-section-intro"><div><span className="eyebrow">GEAR ADVISOR</span><h3>Что улучшить дальше</h3><p>Рекомендации учитывают класс и текущие отметки персонажа. Уже полученные и пропущенные предметы исключены.</p></div><div className="companion-gear-owned"><b>{owned.length}</b><small>предметов получено</small></div></div>
+      <div className="companion-section-intro"><div><span className="eyebrow">СОВЕТНИК ПО ЭКИПИРОВКЕ</span><h3>Что улучшить дальше</h3><p>Рекомендации учитывают класс и текущие отметки персонажа. Уже полученные и пропущенные предметы исключены.</p></div><div className="companion-gear-owned"><b>{owned.length}</b><small>предметов получено</small></div></div>
       {recommendations.length ? <div className="companion-recommendations">{recommendations.map((item, index) => <Panel as="article" className="companion-recommendation" key={item.id}>
-        <span className="companion-rank">{index + 1}</span><span className="companion-item-icon">{item.icon || '◆'}</span><div className="companion-item-copy"><b>{item.ru || item.name}</b><small>{item.name} · {item.stage} · {item.category}</small><p>{item.source || item.description || 'Доступен в текущем каталоге'}</p></div><select value={statusForItem(item.id)} disabled={disabled} onChange={event => onItemStatus(item.id, event.target.value as ItemStatus)} aria-label={`Статус ${item.name}`}><option value="missing">Нет</option><option value="planned">В планах</option><option value="crafting">Собираю</option><option value="owned">Есть</option><option value="skipped">Не нужен</option></select>
+        <span className="companion-rank">{index + 1}</span><span className="companion-item-icon">{item.icon || '◆'}</span><div className="companion-item-copy"><b>{ruItem(item)}</b><small>{ruItem(item)} · {ruStage(item.stage)} · {ruText(item.category)}</small><p>{item.source || item.description || 'Доступен в текущем каталоге'}</p></div><select value={statusForItem(item.id)} disabled={disabled} onChange={event => onItemStatus(item.id, event.target.value as ItemStatus)} aria-label={`Статус ${item.name}`}><option value="missing">Нет</option><option value="planned">В планах</option><option value="crafting">Собираю</option><option value="owned">Есть</option><option value="skipped">Не нужен</option></select>
       </Panel>)}</div> : <div className="player-gear-empty"><Check size={20}/><b>Нет рекомендаций</b><span>В каталоге не осталось незакрытых предметов для этого класса.</span></div>}
     </div>}
 
     {section === 'boss' && <div className="companion-boss-prep">
-      <div className="companion-section-intro"><div><span className="eyebrow">BOSS PREPARATION</span><h3>Подготовка к сражению</h3><p>Чек-лист для выбранного босса. Отметки сохраняются в этом браузере.</p></div><Target size={26}/></div>
+      <div className="companion-section-intro"><div><span className="eyebrow">ПОДГОТОВКА К БОССУ</span><h3>Подготовка к сражению</h3><p>Чек-лист для выбранного босса. Отметки сохраняются в этом браузере.</p></div><Target size={26}/></div>
       <label className="companion-boss-select">Цель<select value={activeBoss?.id || ''} onChange={event => { setSelectedBoss(event.target.value); setTaskState({}) }}>{orderedBosses.map(boss => <option value={boss.id} key={boss.id}>{boss.name}</option>)}</select></label>
-      {activeBoss && <><Panel as="div" className="companion-target-card"><div><span className="eyebrow">{activeBoss.stage}</span><h3>{activeBoss.name}</h3><p>{prep.title}</p></div><Badge tone={bossStatus(activeBoss.id) === 'defeated' ? 'success' : 'warning'}>{bossStatus(activeBoss.id) === 'defeated' ? 'Побеждён' : 'Цель'}</Badge></Panel>
+      {activeBoss && <><Panel as="div" className="companion-target-card"><div><span className="eyebrow">{ruStage(activeBoss.stage)}</span><h3>{ruBoss(activeBoss.name)}</h3><p>{prep.title}</p></div><Badge tone={bossStatus(activeBoss.id) === 'defeated' ? 'success' : 'warning'}>{bossStatus(activeBoss.id) === 'defeated' ? 'Побеждён' : 'Цель'}</Badge></Panel>
         <section className="companion-checklist"><div className="panel-head"><h3>Тактическая подготовка</h3><b>{prep.tasks.filter(task => taskState[task]).length}/{prep.tasks.length}</b></div>{prep.tasks.map(task => <label className={`companion-check-row ${taskState[task] ? 'checked' : ''}`} key={task}><input type="checkbox" checked={Boolean(taskState[task])} onChange={() => toggleTask(task)}/><span>{task}</span></label>)}</section>
         <section className="companion-checklist"><div className="panel-head"><h3><FlaskConical size={16}/> Расходники и баффы</h3></div>{prep.potions.map(potion => <div className="companion-potion-row" key={potion}><Sparkles size={14}/><span>{potion}</span></div>)}</section>
-        <section className="companion-checklist"><div className="panel-head"><h3><Swords size={16}/> Экипировка класса</h3><small>{classNames[gameClass]}</small></div>{classGear.filter(item => statusForItem(item.id) === 'owned').slice(0, 6).map(item => <div className="companion-potion-row" key={item.id}><Check size={14}/><span>{item.ru || item.name}</span><small>{item.category}</small></div>)}{!owned.length && <p className="muted">Пока нет отмеченной экипировки. Перейди в рекомендации и обнови статусы.</p>}</section>
+        <section className="companion-checklist"><div className="panel-head"><h3><Swords size={16}/> Экипировка класса</h3><small>{classNames[gameClass]}</small></div>{classGear.filter(item => statusForItem(item.id) === 'owned').slice(0, 6).map(item => <div className="companion-potion-row" key={item.id}><Check size={14}/><span>{item.ru || item.name}</span><small>{ruText(item.category)}</small></div>)}{!owned.length && <p className="muted">Пока нет отмеченной экипировки. Перейди в рекомендации и обнови статусы.</p>}</section>
       </>}
     </div>}
   </section>
