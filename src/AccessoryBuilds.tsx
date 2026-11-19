@@ -128,7 +128,7 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
         <div className="accessory-slot">7</div>
         <div>
           <b>Дополнительный слот — после использования Сердце демона</b>
-          <p><strong>{itemIndex.get(normalizeName(extraItem.name)) ? <button type="button" className="item-recipe-link" onClick={() => onOpenCraft(itemIndex.get(normalizeName(extraItem.name))!)}>{extraItem.name}<GitBranch size={12}/></button> : extraItem.name}:</strong> {extraItem.effect}</p>
+          <p><strong>{itemIndex.get(normalizeName(extraItem.name)) ? <button type="button" className="item-recipe-link" onClick={() => onOpenCraft(itemIndex.get(normalizeName(extraItem.name))!)}>{ruText(extraItem.name)}<GitBranch size={12}/></button> : ruText(extraItem.name)}:</strong> {extraItem.effect}</p>
         </div>
         <Sparkles size={17}/>
       </div>}
