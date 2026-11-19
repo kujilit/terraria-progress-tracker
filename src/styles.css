@@ -2470,3 +2470,30 @@ input:focus-visible, textarea:focus-visible {
 .recipe-modal-empty{background:#203744!important;color:#f0eee7!important}
 .recipe-modal-empty b{color:#f4d69b!important}
 .recipe-modal-empty p{color:#d0dcde!important}
+
+/* World overview dashboard */
+.world-overview{margin:0 0 22px;padding:18px;background:linear-gradient(135deg,#1d303b,#172832);border:1px solid #405966;box-shadow:inset 0 1px #ffffff08}
+.world-overview-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
+.world-overview-heading h2{margin:4px 0;color:#f0e7d5;font-size:22px}
+.world-overview-heading p{margin:0;color:#9eb1b6;font-size:11px}
+.world-overview-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.world-stat{display:flex;flex-direction:column;align-items:flex-start;min-width:0;min-height:150px;padding:13px;background:#223945;border:1px solid #435e69}
+.world-stat>span{color:#a9bdc1;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px}
+.world-stat>b{margin:9px 0 4px;color:#f4d79f;font-size:19px;line-height:1.2;overflow-wrap:anywhere}
+.world-stat>small{color:#b3c3c5;font-size:10px;line-height:1.45}
+.world-stat>p{margin:8px 0;color:#d0dcda;font-size:11px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.world-stat-track{width:100%;height:6px;margin:10px 0 6px;background:#101f28;border:1px solid #506873}
+.world-stat-track i{display:block;height:100%;background:linear-gradient(90deg,#4f9b79,#8bc78d)}
+.world-backlog-counts{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:10px}
+.world-backlog-counts span,.world-backlog-counts strong{padding:4px 6px;background:#172b35;border:1px solid #49616a;color:#c5d2d0;font-size:9px}
+.world-backlog-counts strong{color:#ffd18a;border-color:#8b7049}
+.world-player-progress{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:7px;margin-top:12px}
+.world-player-progress button{display:flex;align-items:center;gap:9px;min-width:0;padding:8px 10px;text-align:left;background:#192e39;border:1px solid #3c5662;color:#e8e5d9}
+.world-player-progress button.active{border-color:#d1aa67;background:#263d47}
+.world-player-avatar{width:30px;height:30px;flex:0 0 30px}
+.world-player-progress button span{display:flex;flex:1;flex-direction:column;min-width:0}
+.world-player-progress button b{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.world-player-progress button small{color:#9fb2b7;font-size:9px}
+.world-player-progress button strong{color:#e7c783;font-size:12px}
+@media(max-width:850px){.world-overview-stats{grid-template-columns:1fr 1fr}.world-backlog-stat{grid-column:1/-1}}
+@media(max-width:560px){.world-overview{padding:12px}.world-overview-heading{flex-direction:column}.world-overview-heading h2{font-size:19px}.world-overview-stats{grid-template-columns:1fr}.world-backlog-stat{grid-column:auto}.world-stat{min-height:0}.world-player-progress{grid-template-columns:1fr 1fr}}
