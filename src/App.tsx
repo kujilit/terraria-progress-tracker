@@ -11,7 +11,7 @@ import { trackerApi, isRemoteMode } from './services'
 import { PixelAvatar } from './components/PixelAvatar'
 import { Badge, Button, Panel, SectionHeading, StatCard } from './components/ui'
 import { PotionItemIcon } from './components/PotionItemIcon'
-import { ruBoss, ruClass, ruItem, ruStage, ruText } from './localization'
+import { ruBoss, ruItem, ruStage, ruText } from './localization'
 
 type Tab = 'players' | 'companion' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
 const nav: { id: Tab; label: string; icon: typeof Swords; tabs: Tab[] }[] = [
