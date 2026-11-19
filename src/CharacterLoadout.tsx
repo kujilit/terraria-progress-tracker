@@ -45,7 +45,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
     const unique = new Map<string, Item>()
     accessoryBuilds[player.gameClass].flatMap(build => build.items).forEach(entry => {
       const id = 'accessory-' + player.gameClass.toLowerCase() + '-' + entry.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-      if (!unique.has(id)) unique.set(id, { id, name: entry.name, ru: entry.name, gameClass: [player.gameClass], category: 'Аксессуар', stage: entry.stage, icon: '◇', description: entry.effect, source: 'Рекомендации аксессуарных сборок', verified: true, imageUrl: 'https://terraria.wiki.gg/wiki/Special:FilePath/' + encodeURIComponent(entry.name + '.png') })
+      if (!unique.has(id)) unique.set(id, { id, name: entry.name, ru: entry.ru, gameClass: [player.gameClass], category: 'Аксессуар', stage: entry.stage, icon: '◇', description: entry.effect, source: 'Рекомендации аксессуарных сборок', verified: true, imageUrl: 'https://terraria.wiki.gg/wiki/Special:FilePath/' + encodeURIComponent(entry.name + '.png') })
     })
     return [...unique.values()]
   }, [player.gameClass])
