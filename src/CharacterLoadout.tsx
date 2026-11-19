@@ -6,12 +6,12 @@ import { classStages } from './class-progression'
 import { getItemStageRank } from './gear-progression'
 import { accessoryBuilds } from './accessory-builds'
 
-type Slot = 'head' | 'body' | 'legs' | 'weapon' | 'accessory1' | 'accessory2' | 'accessory3' | 'accessory4' | 'accessory5' | 'accessory6' | 'accessory7'
+type Slot = 'head' | 'body' | 'legs' | 'weapon' | 'whip' | 'accessory1' | 'accessory2' | 'accessory3' | 'accessory4' | 'accessory5' | 'accessory6' | 'accessory7'
 type Slots = Record<Slot, string>
-const empty: Slots = { head: '', body: '', legs: '', weapon: '', accessory1: '', accessory2: '', accessory3: '', accessory4: '', accessory5: '', accessory6: '', accessory7: '' }
+const empty: Slots = { head: '', body: '', legs: '', weapon: '', whip: '', accessory1: '', accessory2: '', accessory3: '', accessory4: '', accessory5: '', accessory6: '', accessory7: '' }
 const slots: { id: Slot; label: string; category: string }[] = [
   { id: 'head', label: 'Голова', category: 'armor' }, { id: 'body', label: 'Тело', category: 'armor' },
-  { id: 'legs', label: 'Ноги', category: 'armor' }, { id: 'weapon', label: 'Оружие', category: 'weapon' },
+  { id: 'legs', label: 'Ноги', category: 'armor' }, { id: 'weapon', label: 'Оружие', category: 'weapon' }, { id: 'whip', label: 'Кнут', category: 'whip' },
   { id: 'accessory1', label: 'Аксессуар I', category: 'accessory' }, { id: 'accessory2', label: 'Аксессуар II', category: 'accessory' },
   { id: 'accessory3', label: 'Аксессуар III', category: 'accessory' },
   { id: 'accessory4', label: 'Аксессуар IV', category: 'accessory' },
@@ -32,7 +32,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
   const key = 'terraria-character-loadout:' + player.id
   const [openSlot, setOpenSlot] = useState<Slot | null>(null)
   const [accessorySlots, setAccessorySlots] = useState<6 | 7>(() => localStorage.getItem(key + ':accessory-slots') === '6' ? 6 : 7)
-  const activeSlots = slots.filter(slot => !slot.id.startsWith('accessory') || Number(slot.id.replace('accessory', '')) <= accessorySlots)
+  const activeSlots = slots.filter(slot => (slot.id !== 'whip' || player.gameClass === 'Summoner') && (!slot.id.startsWith('accessory') || Number(slot.id.replace('accessory', '')) <= accessorySlots))
   const [loadout, setLoadout] = useState<Slots>(() => {
     try { return { ...empty, ...JSON.parse(localStorage.getItem(key) || '{}') } } catch { return empty }
   })
@@ -57,8 +57,10 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
     return result
   }, [player.gameClass])
   const itemFor = (id: string) => classItems.find(item => item.id === id)
-  const options = (slot: typeof slots[number]) => classItems.filter(item => category(item.category) === slot.category &&
-    (slot.category !== 'armor' || armorSlot.get(item.name) === slot.id))
+  const isWhip = (item: Item) => /whip|кнут/i.test([item.name, item.ru, item.category, item.damageType || ''].join(' '))
+  const options = (slot: typeof slots[number]) => classItems.filter(item => slot.category === 'whip'
+    ? isWhip(item)
+    : category(item.category) === slot.category && (slot.category !== 'armor' || armorSlot.get(item.name) === slot.id) && (slot.id !== 'weapon' || player.gameClass !== 'Summoner' || !isWhip(item)))
     .sort((a, b) => stageRank(a.stage) - stageRank(b.stage) || a.name.localeCompare(b.name))
   const equipped = new Set(Object.values(loadout).filter(Boolean))
   const recommendationIds = new Set<string>()
@@ -75,7 +77,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
   }).filter((item): item is NonNullable<typeof item> => Boolean(item))
     .sort((a, b) => stageRank(a.stage) - stageRank(b.stage)).slice(0, 6)
   const equippedCount = activeSlots.filter(slot => Boolean(loadout[slot.id])).length
-  const totalSlots = 4 + accessorySlots
+  const totalSlots = (player.gameClass === 'Summoner' ? 5 : 4) + accessorySlots
 
   return <section className="character-loadout-page">
     <header className="character-loadout-header">
@@ -134,11 +136,11 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
           </div>
           <div className="terraria-equipment-group terraria-weapon-group">
             <div className="terraria-equipment-group-title">Оружие</div>
-            {activeSlots.filter(slot => slot.id === 'weapon').map(slot => {
+            {activeSlots.filter(slot => slot.id === 'weapon' || slot.id === 'whip').map(slot => {
               const selected = itemFor(loadout[slot.id])
               return <label className="terraria-equipment-slot" key={slot.id}>
                 <span className="terraria-slot-label">{slot.label}</span>
-                <span className={"terraria-slot-icon" + (selected ? ' is-filled' : '')}>{selected ? <EquipmentIcon item={selected}/> : '⚔'}</span>
+                <span className={"terraria-slot-icon" + (selected ? ' is-filled' : '')}>{selected ? <EquipmentIcon item={selected}/> : slot.id === 'whip' ? '〰' : '⚔'}</span>
                 <button type="button" className="terraria-picker-trigger" aria-label={slot.label + ': ' + (selected?.ru || selected?.name || 'Пусто')} aria-expanded={openSlot === slot.id} disabled={disabled} onClick={() => setOpenSlot(current => current === slot.id ? null : slot.id)}>
                   <span>{selected ? (selected.ru || selected.name) : 'Выбрать предмет'}</span><span className="terraria-picker-chevron">▾</span>
                 </button>
