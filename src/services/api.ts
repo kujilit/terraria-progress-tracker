@@ -8,7 +8,7 @@ export interface TrackerPlayer {
   id: string; name: string; gameClass: GameClass; role: 'owner' | 'admin' | 'member'
 }
 export interface TrackerSession {
-  token: string; expiresAt: string; world: TrackerWorld; player: TrackerPlayer
+  token: string; expiresAt: string | null; world: TrackerWorld; player: TrackerPlayer
 }
 export interface ProgressRecord {
   id: string; worldId: string; playerId: string; itemId: string
