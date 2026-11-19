@@ -61,6 +61,7 @@ const rows: [GameClass,string,string,string,string,string][] = [
  ['Melee','hell','Грань ночи','Night\'s Edge','Оружие','Пре-хардмод'],
  ['Melee','mech','Титановая броня','Titanium Armor','Броня','Перед механическими боссами'],
  ['Melee','mech','Святая броня','Hallowed Armor','Броня','После механических боссов'],
+ ['Melee','postmech','Хлорофитовая броня','Chlorophyte Armor','Броня','После всех механических боссов'],
  ['Melee','plantera','Черепашья броня','Turtle Armor','Броня','После Плантеры'],
  ['Melee','plantera','Терра-меч','Terra Blade','Оружие','После Плантеры'],
  ['Melee','golem','Жучья броня','Beetle Armor','Броня','После Голема'],
