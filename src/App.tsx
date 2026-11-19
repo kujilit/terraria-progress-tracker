@@ -113,12 +113,6 @@ export default function App() {
     catch { return initial }
   })
   const [query, setQuery] = useState('')
-  const [playerQuery, setPlayerQuery] = useState('')
-  const [playerCategory, setPlayerCategory] = useState<'all' | 'weapon' | 'armor' | 'accessory' | 'ammo'>('all')
-  const [playerStatus, setPlayerStatus] = useState<ItemStatus | 'all'>('all')
-  const [playerStage, setPlayerStage] = useState('all')
-  const [playerSort, setPlayerSort] = useState<'stage' | 'name' | 'status'>('stage')
-  const [playerVisibleCount, setPlayerVisibleCount] = useState(60)
   const [hideWeakerGear, setHideWeakerGear] = useState(() => localStorage.getItem('terraria-hide-weaker-gear') === 'true')
   const [compactMode, setCompactMode] = useState(() => localStorage.getItem('terraria-compact-mode') === 'true')
   const [animationsEnabled, setAnimationsEnabled] = useState(() => localStorage.getItem('terraria-animations') !== 'false')
@@ -319,75 +313,6 @@ export default function App() {
     }
     return statuses[`${playerId}:${itemId}`] || statuses[itemId] || 'missing'
   }
-  const allClassItems = catalogItems.filter(i => categoryKey(i.category) !== 'material' && isItemUsefulForClass(i, player.gameClass))
-  const classItems = getClassProgressItems(
-    catalogItems,
-    player.gameClass,
-    itemId => statusForPlayer(player.id, itemId),
-    hideWeakerGear,
-  )
-  const progressionStageGroups = Array.from(new Set(classItems.map(item => item.stage || 'Not specified')))
-    .sort((a, b) => {
-      const rankA = getItemStageRank(a)
-      const rankB = getItemStageRank(b)
-      return (rankA < 0 ? 999 : rankA) - (rankB < 0 ? 999 : rankB) || a.localeCompare(b)
-    })
-    .map(stage => ({ stage, items: classItems.filter(item => (item.stage || 'Not specified') === stage) }))
-  const playerStatusCounts = classItems.reduce<Record<ItemStatus, number>>((counts, item) => {
-    counts[statusForPlayer(player.id, item.id)] += 1
-    return counts
-  }, { owned: 0, planned: 0, crafting: 0, missing: 0, skipped: 0 })
-  const playerFilteredItems = classItems
-    .filter(item => playerCategory === 'all' || categoryKey(item.category) === playerCategory)
-    .filter(item => playerStatus === 'all' || statusForPlayer(player.id, item.id) === playerStatus)
-    .filter(item => playerStage === 'all' || item.stage === playerStage)
-    .filter(item => {
-      const setText = armorSetForItemName(item.name, player.gameClass)
-        .map(set => [set.name, ...set.bonuses, set.setBonus, set.buffName || ''].join(' '))
-        .join(' ')
-      const searchable = [
-        item.name, item.ru, cleanWikiText(item.description), cleanWikiText(item.equipmentEffect), item.armorSetName,
-        item.armorSetBonus, item.buffName, item.damageType, item.damage, item.defense, setText,
-      ].join(' ').toLowerCase()
-      return searchable.includes(playerQuery.trim().toLowerCase())
-    })
-    .sort((a, b) => {
-      if (playerSort === 'name') return a.name.localeCompare(b.name)
-      if (playerSort === 'status') {
-        const order: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
-        return order[statusForPlayer(player.id, a.id)] - order[statusForPlayer(player.id, b.id)] || a.name.localeCompare(b.name)
-      }
-      const order: Record<string, number> = { 'Pre-Hardmode': 0, 'Hardmode': 1, 'Post-Mechanical': 2, 'Post-Plantera': 3, 'Post-Golem': 4, 'Post-Moon Lord': 5, 'Not specified': 6 }
-      return (order[a.stage] ?? 3) - (order[b.stage] ?? 3) || a.name.localeCompare(b.name)
-    })
-  const playerArmorSets = armorSetsForClass(player.gameClass)
-    .map(set => ({
-      set,
-      items: set.pieces
-        .map(piece => classItems.find(item => item.name === piece.name))
-        .filter((item): item is Item => Boolean(item)),
-      matched: playerFilteredItems.filter(item => set.pieces.some(piece => piece.name === item.name)).length,
-    }))
-    .filter(group => group.items.length > 0 && group.matched > 0)
-  const groupedArmorNames = new Set(playerArmorSets.flatMap(group => group.items.map(item => item.name)))
-  const standalonePlayerItems = playerFilteredItems.filter(item => !groupedArmorNames.has(item.name))
-  const visiblePlayerItems = standalonePlayerItems.slice(0, playerVisibleCount)
-  const gearStageOrder: Record<string, number> = Object.fromEntries(Array.from({length:10},(_,i)=>[String(i+1),i]).concat([['Pre-Hardmode',0],['Hardmode',1],['Post-Mechanical',2],['Post-Plantera',3],['Post-Golem',4],['Post-Moon Lord',5],['Not specified',99]]))
-  const standaloneGearGroups = Array.from(new Set(visiblePlayerItems.map(item => item.stage || 'Not specified')))
-    .sort((a,b)=>(gearStageOrder[a] ?? 99)-(gearStageOrder[b] ?? 99))
-    .map(stage => ({
-      stage,
-      categories: Array.from(new Set(visiblePlayerItems.filter(item => (item.stage || 'Not specified') === stage).map(item => categoryKey(item.category))))
-        .sort((a,b)=>({weapon:0,armor:1,accessory:2,ammo:3,material:4}[a] ?? 9)-({weapon:0,armor:1,accessory:2,ammo:3,material:4}[b] ?? 9))
-        .map(category=>({category,items:visiblePlayerItems.filter(item=>(item.stage || 'Not specified')===stage && categoryKey(item.category)===category)})),
-    }))
-  const visibleGearCount = visiblePlayerItems.length + playerArmorSets.reduce((sum, group) => sum + group.items.length, 0)
-  const categoryCounts = classItems.reduce<Record<string, number>>((counts, item) => {
-    const category = categoryKey(item.category)
-    counts[category] = (counts[category] || 0) + 1
-    return counts
-  }, {})
-  useEffect(() => { setPlayerVisibleCount(60) }, [selected, playerQuery, playerCategory, playerStatus, playerStage, playerSort, hideWeakerGear])
   const currentSetId = currentLoadouts[player.id] || ''
   const currentSet = armorSetsForClass(player.gameClass).find(set => set.id === currentSetId)
   const setOwnedPieces = currentSet?.pieces.filter(piece => classItems.some(item => item.name === piece.name && statusForPlayer(player.id,item.id) === 'owned')).length || 0
