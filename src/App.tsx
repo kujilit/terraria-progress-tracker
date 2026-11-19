@@ -425,7 +425,7 @@ export default function App() {
           {mobileNavOpen ? <X size={22}/> : <Menu size={22}/>}
         </button>
       </div>
-      <div className="world-switch"><span className="eyebrow">ТЕКУЩИЙ МИР</span><b>{session?.world.name || 'Достойный вызов'}</b><small>{session ? `${session.world.difficulty} · ${session.world.evilBiome} · ${session.world.gameVersion}` : 'Master · Crimson · 1.4.5.x'}</small>{session && <button className="invite-code" onClick={() => navigator.clipboard.writeText(session.world.joinCode)}>КОД МИРА · {session.world.joinCode}</button>}</div>
+      <div className="world-switch"><span className="eyebrow">ТЕКУЩИЙ МИР</span><b>{session?.world.name || 'Достойный вызов'}</b><small>{session ? `${session.world.difficulty} · ${session.world.evilBiome} · ${session.world.gameVersion}` : 'Мастер · Багрянец · 1.4.5.x'}</small>{session && <button className="invite-code" onClick={() => navigator.clipboard.writeText(session.world.joinCode)}>КОД МИРА · {session.world.joinCode}</button>}</div>
       <div className="nav-label">МИР</div>
       {nav.map(n => <button key={n.id} className={'nav-item ' + (n.tabs.includes(tab) ? 'active' : '')} onClick={() => { setTab(n.id); setMobileNavOpen(false) }}>
         <n.icon size={17}/>{n.label}
@@ -458,7 +458,7 @@ export default function App() {
         {tab === 'players' && <>
           <section className="world-overview">
             <div className="world-overview-heading">
-              <div><span className="eyebrow">СОСТОЯНИЕ МИРА</span><h2>{session?.world.name || 'For The Worthy'}</h2><p>{session ? `${ruText(session.world.difficulty)} · ${ruText(session.world.evilBiome)} · Terraria ${session.world.gameVersion}` : 'Мастер · Багрянец · Terraria 1.4.5.x'}</p></div>
+              <div><span className="eyebrow">СОСТОЯНИЕ МИРА</span><h2>{session?.world.name || 'Достойный вызов'}</h2><p>{session ? `${ruText(session.world.difficulty)} · ${ruText(session.world.evilBiome)} · Terraria ${session.world.gameVersion}` : 'Мастер · Багрянец · Terraria 1.4.5.x'}</p></div>
               <Badge tone="success">{currentPlayers.length} игроков онлайн в составе</Badge>
             </div>
             <div className="world-overview-stats">
@@ -575,7 +575,7 @@ export default function App() {
           {isRemoteMode && <div className="item-grid">{remoteInventory.map(row => {
             const item = catalogItems.find(x => x.id === row.itemId)
             const owner = currentPlayers.find(x => x.id === row.playerId)
-            return <Panel as="article" className="item-card" key={row.id}><ItemArtwork item={item || { icon: '📦' }} className="item-art"/><div className="item-details"><b>{item ? <button type="button" className="item-recipe-link" onClick={() => setCraftModalItem(item)}>{item.name}<GitBranch size={13}/></button> : row.itemId}</b><small>{owner?.name || 'Участник'} · резерв: {row.reservedQuantity}</small><Badge tone="success">Количество: {row.quantity}</Badge></div></Panel>
+            return <Panel as="article" className="item-card" key={row.id}><ItemArtwork item={item || { icon: '📦' }} className="item-art"/><div className="item-details"><b>{item ? <button type="button" className="item-recipe-link" onClick={() => setCraftModalItem(item)}>{ruItem(item)}<GitBranch size={13}/></button> : row.itemId}</b><small>{owner?.name || 'Участник'} · резерв: {row.reservedQuantity}</small><Badge tone="success">Количество: {row.quantity}</Badge></div></Panel>
           })}</div>}
           {!isRemoteMode && <div className="item-grid">{catalogItems.filter(i => i.category !== 'material' && statuses[i.id] === 'owned').map(i => <Panel as="article" className="item-card" key={i.id}><ItemArtwork item={i} className="item-art"/><div className="item-details"><b><button type="button" className="item-recipe-link" onClick={() => setCraftModalItem(i)}>{i.name}<GitBranch size={13}/></button></b><small>{i.gameClass.join(', ')}</small><Badge tone="success">Есть в команде</Badge></div></Panel>)}</div>}
         </>}
@@ -663,7 +663,7 @@ export default function App() {
               </div>
             </div>
             <div className="catalog-select-row">
-              <label><span>Этап игры</span><select value={catalogStageFilter} onChange={e => setCatalogStageFilter(e.target.value)}><option value="all">Все этапы</option><option value="Pre-Hardmode">Pre-Hardmode</option><option value="Hardmode">Hardmode</option><option value="Not specified">Не указан</option></select></label>
+              <label><span>Этап игры</span><select value={catalogStageFilter} onChange={e => setCatalogStageFilter(e.target.value)}><option value="all">Все этапы</option><option value="Pre-Hardmode">До хардмода</option><option value="Hardmode">Хардмод</option><option value="Not specified">Не указан</option></select></label>
               <label><span>Мой статус</span><select value={catalogStatusFilter} onChange={e => setCatalogStatusFilter(e.target.value)}><option value="all">Любой статус</option><option value="owned">Получен</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Не получен</option><option value="skipped">Пропущен</option></select></label>
               <div className="catalog-results"><b>{filtered.length.toLocaleString('ru-RU')}</b><span>из {catalogItems.length.toLocaleString('ru-RU')} предметов</span></div>
               {catalogFiltersActive && <button className="catalog-reset" onClick={resetCatalogFilters}><RotateCcw size={13}/> Сбросить</button>}
