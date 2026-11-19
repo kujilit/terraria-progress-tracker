@@ -2442,3 +2442,31 @@ input:focus-visible, textarea:focus-visible {
 .roadmap-node-effect{margin:3px 0 2px;color:#b8c9c8;font-size:11px;line-height:1.45}
 .roadmap-craft-button{display:inline-flex;align-items:center;align-self:flex-start;gap:6px;margin-top:3px;padding:5px 8px;color:#f0d49a;background:#263a43;border:1px solid #806b45;font-size:10px;font-weight:700}
 .roadmap-craft-button:hover{background:#354a52;border-color:#d1aa62}
+
+/* Recipe modal: enforce readable contrast on every surface. */
+.recipe-modal{background:#172a35!important;color:#e8edf0!important;border-color:#657b84!important}
+.recipe-modal-header{background:#223b48!important;border-bottom:1px solid #526b75!important}
+.recipe-modal-header .eyebrow{color:#a9c0c6!important}
+.recipe-modal-item h2{color:#f3ead8!important}
+.recipe-modal-item small{color:#c0cdd0!important}
+.recipe-modal-close{background:#172a35!important;color:#f3ead8!important;border-color:#78909a!important}
+.recipe-modal-variant{color:#d0dcde!important;background:#1c313d!important}
+.recipe-modal-variant select{background:#101f29!important;color:#f1f4f2!important}
+.recipe-modal-body{background:#172a35!important;color:#e8edf0!important}
+.recipe-modal .tree-item,
+.recipe-modal-body .tree-item{background:#263e4b!important;color:#f0eee7!important;border:1px solid #607985!important}
+.recipe-modal .tree-item.has-item{background:#203d38!important;border-color:#6b9c7b!important}
+.recipe-modal .tree-item b,
+.recipe-modal .tree-item .tree-recipe-link{color:#f3ead8!important}
+.recipe-modal .tree-item .tree-recipe-link{background:transparent!important;text-decoration:none!important}
+.recipe-modal .tree-item .tree-recipe-link:hover{color:#ffd27f!important;text-decoration:underline!important}
+.recipe-modal .tree-item small{color:#d1dcde!important}
+.recipe-modal .tree-item [class*="badge"]{background:#405d68!important;color:#fff2d6!important;border:1px solid #8099a1!important}
+.recipe-modal .tree-item button.tree-toggle{background:#385665!important;color:#f5e6c9!important;border:1px solid #78909a!important}
+.recipe-modal .tree-children{border-color:#718a94!important}
+.recipe-modal .tree-branch:before{border-color:#718a94!important}
+.recipe-modal-footer{background:#263e4b!important;color:#e3e9e8!important;border-top:1px solid #526b75!important}
+.recipe-modal-footer small{color:#d1dcde!important}
+.recipe-modal-empty{background:#203744!important;color:#f0eee7!important}
+.recipe-modal-empty b{color:#f4d69b!important}
+.recipe-modal-empty p{color:#d0dcde!important}
