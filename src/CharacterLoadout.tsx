@@ -92,7 +92,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
               return <label className="terraria-equipment-slot" key={slot.id}>
                 <span className="terraria-slot-label">{slot.label}</span>
                 <span className={"terraria-slot-icon" + (selected ? ' is-filled' : '')}>
-                  {selected ? selected.icon : slot.id === 'head' ? '◈' : slot.id === 'body' ? '▣' : '▤'}
+                  {selected ? <EquipmentIcon item={selected}/> : slot.id === 'head' ? '◈' : slot.id === 'body' ? '▣' : '▤'}
                 </span>
                 <select aria-label={slot.label} value={loadout[slot.id]} disabled={disabled} onChange={event => setLoadout(current => ({ ...current, [slot.id]: event.target.value }))}>
                   <option value="">Пусто</option>{options(slot).map(item => <option key={item.id} value={item.id}>{item.ru || item.name}</option>)}
@@ -111,7 +111,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
               const selected = itemFor(loadout[slot.id])
               return <label className="terraria-equipment-slot" key={slot.id}>
                 <span className="terraria-slot-label">{slot.label}</span>
-                <span className={"terraria-slot-icon" + (selected ? ' is-filled' : '')}>{selected ? selected.icon : '◇'}</span>
+                <span className={"terraria-slot-icon" + (selected ? ' is-filled' : '')}>{selected ? <EquipmentIcon item={selected}/> : '◇'}</span>
                 <select aria-label={slot.label} value={loadout[slot.id]} disabled={disabled} onChange={event => setLoadout(current => ({ ...current, [slot.id]: event.target.value }))}>
                   <option value="">Пусто</option>{options(slot).map(item => <option key={item.id} value={item.id}>{item.ru || item.name}</option>)}
                 </select>
@@ -125,7 +125,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
               const selected = itemFor(loadout[slot.id])
               return <label className="terraria-equipment-slot" key={slot.id}>
                 <span className="terraria-slot-label">{slot.label}</span>
-                <span className={"terraria-slot-icon" + (selected ? ' is-filled' : '')}>{selected ? selected.icon : '⚔'}</span>
+                <span className={"terraria-slot-icon" + (selected ? ' is-filled' : '')}>{selected ? <EquipmentIcon item={selected}/> : '⚔'}</span>
                 <select aria-label={slot.label} value={loadout[slot.id]} disabled={disabled} onChange={event => setLoadout(current => ({ ...current, [slot.id]: event.target.value }))}>
                   <option value="">Пусто</option>{options(slot).map(item => <option key={item.id} value={item.id}>{item.ru || item.name}</option>)}
                 </select>
@@ -149,4 +149,13 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
       </aside>
     </div>
   </section>
+}
+
+
+function EquipmentIcon({ item }: { item: Item }) {
+  const [failed, setFailed] = useState(false)
+  const src = item.imageUrl ? 'https://wsrv.nl/?url=' + encodeURIComponent(item.imageUrl) : ''
+  return src && !failed
+    ? <img className="terraria-slot-image" src={src} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)}/>
+    : <span>{item.icon || '◇'}</span>
 }
