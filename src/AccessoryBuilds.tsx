@@ -3,6 +3,7 @@ import { ExternalLink, GitBranch, Shield, Sparkles, Swords, Target } from 'lucid
 import type { GameClass, Item } from './types'
 import { accessoryBuilds, classLabels } from './accessory-builds'
 import { Badge, Button, Panel, SectionHeading } from './components/ui'
+import { ruItem, ruStage, ruText } from './localization'
 
 const classes: GameClass[] = ['Melee', 'Ranger', 'Mage', 'Summoner']
 const classIcons: Record<GameClass, string> = {
@@ -93,7 +94,7 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
             <Button size="sm" variant={slotCount === 6 ? 'primary' : 'secondary'} className={slotCount === 6 ? 'selected' : ''} onClick={() => setSlotCount(6)}>6</Button>
             <Button size="sm" variant={slotCount === 7 ? 'primary' : 'secondary'} className={slotCount === 7 ? 'selected' : ''} onClick={() => setSlotCount(7)}>7</Button>
           </div>
-          <small>{slotCount === 6 ? 'Master Mode без Demon Heart' : 'Master Mode + Demon Heart'}</small>
+          <small>{slotCount === 6 ? 'Режим мастера без Сердца демона' : 'Режим мастера + Сердце демона'}</small>
         </div>
       </div>
 
@@ -110,13 +111,13 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
             </div>
             <div className="accessory-details">
               <div className="accessory-name-row">
-                <h3>{catalogItem ? <button type="button" className="item-recipe-link" onClick={() => onOpenCraft(catalogItem)} title="Открыть дерево крафта">{accessory.name}<GitBranch size={13}/></button> : accessory.name}</h3>
-                <Badge tone="info" className="accessory-role">{accessory.role}</Badge>
+                <h3>{catalogItem ? <button type="button" className="item-recipe-link" onClick={() => onOpenCraft(catalogItem)} title="Открыть дерево крафта">{catalogItem ? ruItem(catalogItem) : ruText(accessory.name)}<GitBranch size={13}/></button> : ruText(accessory.name)}</h3>
+                <Badge tone="info" className="accessory-role">{ruText(accessory.role)}</Badge>
               </div>
               <p>{accessory.effect}</p>
               <div className="accessory-meta">
-                <span>{accessory.stage}</span>
-                <a href={wikiUrl} target="_blank" rel="noreferrer">Terraria Wiki <ExternalLink size={12}/></a>
+                <span>{ruStage(accessory.stage)}</span>
+                <a href={wikiUrl} target="_blank" rel="noreferrer">Вики Terraria <ExternalLink size={12}/></a>
               </div>
             </div>
           </Panel>
@@ -126,7 +127,7 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
       {slotCount === 6 && extraItem && <div className="accessory-seventh-slot">
         <div className="accessory-slot">7</div>
         <div>
-          <b>Дополнительный слот — после использования Demon Heart</b>
+          <b>Дополнительный слот — после использования Сердце демона</b>
           <p><strong>{itemIndex.get(normalizeName(extraItem.name)) ? <button type="button" className="item-recipe-link" onClick={() => onOpenCraft(itemIndex.get(normalizeName(extraItem.name))!)}>{extraItem.name}<GitBranch size={12}/></button> : extraItem.name}:</strong> {extraItem.effect}</p>
         </div>
         <Sparkles size={17}/>
