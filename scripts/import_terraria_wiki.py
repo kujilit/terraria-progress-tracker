@@ -1243,7 +1243,10 @@ def main() -> int:
     if not any(item["primary_category"] == "weapon" for item in items):
         raise RuntimeError("No class weapons detected; refusing to publish a bad catalog snapshot.")
 
-    translated_items = sum(1 for item in items if item.get("name_ru"))\n    missing_items = len(items) - translated_items\n    log(f"Russian names: {translated_items}/{len(items)} catalog items; untranslated: {missing_items}")\n    revision = f"cargo-items:{len(item_rows)}-recipes:{len(recipe_rows)}-ru:{len(RU_ITEM_NAMES)}-{datetime.now(timezone.utc):%Y%m%d}"
+    translated_items = sum(1 for item in items if item.get("name_ru"))
+    missing_items = len(items) - translated_items
+    log(f"Russian names: {translated_items}/{len(items)} catalog items; untranslated: {missing_items}")
+    revision = f"cargo-items:{len(item_rows)}-recipes:{len(recipe_rows)}-ru:{len(RU_ITEM_NAMES)}-{datetime.now(timezone.utc):%Y%m%d}"
     publish_catalog(items, recipes, ingredients, revision, dry_run, RU_ITEM_LOCALIZATIONS)
     return 0
 
