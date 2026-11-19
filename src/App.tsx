@@ -10,6 +10,7 @@ import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 import { PixelAvatar } from './components/PixelAvatar'
+import { Badge, Button, Panel } from './components/ui'
 import { PotionItemIcon } from './components/PotionItemIcon'
 
 type Tab = 'players' | 'companion' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
@@ -755,17 +756,17 @@ export default function App() {
         </>}
         {tab === 'crafting' && <>
           <div className="craft-layout">
-            <section className="panel craft-picker"><div className="panel-head"><h2>Целевой предмет</h2><Hammer size={17}/></div>
+            <Panel className="panel craft-picker"><div className="panel-head"><h2>Целевой предмет</h2><Hammer size={17}/></div>
               <label className="craft-search"><Search size={16}/><input type="search" value={craftQuery} onChange={event => setCraftQuery(event.target.value)} placeholder="Поиск предмета..." aria-label="Поиск предмета для дерева крафта"/>{craftQuery && <button type="button" onClick={() => setCraftQuery('')} aria-label="Очистить поиск"><X size={14}/></button>}</label>
               <div className="craft-search-count">{catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).length} предметов</div>
               {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><ItemArtwork item={i} className="craft-choice-art"/><b>{i.name}</b><ChevronRight size={15}/></button>)}
               {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).length === 0 && <p className="craft-search-empty">Ничего не найдено</p>}
-            </section>
-            <section className="panel tree-panel"><div className="panel-head"><div><h2>{current?.name || 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {tree?.station || current?.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
+            </Panel>
+            <Panel className="panel tree-panel"><div className="panel-head"><div><h2>{current?.name || 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {tree?.station || current?.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
               {(current?.recipes?.length || 0) > 1 && <label className="recipe-select">Вариант рецепта<select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>{current.recipes?.map((recipe, index) => <option value={index} key={recipe.id}>{recipe.station || 'Без станции'} · {recipe.version || 'Все версии'} · ×{recipe.amount}</option>)}</select></label>}
               <div className="tree-root">{tree && <TreeNode node={tree} statuses={statuses} onOpenItem={setCraftModalItem}/>}</div>
               <div className="notice compact"><Sparkles size={16}/> Рецепты загружаются из Terraria Wiki. Проверьте версию игры и доступность конкретного рецепта для вашей платформы.</div>
-            </section>
+            </Panel>
           </div>
         </>}
         {tab === 'admin' && canSeeAdmin && <>
@@ -1176,12 +1177,20 @@ function TreeNode({ node, statuses, onOpenItem }: {
   const status = node.it ? statuses[node.it.id] : undefined
   return <div className="tree-node">
     <div className={'tree-item ' + (status === 'owned' ? 'has-item' : '')}>
-      <button type="button" onClick={() => setOpen(!open)} aria-label={open ? 'Свернуть компоненты' : 'Развернуть компоненты'}>{node.children.length ? (open ? '−' : '+') : '·'}</button>
+      <Button
+        size="sm"
+        variant="ghost"
+        className="tree-toggle"
+        onClick={() => setOpen(!open)}
+        aria-label={open ? 'Свернуть компоненты' : 'Развернуть компоненты'}
+        aria-expanded={open}
+        disabled={!node.children.length}
+      >{node.children.length ? (open ? '−' : '+') : '·'}</Button>
       {node.it && <ItemArtwork item={node.it} className="tree-item-art"/>}
       {node.it && !node.missingCatalog
         ? <button type="button" className="tree-recipe-link" onClick={() => onOpenItem?.(node.it)} title="Открыть дерево крафта">{node.it.name}<GitBranch size={12}/></button>
         : <b>{node.it?.name || 'Неизвестный компонент'}</b>}
-      <small>{status === 'owned' ? 'Есть' : 'Нужно проверить'}{node.qty ? ` · ×${node.qty}` : ''}</small>
+      <Badge tone={status === 'owned' ? 'success' : 'warning'}>{status === 'owned' ? 'Есть' : 'Проверить'}{node.qty ? ` · ×${node.qty}` : ''}</Badge>
       {node.alternatives?.length > 0 && <small>Альтернативы: {node.alternatives.map((option: { name: string }) => option.name).join(' / ')}</small>}
     </div>
     {open && node.children.length > 0 && <div className="tree-children">{node.children.map((child: any, i: number) => <div className="tree-branch" key={i}><TreeNode node={child} statuses={statuses} onOpenItem={onOpenItem}/></div>)}</div>}
