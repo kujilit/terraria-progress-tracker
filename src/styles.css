@@ -2552,3 +2552,80 @@ input:focus-visible, textarea:focus-visible {
 .companion-boss-node.optional .companion-node-actions{flex-wrap:wrap}
 @media(max-width:900px){.companion-tree-layout{grid-template-columns:1fr}.companion-optional-line{padding:0;border:0;border-top:2px dashed #657d78;padding-top:14px}.companion-optional-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.companion-optional-grid{grid-template-columns:1fr}.companion-line-heading{padding:11px}}
+
+/* Optional boss cards: use a full-width content row, not the mainline timeline grid. */
+.companion-boss-node.optional{
+  display:block!important;
+  min-height:0;
+  padding:0!important;
+  overflow:hidden;
+  background:#1a302f!important;
+  border:1px solid #52756c!important;
+}
+.companion-boss-node.optional .companion-node-card{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr);
+  justify-content:stretch;
+  align-items:stretch;
+  gap:12px;
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  padding:14px 16px!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.companion-boss-node.optional .companion-node-copy{
+  display:block;
+  width:100%;
+  min-width:0;
+}
+.companion-boss-node.optional .companion-node-copy .eyebrow{
+  display:block;
+  margin:0 0 5px;
+  color:#8fc9ad!important;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+.companion-boss-node.optional .companion-node-copy h3{
+  margin:0 0 5px;
+  color:#f0eadb!important;
+  font-size:16px;
+  line-height:1.3;
+  overflow-wrap:anywhere;
+}
+.companion-boss-node.optional .companion-node-copy p{
+  margin:0;
+  color:#b7c9c2!important;
+  font-size:11px;
+  line-height:1.45;
+}
+.companion-boss-node.optional .companion-node-actions{
+  display:flex!important;
+  flex-direction:row;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  min-width:0;
+}
+.companion-boss-node.optional .companion-node-actions>*{
+  flex:0 0 auto;
+  max-width:100%;
+}
+.companion-boss-node.optional .companion-detail-button{
+  padding:7px 9px;
+  color:#e4c17d!important;
+  white-space:nowrap;
+}
+.companion-optional-grid{
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));
+  align-items:stretch;
+}
+@media(max-width:560px){
+  .companion-boss-node.optional .companion-node-card{padding:12px!important}
+  .companion-boss-node.optional .companion-node-actions{gap:6px}
+}
