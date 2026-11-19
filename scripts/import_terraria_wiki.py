@@ -346,6 +346,7 @@ def clean_wiki_text(value: Any) -> str:
 
 RU_WIKI_API = "https://terraria.wiki.gg/ru/api.php"
 RU_ITEM_NAMES: dict[str, str] = {}
+RU_ITEM_LOCALIZATIONS: list[dict[str, Any]] = []
 
 
 class _RuItemTableParser(HTMLParser):
@@ -414,6 +415,7 @@ def fetch_ru_item_names() -> dict[str, str]:
     parser.close()
 
     translations: dict[str, str] = {}
+    localizations: list[dict[str, Any]] = []
     for row in parser.rows:
         normalized_headers = [normalize_text(cell) for cell in row]
         ru_index = next(
@@ -434,11 +436,20 @@ def fetch_ru_item_names() -> dict[str, str]:
         russian = row[1].strip()
         if english and russian and not re.fullmatch(r"\\d+", english):
             translations[normalize_text(english)] = russian
+        localizations.append({
+            "terraria_id": int(row[0]) if row[0].isdigit() else None,
+            "name_en": english,
+            "name_ru": russian,
+            "internal_name": row[3].strip() if len(row) > 3 and row[3].strip() else None,
+            "source_page": "https://terraria.wiki.gg/ru/wiki/Идентификаторы_предметов",
+        })
 
     if len(translations) < 1000:
         raise RuntimeError(
             f"Russian Terraria Wiki returned only {len(translations)} item names; refusing partial localization."
         )
+    RU_ITEM_LOCALIZATIONS.clear()
+    RU_ITEM_LOCALIZATIONS.extend(localizations)
     log(f"Russian Terraria Wiki: loaded {len(translations)} official item names")
     return translations
 
@@ -1099,6 +1110,7 @@ def publish_catalog(
     ingredients: list[dict[str, Any]],
     source_revision: str,
     dry_run: bool,
+    localizations: list[dict[str, Any]],
 ) -> dict[str, Any]:
     report = {
         "source": "terraria.wiki.gg",
@@ -1106,6 +1118,7 @@ def publish_catalog(
         "items": len(items),
         "recipes": len(recipes),
         "recipe_ingredients": len(ingredients),
+        "wiki_item_localizations": len(localizations),
         "images": sum(1 for item in items if item.get("image_url")),
         "image_files": sum(1 for item in items if item.get("image_file")),
         "categories": {},
@@ -1158,6 +1171,7 @@ def publish_catalog(
         recipe_rows = [{"batch_id": batch_id, **recipe} for recipe in recipes]
         ingredient_rows = [{"batch_id": batch_id, **ingredient} for ingredient in ingredients]
 
+        upload_rows(base, service_key, "tracker_wiki_item_localizations", localizations, "name_en")
         upload_rows(base, service_key, "tracker_catalog_items", item_rows, "batch_id,item_key")
         upload_rows(base, service_key, "tracker_catalog_recipes", recipe_rows, "batch_id,recipe_key")
         upload_rows(
@@ -1230,7 +1244,7 @@ def main() -> int:
         raise RuntimeError("No class weapons detected; refusing to publish a bad catalog snapshot.")
 
     translated_items = sum(1 for item in items if item.get("name_ru"))\n    missing_items = len(items) - translated_items\n    log(f"Russian names: {translated_items}/{len(items)} catalog items; untranslated: {missing_items}")\n    revision = f"cargo-items:{len(item_rows)}-recipes:{len(recipe_rows)}-ru:{len(RU_ITEM_NAMES)}-{datetime.now(timezone.utc):%Y%m%d}"
-    publish_catalog(items, recipes, ingredients, revision, dry_run)
+    publish_catalog(items, recipes, ingredients, revision, dry_run, RU_ITEM_LOCALIZATIONS)
     return 0
 
 
