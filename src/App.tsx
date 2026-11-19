@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from '
 import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, ChevronRight, Hammer, Sparkles, SlidersHorizontal, RotateCcw, Menu, X, ClipboardList, Plus, Trash2, FlaskConical } from 'lucide-react'
 import { AccessoryBuilds } from './AccessoryBuilds'
 import { ProgressionCompanion } from './ProgressionCompanion'
+import { CharacterLoadout } from './CharacterLoadout'
 import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
 import { getClassProgressItems, getItemStageRank } from './gear-progression'
 import { itemsWithProgression as items, players, bosses } from './data'
@@ -551,93 +552,13 @@ export default function App() {
             })}</div>
           </section>
 
-          <Panel as="section" unstyled className="player-profile-panel">
-            <div className="player-profile-identity">
-              <PixelAvatar playerId={player.id} className="player-emblem big"/>
-              <div><span className="eyebrow">АКТИВНЫЙ ПЕРСОНАЖ</span><h2>{player.name}</h2><p>{classLabel(player.gameClass)} · Master Mode</p></div>
-            </div>
-          </Panel>
-
-          <div className="player-stat-grid">
-            <div><small>Получено</small><b className="stat-owned">{playerStatusCounts.owned}</b></div>
-            <div><small>В работе</small><b className="stat-crafting">{playerStatusCounts.crafting}</b></div>
-            <div><small>В планах</small><b className="stat-planned">{playerStatusCounts.planned}</b></div>
-            <div><small>Не получено</small><b>{playerStatusCounts.missing}</b></div>
-          </div>
-
-          <Panel as="section" unstyled className="player-gear-section">
-            <div className="player-gear-heading">
-              <div><span className="eyebrow">LOADOUT / GEAR</span><h2>Экипировка персонажа</h2><p>Предметы подходят классу {classLabel(player.gameClass).toLowerCase()}. Отмечай полученное, запланированное и то, что сейчас собираешь.</p></div>
-              <span className="player-gear-total">{playerFilteredItems.length.toLocaleString('ru-RU')} <small>предметов</small></span>
-            </div>
-
-            <div className="player-category-tabs">
-              {[
-                ['all', 'Всё снаряжение', classItems.length],
-                ['weapon', 'Оружие', categoryCounts.weapon || 0],
-                ['armor', 'Броня', categoryCounts.armor || 0],
-                ['accessory', 'Аксессуары', categoryCounts.accessory || 0],
-                ['ammo', 'Боеприпасы', categoryCounts.ammo || 0],
-              ].map(([key, label, count]) => <button type="button" key={key} className={playerCategory === key ? 'selected' : ''} onClick={() => setPlayerCategory(key as typeof playerCategory)}>
-                <span>{label}</span><b>{count}</b>
-              </button>)}
-            </div>
-
-            <div className="player-gear-filters">
-              <div className="player-gear-search"><Search size={16}/><input value={playerQuery} onChange={event => setPlayerQuery(event.target.value)} placeholder="Найти предмет или эффект..."/></div>
-              <label><span>Этап</span><select value={playerStage} onChange={event => setPlayerStage(event.target.value)}><option value="all">Все этапы</option><option value="Pre-Hardmode">Pre-Hardmode</option><option value="Hardmode">Hardmode</option><option value="Post-Mechanical">После механических боссов</option><option value="Post-Plantera">После Плантеры</option><option value="Post-Golem">После Голема</option><option value="Post-Moon Lord">После Лунного лорда</option><option value="Not specified">Не указан</option></select></label>
-              <label><span>Сортировка</span><select value={playerSort} onChange={event => setPlayerSort(event.target.value as typeof playerSort)}><option value="stage">Сначала ранние этапы</option><option value="name">По названию</option><option value="status">По статусу</option></select></label>
-            </div>
-            <WeakerGearToggle checked={hideWeakerGear} onChange={setHideWeakerGear}/>
-
-            <div className="player-status-filters">
-              <span>Показать:</span>
-              {[
-                ['all', 'Все', classItems.length],
-                ['missing', 'Не получено', playerStatusCounts.missing],
-                ['planned', 'В планах', playerStatusCounts.planned],
-                ['crafting', 'В работе', playerStatusCounts.crafting],
-                ['owned', 'Получено', playerStatusCounts.owned],
-                ['skipped', 'Пропущено', playerStatusCounts.skipped],
-              ].map(([key, label, count]) => <button type="button" key={key} className={playerStatus === key ? 'selected' : ''} onClick={() => setPlayerStatus(key as ItemStatus | 'all')}>
-                {label}<b>{count}</b>
-              </button>)}
-            </div>
-
-            {playerArmorSets.length > 0 && <details className="gear-group gear-armor-group">
-              <summary><span><b>Комплекты брони</b><small>{playerArmorSets.length} комплектов · {playerArmorSets.reduce((n,g)=>n+g.items.length,0)} предметов</small></span><ChevronRight size={17}/></summary>
-              <div className="player-armor-sets">
-                {playerArmorSets.map(({ set, items: setItems, matched }) => <PlayerArmorSetCard
-                  key={set.id}
-                  set={set}
-                  items={setItems}
-                  allItems={allClassItems}
-                  matchedCount={matched}
-                  statusForItem={itemId => statusForPlayer(player.id, itemId)}
-                  onStatus={setStatus}
-                  onCraft={setCraftModalItem}
-                  disabled={isRemoteMode && selected !== session?.player.id}
-                />)}
-              </div>
-            </details>}
-            {standaloneGearGroups.map(group => <details className="gear-group" key={group.stage}>
-              <summary><span><b>{/^\d+$/.test(group.stage) ? (classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.title || stageLabel(group.stage)) : stageLabel(group.stage)}</b><small>{/^\d+$/.test(group.stage) ? classStages[player.gameClass].find(stage => stage.id.endsWith('-'+group.stage))?.unlock+' · ' : ''}{group.categories.reduce((n,cat)=>n+cat.items.length,0)} предметов · {group.categories.length} категорий</small></span><ChevronRight size={17}/></summary>
-              <div className="gear-stage-categories">
-                {group.categories.map(category => <section className="gear-category-group" key={category.category}>
-                  <h3>{categoryLabel(category.category)} <small>{category.items.length}</small></h3>
-                  <div className="player-gear-grid">
-                    {category.items.map(item => <PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id, item.id)} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected !== session?.player.id}/>)}
-                  </div>
-                </section>)}
-              </div>
-            </details>)}
-            {visibleGearCount === 0 && <div className="player-gear-empty"><Search size={22}/><b>Предметы не найдены</b><span>Попробуй изменить запрос или фильтры.</span><button type="button" onClick={() => { setPlayerQuery(''); setPlayerStage('all'); setPlayerStatus('all'); setPlayerCategory('all') }}>Сбросить фильтры</button></div>}
-
-            <div className="player-gear-pagination">
-              <span>Показано {visibleGearCount} · отдельных предметов {visiblePlayerItems.length} из {standalonePlayerItems.length}</span>
-              {visiblePlayerItems.length < standalonePlayerItems.length && <button type="button" onClick={() => setPlayerVisibleCount(count => count + 60)}>Показать ещё 60</button>}
-            </div>
-          </Panel>
+          <CharacterLoadout
+            player={player}
+            items={catalogItems}
+            statusForItem={itemId => statusForPlayer(player.id, itemId)}
+            disabled={isRemoteMode && selected !== session?.player.id}
+            onOpenCatalog={() => setTab('catalog')}
+          />
         </>}
         {tab === 'accessories' && <AccessoryBuilds items={catalogItems} onOpenCraft={setCraftModalItem}/>}
         {tab === 'notes' && <section className="notes-layout">
