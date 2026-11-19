@@ -530,74 +530,13 @@ export default function App() {
           <div className="potion-grid">{potionRecipes.filter(recipe=>(potionFilter==='Все'||recipe.group===potionFilter)&&([recipe.name,recipe.effect,...recipe.ingredients].join(' ').toLowerCase().includes(potionQuery.toLowerCase()))).map(recipe=><Panel as="article" unstyled className="potion-card" key={recipe.name}><div className="potion-card-top"><span>{recipe.group}</span><small>{recipe.station}</small></div><div className="potion-card-title"><PotionItemIcon icon={potionImageFiles[recipe.name]} className="potion-art" label={recipe.name}/><div><h3>{recipe.name}</h3><p>{recipe.effect}</p></div></div><div className="potion-ingredients"><b>Ингредиенты</b>{recipe.ingredients.map(ingredient=><span className="potion-ingredient" key={ingredient}><PotionItemIcon icon={potionIngredientImages[ingredient]} className="potion-ingredient-art" label={ingredient}/><span>{ingredient}</span></span>)}</div><small className="potion-amount">Выход: {recipe.amount}</small></Panel>)}</div>
           <div className="alchemy-tips"><h3>Полезно знать</h3><ul><li>Алхимический стол находится в Данже и после победы над Скелетроном может быть получен также рыбалкой в Данже.</li><li>Алхимический стол даёт отдельный шанс 1/3 не потратить каждую единицу каждого ингредиента.</li><li>Колба алхимика заменяет алхимический стол и увеличивает длительность большинства эффектов зелий на 20%.</li><li>Колбы для оружия создаются не на алхимическом столе, а на станции для настоев (Imbuing Station).</li></ul><a href="https://terraria.wiki.gg/wiki/Alchemy" target="_blank" rel="noreferrer">Официальная Terraria Wiki: зелья и алхимия</a></div>
         </section>}
-        {tab === 'progression' && <>
-          <section className="progression-overview">
-            <div className="progression-overview-heading">
-              <div><span className="eyebrow">CLASS PROGRESSION</span><h2>{classLabel(player.gameClass)} · {player.name}</h2><p>Этапы и предметы рассчитаны по каталогу и фактическим статусам выбранного персонажа.</p></div>
-            </div>
-            <div className="progression-counts">
-              <span><b>{playerStatusCounts.owned}</b> получено</span>
-              <span><b>{playerStatusCounts.crafting}</b> в работе</span>
-              <span><b>{playerStatusCounts.planned}</b> в планах</span>
-              <span><b>{playerStatusCounts.missing}</b> не получено</span>
-            </div>
-            <div className="current-loadout-panel">
-              <div><span className="eyebrow">CURRENT ARMOR SET</span><h3>Текущий комплект брони</h3><p>{currentSet ? `${currentSet.name} · ${setOwnedPieces}/3 частей собрано` : 'Выбери комплект, который сейчас используешь'}</p></div>
-              <select value={currentSetId} onChange={event=>setCurrentSet(event.target.value)} aria-label="Текущий комплект брони">
-                <option value="">Не выбран</option>
-                {setOptions.map(set=><option value={set.id} key={set.id}>{set.name}</option>)}
-              </select>
-            </div>
-            <div className="progression-analytics">
-              <Panel as="section" unstyled className="analytics-card stage-chart-card">
-                <div className="analytics-card-heading"><div><span className="eyebrow">STAGE OVERVIEW</span><h3>Готовность по этапам</h3></div><small>Получено / всего</small></div>
-                <div className="stage-chart">
-                  {progressionStageGroups.map(({stage,items:stageItems}) => {
-                    const active=stageItems.filter(item=>statusForPlayer(player.id,item.id)!=='skipped')
-                    const done=active.filter(item=>statusForPlayer(player.id,item.id)==='owned').length
-                    const percent=active.length?Math.round(done/active.length*100):0
-                    return <div className="stage-chart-row" key={stage}>
-                      <div className="stage-chart-label"><b>{/^\d+$/.test(stage)?(classStages[player.gameClass].find(value=>value.id.endsWith('-'+stage))?.title||stageLabel(stage)):stageLabel(stage)}</b><small>{done}/{active.length}</small></div>
-                      <div className="stage-chart-track"><i style={{width:percent+'%'}}/></div><strong>{percent}%</strong>
-                    </div>
-                  })}
-                </div>
-              </Panel>
-            </div>
-          </section>
-          <div className="class-tabs progression-class-tabs">
-            {(['Melee', 'Ranger', 'Mage', 'Summoner'] as GameClass[]).map(gameClass => {
-              const classPlayer = currentPlayers.find(candidate => candidate.gameClass === gameClass)
-              const classPlayerCount = currentPlayers.filter(candidate => candidate.gameClass === gameClass).length
-              return <button
-                type="button"
-                className={player.gameClass === gameClass ? 'selected' : ''}
-                disabled={!classPlayer}
-                onClick={() => { if (classPlayer) setSelected(classPlayer.id) }}
-                key={gameClass}
-              >{classLabel(gameClass)}<small>{classPlayer ? (classPlayerCount > 1 ? classPlayerCount + ' игроков' : classPlayer.name) : 'Нет персонажа'}</small></button>
-            })}
-          </div>
-          <WeakerGearToggle checked={hideWeakerGear} onChange={setHideWeakerGear}/>
-          {progressionStageGroups.length > 0
-            ? <div className="progression-tree">{progressionStageGroups.map(({stage,items:stageItems},index)=>{
-                const active=stageItems.filter(item=>statusForPlayer(player.id,item.id)!=='skipped')
-                const done=active.filter(item=>statusForPlayer(player.id,item.id)==='owned').length
-                const isCurrent=stage===stageCurrent
-                const title=/^\d+$/.test(stage)?(classStages[player.gameClass].find(value=>value.id.endsWith('-'+stage))?.title||stageLabel(stage)):stageLabel(stage)
-                return <Panel as="section" className={'progression-tree-node '+(isCurrent?'current':'')} key={stage}>
-                  <div className="progression-tree-marker"><span>{index+1}</span></div>
-                  <div className="progression-tree-content">
-                    <div className="progression-tree-heading">
-                      <div><span className="eyebrow">ЭТАП {index+1}</span><h3>{title}</h3><p>{/^\d+$/.test(stage)?classStages[player.gameClass].find(value=>value.id.endsWith('-'+stage))?.unlock||'Этап прогрессии': 'Экипировка этапа'}</p></div>
-                      <div className="progression-tree-actions"><b>{done}/{active.length}</b><button type="button" className={isCurrent?'selected':''} onClick={()=>setStageCurrent(stage)}>{isCurrent?'Текущий этап':'Я здесь'}</button></div>
-                    </div>
-                    <div className="progression-tree-items">{stageItems.map(item=><PlayerGearCard key={item.id} item={item} status={statusForPlayer(player.id,item.id)} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected!==session?.player.id}/>)}</div>
-                  </div>
-                </Panel>
-              })}</div>
-            : <div className="player-gear-empty"><Swords size={22}/><b>Нет предметов для этого класса</b><span>В каталоге пока нет экипировки, которую можно отнести к классу {classLabel(player.gameClass).toLowerCase()}.</span></div>}
-        </>}
+        {tab === 'progression' && <CharacterLoadout
+          player={player}
+          items={catalogItems}
+          statusForItem={itemId => statusForPlayer(player.id, itemId)}
+          disabled={isRemoteMode && selected !== session?.player.id}
+          onOpenCatalog={() => setTab('catalog')}
+        />}
         {tab === 'companion' && <ProgressionCompanion
           playerName={player.name}
           gameClass={player.gameClass}
