@@ -2367,3 +2367,10 @@ input:focus-visible, textarea:focus-visible {
 .character-catalog-link:hover{filter:brightness(1.08)}
 @media(max-width:900px){.character-loadout-grid{grid-template-columns:1fr}}
 @media(max-width:560px){.character-loadout-header{align-items:flex-start;flex-direction:column;padding:16px}.character-progress{width:100%}.character-equipment-panel,.character-roadmap-panel{padding:13px}.character-slot-grid{grid-template-columns:1fr 1fr}.roadmap-node{grid-template-columns:26px minmax(0,1fr)}.roadmap-node-kind{grid-column:2;justify-self:start}}
+
+
+.roadmap-node-status{padding:4px 6px;border:1px solid #526b77;color:#d8e1e5;background:#263e4b;font-size:9px;white-space:nowrap}
+.roadmap-node-status.status-planned{color:#f0d49a;border-color:#8b7448;background:#443a28}
+.roadmap-node-status.status-crafting{color:#a9d8f2;border-color:#4d829f;background:#203e50}
+.character-slot small:before{content:'◆';margin-right:5px;color:var(--pixel-gold-300)}
+@media(max-width:560px){.roadmap-node-status{grid-column:2;justify-self:start}}
