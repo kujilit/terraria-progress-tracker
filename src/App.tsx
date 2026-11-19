@@ -715,9 +715,14 @@ function AuthScreen({ onSession }: { onSession: (session: TrackerSession) => voi
 function ItemArtwork({ item, className }: { item: Pick<Item, 'icon' | 'imageUrl'>; className: string }) {
   const [failed, setFailed] = useState(false)
   const imageUrl = item.imageUrl
+  // Wiki blocks some direct cross-origin image responses. Fetch through an image proxy
+  // so browsers receive a normal image response instead of the wiki CORP headers.
+  const displayUrl = imageUrl
+    ? `https://wsrv.nl/?url=${encodeURIComponent(imageUrl)}`
+    : null
   return <div className={className} aria-hidden="true">
-    {imageUrl && !failed
-      ? <img src={imageUrl} alt="" loading="lazy" decoding="async" onError={() => setFailed(true)}/>
+    {displayUrl && !failed
+      ? <img src={displayUrl} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)}/>
       : (item.icon || '◆')}
   </div>
 }
