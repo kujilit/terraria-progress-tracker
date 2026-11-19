@@ -640,7 +640,43 @@ export default function App() {
           </section>
         </>}
         {tab === 'accessories' && <AccessoryBuilds items={catalogItems} onOpenCraft={setCraftModalItem}/>}
-        {tab === 'notes' && <section className="notes-layout"><form className="notes-editor" onSubmit={saveTeamNote}><div className="panel-head"><h2>{editingNote?'Редактировать заметку':'Новая заметка'}</h2><ClipboardList size={18}/></div><label>Заголовок<input required maxLength={120} value={noteTitle} onChange={e=>setNoteTitle(e.target.value)} placeholder="Задача команды"/></label><label>Описание / чек-лист<textarea rows={6} maxLength={10000} value={noteBody} onChange={e=>setNoteBody(e.target.value)} placeholder="План, ресурсы, детали..."/></label><div className="notes-form-row"><label>Статус<select value={noteStatus} onChange={e=>setNoteStatus(e.target.value as TeamNote['status'])}><option value="backlog">Бэклог</option><option value="doing">В работе</option><option value="done">Готово</option></select></label><label>Приоритет<select value={notePriority} onChange={e=>setNotePriority(e.target.value as TeamNote['priority'])}><option value="low">Низкий</option><option value="normal">Обычный</option><option value="high">Высокий</option></select></label></div><fieldset className="notes-players"><legend>Привязать игроков</legend>{currentPlayers.map(member=><label key={member.id}><input type="checkbox" checked={notePlayers.includes(member.id)} onChange={e=>setNotePlayers(old=>e.target.checked?[...old,member.id]:old.filter(id=>id!==member.id))}/>{member.name} · {classLabel(member.gameClass)}</label>)}</fieldset><div className="notes-actions"><button className="small-button" type="submit"><Plus size={14}/>{editingNote?'Сохранить':'Добавить заметку'}</button>{editingNote&&<button type="button" className="catalog-reset" onClick={resetNoteForm}>Отмена</button>}</div></form><section className="notes-board"><div className="panel-head"><div><h2>Бэклог команды</h2><small>{teamNotes.length} заметок</small></div><ClipboardList size={18}/></div><div className="notes-filters">{[['all','Все'],['backlog','Бэклог'],['doing','В работе'],['done','Готово']].map(([v,l])=><button type="button" key={v} className={noteFilter===v?'selected':''} onClick={()=>setNoteFilter(v as typeof noteFilter)}>{l}</button>)}</div><div className="notes-list">{teamNotes.filter(note=>noteFilter==='all'||note.status===noteFilter).map(note=><article className="team-note" key={note.id}><div className="team-note-top"><span>{note.priority==='high'?'ВЫСОКИЙ ПРИОРИТЕТ':note.priority==='low'?'НИЗКИЙ ПРИОРИТЕТ':'ОБЫЧНЫЙ ПРИОРИТЕТ'}</span><span>{note.status==='done'?'ГОТОВО':note.status==='doing'?'В РАБОТЕ':'БЭКЛОГ'}</span></div><h3>{note.title}</h3>{note.body&&<p>{note.body}</p>}<div className="team-note-players">{note.playerIds.map(id=>currentPlayers.find(member=>member.id===id)).filter(Boolean).map(member=><span key={member!.id}>{member!.name}</span>)}</div><small>{new Date(note.updatedAt).toLocaleString('ru-RU')}</small><div className="team-note-actions"><button type="button" className="small-button" onClick={()=>editNote(note)}>Изменить</button><button type="button" className="small-button danger" onClick={()=>deleteTeamNote(note.id)}><Trash2 size={13}/>Удалить</button></div></article>)}{teamNotes.length===0&&<p>Заметок пока нет. Добавь первую задачу.</p>}</div></section></section>}
+        {tab === 'notes' && <section className="notes-layout">
+          <Panel as="form" className="notes-editor" onSubmit={saveTeamNote}>
+            <div className="panel-head"><h2>{editingNote ? 'Редактировать заметку' : 'Новая заметка'}</h2><ClipboardList size={18}/></div>
+            <label>Заголовок<input required maxLength={120} value={noteTitle} onChange={e => setNoteTitle(e.target.value)} placeholder="Задача команды"/></label>
+            <label>Описание / чек-лист<textarea rows={6} maxLength={10000} value={noteBody} onChange={e => setNoteBody(e.target.value)} placeholder="План, ресурсы, детали..."/></label>
+            <div className="notes-form-row">
+              <label>Статус<select value={noteStatus} onChange={e => setNoteStatus(e.target.value as TeamNote['status'])}><option value="backlog">Бэклог</option><option value="doing">В работе</option><option value="done">Готово</option></select></label>
+              <label>Приоритет<select value={notePriority} onChange={e => setNotePriority(e.target.value as TeamNote['priority'])}><option value="low">Низкий</option><option value="normal">Обычный</option><option value="high">Высокий</option></select></label>
+            </div>
+            <fieldset className="notes-players"><legend>Привязать игроков</legend>{currentPlayers.map(member => <label key={member.id}><input type="checkbox" checked={notePlayers.includes(member.id)} onChange={e => setNotePlayers(old => e.target.checked ? [...old, member.id] : old.filter(id => id !== member.id))}/>{member.name} · {classLabel(member.gameClass)}</label>)}</fieldset>
+            <div className="notes-actions">
+              <Button variant="primary" size="sm" type="submit" leadingIcon={<Plus size={14}/>}>{editingNote ? 'Сохранить' : 'Добавить заметку'}</Button>
+              {editingNote && <Button variant="ghost" size="sm" onClick={resetNoteForm}>Отмена</Button>}
+            </div>
+          </Panel>
+          <Panel as="section" className="notes-board">
+            <div className="panel-head"><div><h2>Бэклог команды</h2><small>{teamNotes.length} заметок</small></div><ClipboardList size={18}/></div>
+            <div className="notes-filters">{[['all', 'Все'], ['backlog', 'Бэклог'], ['doing', 'В работе'], ['done', 'Готово']].map(([v, l]) => <Button key={v} size="sm" variant={noteFilter === v ? 'primary' : 'ghost'} className={noteFilter === v ? 'selected' : ''} onClick={() => setNoteFilter(v as typeof noteFilter)}>{l}</Button>)}</div>
+            <div className="notes-list">
+              {teamNotes.filter(note => noteFilter === 'all' || note.status === noteFilter).map(note => <Panel as="article" className="team-note" key={note.id}>
+                <div className="team-note-top">
+                  <Badge tone={note.priority === 'high' ? 'danger' : note.priority === 'low' ? 'neutral' : 'info'}>{note.priority === 'high' ? 'Высокий приоритет' : note.priority === 'low' ? 'Низкий приоритет' : 'Обычный приоритет'}</Badge>
+                  <Badge tone={note.status === 'done' ? 'success' : note.status === 'doing' ? 'warning' : 'neutral'}>{note.status === 'done' ? 'Готово' : note.status === 'doing' ? 'В работе' : 'Бэклог'}</Badge>
+                </div>
+                <h3>{note.title}</h3>
+                {note.body && <p>{note.body}</p>}
+                <div className="team-note-players">{note.playerIds.map(id => currentPlayers.find(member => member.id === id)).filter(Boolean).map(member => <span key={member!.id}>{member!.name}</span>)}</div>
+                <small>{new Date(note.updatedAt).toLocaleString('ru-RU')}</small>
+                <div className="team-note-actions">
+                  <Button size="sm" variant="secondary" onClick={() => editNote(note)}>Изменить</Button>
+                  <Button size="sm" variant="danger" onClick={() => deleteTeamNote(note.id)} leadingIcon={<Trash2 size={13}/>}>Удалить</Button>
+                </div>
+              </Panel>)}
+              {teamNotes.length === 0 && <p>Заметок пока нет. Добавь первую задачу.</p>}
+            </div>
+          </Panel>
+        </section>}
 
         {tab === 'alchemy' && <section className="alchemy-page">
           <div className="alchemy-intro"><div><span className="eyebrow">CRAFTING COMPENDIUM</span><h2>Алхимия и полезные рецепты</h2><p>Подборка базовых боевых зелий для подготовки к боссам. Рецепты для версии Desktop 1.4.5.x.</p></div><div className="alchemy-station"><FlaskConical size={28}/><b>Алхимический стол</b><small>33% шанс не потратить каждый ингредиент</small></div></div>
@@ -728,19 +764,19 @@ export default function App() {
           disabled={isRemoteMode && selected !== session?.player.id}
         />}
         {tab === 'inventory' && <>
-          {isRemoteMode && session && <section className="panel inventory-controls">
+          {isRemoteMode && session && <Panel className="panel inventory-controls">
             <div className="panel-head"><h2>Управление количеством</h2><Backpack size={17}/></div>
             <div className="inventory-form">
               <label>Предмет<select value={inventoryItemId} onChange={e=>setInventoryItemId(e.target.value)}>{catalogItems.map(item=><option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
               <label>Количество<input type="number" min="0" max="99999" value={inventoryQty} onChange={e=>setInventoryQty(e.target.value)}/></label>
-              <button className="small-button" onClick={saveInventoryQuantity}>Сохранить у себя</button>
+              <Button size="sm" variant="primary" onClick={saveInventoryQuantity}>Сохранить у себя</Button>
             </div>
             <div className="inventory-form transfer-form">
               <label>Получатель<select value={transferTarget} onChange={e=>setTransferTarget(e.target.value)}><option value="">Выбрать игрока</option>{currentPlayers.filter(p=>p.id!==session.player.id).map(p=><option value={p.id} key={p.id}>{p.name}</option>)}</select></label>
               <label>Количество<input type="number" min="1" max="99999" value={transferQty} onChange={e=>setTransferQty(e.target.value)}/></label>
-              <button className="small-button" onClick={transferInventory}>Передать</button>
+              <Button size="sm" variant="secondary" onClick={transferInventory}>Передать</Button>
             </div>
-          </section>}
+          </Panel>}
           <div className="notice"><Backpack size={18}/> {isRemoteMode ? "Инвентарь синхронизируется через Supabase. Передача работает только в пределах текущего мира." : "В демо-режиме инвентарь показывает предметы, отмеченные как полученные."}</div>
           <div className="stats-row"><Stat label="Предметов в команде" value={String(teamCount)}/><Stat label="Игроков" value={String(currentPlayers.length)}/><Stat label="Активных целей" value={String(catalogItems.filter(i => i.category !== 'material' && (statuses[i.id] === 'planned' || statuses[i.id] === 'crafting')).length)}/></div>
           {isRemoteMode && <div className="item-grid">{remoteInventory.map(row => {
@@ -770,23 +806,23 @@ export default function App() {
           </div>
         </>}
         {tab === 'admin' && canSeeAdmin && <>
-          <section className="admin-panel">
+          <Panel as="section" className="admin-panel">
             <SectionHeading
               className="admin-panel-heading"
               title="Администрирование мира"
               description="Управление участниками и правами доступа."
-              action={<span className="admin-role">{session?.player.role === 'owner' ? 'СОЗДАТЕЛЬ' : 'АДМИНИСТРАТОР'}</span>}
+              action={<Badge tone={session?.player.role === 'owner' ? 'success' : 'info'}>{session?.player.role === 'owner' ? 'Создатель' : 'Администратор'}</Badge>}
             />
             <div className="admin-summary"><b>{remotePlayers.length}</b><span>участников мира</span><small>{canManageAdmins ? 'Назначать администраторов может только создатель мира.' : 'Вы можете просматривать участников. Изменение ролей доступно создателю мира.'}</small></div>
             <div className="admin-player-list">
-              {remotePlayers.map(member => <div className="admin-player-row" key={member.id}>
+              {remotePlayers.map(member => <Panel as="article" className="admin-player-row" key={member.id}>
                 <div className="admin-player-identity"><PixelAvatar playerId={member.id} className="admin-player-avatar"/><div><b>{member.name}</b><small>{({Melee:'Ближний бой',Ranger:'Стрелок',Mage:'Маг',Summoner:'Призыватель'})[member.gameClass]}</small></div></div>
-                <span className={'admin-player-role role-' + member.role}>{member.role === 'owner' ? 'Создатель' : member.role === 'admin' ? 'Администратор' : 'Участник'}</span>
-                {canManageAdmins && member.role !== 'owner' && <button type="button" className="small-button" onClick={() => changePlayerAdmin(member.id, member.role !== 'admin')}>{member.role === 'admin' ? 'Снять права' : 'Назначить админом'}</button>}
-                {canSeeAdmin && member.role !== 'owner' && member.id !== session?.player.id && (canManageAdmins || member.role === 'member') && <button type="button" className="small-button danger" onClick={() => removeWorldPlayer(member)}>Исключить</button>}
-              </div>)}
+                <Badge tone={member.role === 'owner' ? 'success' : member.role === 'admin' ? 'info' : 'neutral'}>{member.role === 'owner' ? 'Создатель' : member.role === 'admin' ? 'Администратор' : 'Участник'}</Badge>
+                {canManageAdmins && member.role !== 'owner' && <Button size="sm" variant="secondary" onClick={() => changePlayerAdmin(member.id, member.role !== 'admin')}>{member.role === 'admin' ? 'Снять права' : 'Назначить админом'}</Button>}
+                {canSeeAdmin && member.role !== 'owner' && member.id !== session?.player.id && (canManageAdmins || member.role === 'member') && <Button size="sm" variant="danger" onClick={() => removeWorldPlayer(member)}>Исключить</Button>}
+              </Panel>)}
             </div>
-          </section>
+          </Panel>
         </>}
         {tab === 'settings' && <>
           <div className="settings-layout">
@@ -1152,13 +1188,13 @@ function RecipeModal({ item, catalogItems, statuses, onClose, onOpenItem }: {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [onClose])
   return <div className="recipe-modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
-    <section className="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="recipe-modal-title">
+    <Panel as="section" className="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="recipe-modal-title">
       <header className="recipe-modal-header">
         <div className="recipe-modal-item">
           <ItemArtwork item={item} className="recipe-modal-art"/>
           <div><span className="eyebrow">ДЕРЕВО КРАФТА · {categoryLabel(item.category)}</span><h2 id="recipe-modal-title">{item.name}</h2><small>{stageLabel(item.stage)}{tree?.station ? ` · ${tree.station}` : ''}</small></div>
         </div>
-        <button type="button" className="recipe-modal-close" onClick={onClose} aria-label="Закрыть"><X size={20}/></button>
+        <Button variant="ghost" className="recipe-modal-close" onClick={onClose} aria-label="Закрыть"><X size={20}/></Button>
       </header>
       {variants.length > 1 && <label className="recipe-modal-variant"><span>Вариант рецепта</span><select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>
         {variants.map((recipe, index) => <option value={index} key={recipe.id}>{recipe.station || 'Без станции'} · {recipe.version || 'Все версии'} · ×{recipe.amount}</option>)}
@@ -1169,7 +1205,7 @@ function RecipeModal({ item, catalogItems, statuses, onClose, onOpenItem }: {
         {hasRecipe && tree?.children.length === 0 && <div className="recipe-modal-empty"><b>Компоненты рецепта не удалось связать с каталогом</b><p>{item.source || 'Попробуй проверить предметы в каталоге.'}</p></div>}
       </div>
       <footer className="recipe-modal-footer"><span>{item.source || 'Источник получения не указан'}</span>{item.station && <small>Станция: {item.station}</small>}</footer>
-    </section>
+    </Panel>
   </div>
 }
 
