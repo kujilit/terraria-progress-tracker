@@ -434,15 +434,15 @@ def fetch_ru_item_names() -> dict[str, str]:
             continue
         english = row[2].strip()
         russian = row[1].strip()
-        if english and russian and not re.fullmatch(r"\\d+", english):
+        if row[0].strip().isdigit() and english and russian:
             translations[normalize_text(english)] = russian
-        localizations.append({
-            "terraria_id": int(row[0]) if row[0].isdigit() else None,
-            "name_en": english,
-            "name_ru": russian,
-            "internal_name": row[3].strip() if len(row) > 3 and row[3].strip() else None,
-            "source_page": "https://terraria.wiki.gg/ru/wiki/Идентификаторы_предметов",
-        })
+            localizations.append({
+                "terraria_id": int(row[0].strip()),
+                "name_en": english,
+                "name_ru": russian,
+                "internal_name": row[3].strip() if len(row) > 3 and row[3].strip() else None,
+                "source_page": "https://terraria.wiki.gg/ru/wiki/Идентификаторы_предметов",
+            })
 
     if len(translations) < 1000:
         raise RuntimeError(
