@@ -78,12 +78,13 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
     setTaskState(next)
     if (activeBoss) localStorage.setItem(storageKey(activeBoss.id), JSON.stringify(next))
   }
-  const defeatedCount = orderedBosses.filter(boss => bossStatus(boss.id) === 'defeated').length
+  const mainBosses = orderedBosses.filter(boss => !boss.optional)
+  const defeatedCount = mainBosses.filter(boss => bossStatus(boss.id) === 'defeated').length
   const tabs: { id: 'tree' | 'gear' | 'boss'; label: string; icon: LucideIcon }[] = [{ id: 'tree', label: 'Прогрессия', icon: Swords }, { id: 'gear', label: 'Экипировка', icon: Shield }, { id: 'boss', label: 'Подготовка к боссу', icon: Crosshair }]
   return <section className="companion-page">
     <header className="companion-hero">
       <div><span className="eyebrow">ADVENTURE COMPANION</span><h2>План приключения</h2><p>{playerName} · {classNames[gameClass]} · персональный маршрут прохождения</p></div>
-      <div className="companion-hero-stat"><Trophy size={20}/><b>{defeatedCount}/{orderedBosses.length}</b><small>боссов побеждено</small></div>
+      <div className="companion-hero-stat"><Trophy size={20}/><b>{defeatedCount}/{mainBosses.length}</b><small>боссов побеждено</small></div>
     </header>
     <nav className="companion-tabs">{tabs.map(tab => <button type="button" key={tab.id} className={section === tab.id ? 'selected' : ''} onClick={() => setSection(tab.id)}><tab.icon size={16}/>{tab.label}</button>)}</nav>
 
