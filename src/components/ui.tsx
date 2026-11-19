@@ -35,12 +35,13 @@ export function Button({
 
 type PanelProps = HTMLAttributes<HTMLElement> & {
   as?: 'section' | 'div' | 'article' | 'form'
+  unstyled?: boolean
   children: ReactNode
 }
 
-export function Panel({ as: Element = 'section', className = '', children, ...props }: PanelProps) {
+export function Panel({ as: Element = 'section', unstyled = false, className = '', children, ...props }: PanelProps) {
   return (
-    <Element {...props} className={['ui-panel', className].filter(Boolean).join(' ')}>
+    <Element {...props} data-ui-base={unstyled ? 'false' : undefined} className={['ui-panel', className].filter(Boolean).join(' ')}>
       {children}
     </Element>
   )
