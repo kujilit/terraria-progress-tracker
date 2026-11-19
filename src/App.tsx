@@ -10,7 +10,7 @@ import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
 import { PixelAvatar } from './components/PixelAvatar'
-import { Badge, Button, Panel, SectionHeading } from './components/ui'
+import { Badge, Button, Panel, SectionHeading, StatCard } from './components/ui'
 import { PotionItemIcon } from './components/PotionItemIcon'
 
 type Tab = 'players' | 'companion' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
@@ -1114,7 +1114,7 @@ function CatalogItemCard({ item, status, onStatus, onCraft, disabled = false }: 
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
-  return <div className="stat-card"><small>{label}</small><b>{value}</b></div>
+  return <StatCard label={label} value={value} />
 }
 function buildRecipeTree(id: string, catalogItems: Item[], rootRecipeIndex = 0, depth = 0, seen: string[] = []): any {
   const item = catalogItems.find(entry => entry.id === id)
