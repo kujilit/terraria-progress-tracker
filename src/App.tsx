@@ -1105,7 +1105,7 @@ function CatalogItemCard({ item, status, onStatus, onCraft, disabled = false }: 
       <div className="catalog-card-classes">{item.gameClass.map(gameClass => <span key={gameClass}>{({Melee:'Melee',Ranger:'Ranger',Mage:'Mage',Summoner:'Summoner'})[gameClass]}</span>)}</div>
     </div>
     <div className="catalog-card-footer">
-      <span className={'state ' + status}>{labels[status]}</span>
+      <Badge tone={status === 'owned' ? 'success' : status === 'crafting' ? 'info' : status === 'planned' ? 'warning' : status === 'skipped' ? 'neutral' : 'danger'}>{labels[status]}</Badge>
       <select value={status} disabled={disabled} onChange={event => onStatus(item.id, event.target.value as ItemStatus)} aria-label={'Статус ' + item.name}>
         <option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option>
       </select>
