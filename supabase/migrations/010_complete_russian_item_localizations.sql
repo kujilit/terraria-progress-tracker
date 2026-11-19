@@ -2,12 +2,13 @@
 -- The importer refreshes this table on every successful catalog run.
 
 create table if not exists public.tracker_wiki_item_localizations (
-  name_en text primary key,
+  terraria_id integer not null,
+  name_en text not null,
   name_ru text not null,
-  terraria_id integer,
   internal_name text,
   source_page text not null,
-  imported_at timestamptz not null default now()
+  imported_at timestamptz not null default now(),
+  primary key (terraria_id, name_en)
 );
 
 create index if not exists tracker_wiki_item_localizations_id_idx
