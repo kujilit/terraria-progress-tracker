@@ -344,6 +344,112 @@ def clean_wiki_text(value: Any) -> str:
     return re.sub(r"\s+", " ", "".join(parser.parts)).strip()
 
 
+RU_WIKI_API = "https://terraria.wiki.gg/ru/api.php"
+RU_ITEM_NAMES: dict[str, str] = {}
+
+
+class _RuItemTableParser(HTMLParser):
+    """Read the Russian and English name columns from the official RU item-ID table."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.in_table = False
+        self.in_row = False
+        self.in_cell = False
+        self.cell_parts: list[str] = []
+        self.row: list[str] = []
+        self.rows: list[list[str]] = []
+        self.table_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "table":
+            self.table_depth += 1
+            self.in_table = True
+        elif self.in_table and tag == "tr":
+            self.in_row = True
+            self.row = []
+        elif self.in_row and tag in {"th", "td"}:
+            self.in_cell = True
+            self.cell_parts = []
+        elif self.in_cell and tag == "br":
+            self.cell_parts.append(" ")
+
+    def handle_data(self, data: str) -> None:
+        if self.in_cell:
+            self.cell_parts.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.in_cell and tag in {"th", "td"}:
+            self.row.append(re.sub(r"\\s+", " ", "".join(self.cell_parts)).strip())
+            self.in_cell = False
+        elif self.in_row and tag == "tr":
+            if self.row:
+                self.rows.append(self.row)
+            self.in_row = False
+        elif tag == "table" and self.table_depth:
+            self.table_depth -= 1
+            self.in_table = self.table_depth > 0
+
+
+def fetch_ru_item_names() -> dict[str, str]:
+    """Fetch the complete official Russian item-name mapping from the RU Wiki."""
+    payload = API.get(
+        RU_WIKI_API,
+        params={
+            "action": "parse",
+            "page": "Идентификаторы предметов",
+            "prop": "text",
+            "format": "json",
+            "formatversion": 2,
+        },
+        timeout=90,
+    )
+    payload.raise_for_status()
+    data = payload.json()
+    if "error" in data or not isinstance(data.get("parse", {}).get("text"), str):
+        raise RuntimeError(f"Russian Terraria Wiki item table unavailable: {data.get('error', data)}")
+
+    parser = _RuItemTableParser()
+    parser.feed(data["parse"]["text"])
+    parser.close()
+
+    translations: dict[str, str] = {}
+    for row in parser.rows:
+        normalized_headers = [normalize_text(cell) for cell in row]
+        ru_index = next(
+            (i for i, value in enumerate(normalized_headers)
+             if value in {"название", "название предмета"}), None
+        )
+        en_index = next(
+            (i for i, value in enumerate(normalized_headers)
+             if "англий" in value or value in {"english name", "name in english"}), None
+        )
+        if ru_index is not None and en_index is not None:
+            continue
+        # The current official table columns are ID, Russian name, English name,
+        # internal name. Keep a fallback for minor header markup variations.
+        if len(row) < 3:
+            continue
+        english = row[2].strip()
+        russian = row[1].strip()
+        if english and russian and not re.fullmatch(r"\\d+", english):
+            translations[normalize_text(english)] = russian
+
+    if len(translations) < 1000:
+        raise RuntimeError(
+            f"Russian Terraria Wiki returned only {len(translations)} item names; refusing partial localization."
+        )
+    log(f"Russian Terraria Wiki: loaded {len(translations)} official item names")
+    return translations
+
+
+def ru_item_name(name: Any) -> str | None:
+    raw = str(name or "").strip()
+    if not raw:
+        return None
+    return RU_ITEM_NAMES.get(normalize_text(raw))
+
+
 def norm_key(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.casefold())
 
@@ -549,7 +655,7 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
         "terraria_id": parse_number(item_id),
         "internal_name": internal_name or None,
         "name": name,
-        "name_ru": None,
+        "name_ru": ru_item_name(name),
         "page_title": page or name,
         "wiki_url": wiki_url(page or name),
         "image_file": normalize_image_file(get(row, "imagefile", "image_file")),
@@ -704,7 +810,7 @@ def make_material_stub(name: str, classes: set[str]) -> dict[str, Any]:
         "terraria_id": None,
         "internal_name": None,
         "name": name,
-        "name_ru": None,
+        "name_ru": ru_item_name(name),
         "page_title": name,
         "wiki_url": wiki_url(name),
         "image_file": None,
@@ -890,9 +996,9 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
             "recipe_key": recipe_key,
             "result_item_key": result_key,
             "result_terraria_id": int(result_id) if result_id is not None else None,
-            "result_name": result_name,
+            "result_name": ru_item_name(result_name) or result_name,
             "result_quantity": max(1, int(parse_number(get(row, "amount")) or 1)),
-            "crafting_station": str(get(row, "station", default="") or "") or None,
+            "crafting_station": (ru_item_name(get(row, "station", default="")) or str(get(row, "station", default="") or "")) or None,
             "version": str(get(row, "version", default="") or "") or None,
             "note": str(get(row, "resulttext", default="") or "") or None,
             "source_page": source_page or None,
@@ -926,7 +1032,7 @@ def build_catalog(item_rows: list[dict[str, str]], recipe_rows: list[dict[str, s
             catalog_ingredients.append({
                 "recipe_key": recipe_key,
                 "ingredient_order": index,
-                "ingredient_name": ingredient["name"],
+                "ingredient_name": ru_item_name(ingredient["name"]) or ingredient["name"],
                 "quantity": ingredient["quantity"],
                 "linked_item_key": alternative_keys[0] if alternative_keys else None,
                 "alternative_names": [
@@ -1120,7 +1226,7 @@ def main() -> int:
     if not any(item["primary_category"] == "weapon" for item in items):
         raise RuntimeError("No class weapons detected; refusing to publish a bad catalog snapshot.")
 
-    revision = f"cargo-items:{len(item_rows)}-recipes:{len(recipe_rows)}-{datetime.now(timezone.utc):%Y%m%d}"
+    translated_items = sum(1 for item in items if item.get("name_ru"))\n    missing_items = len(items) - translated_items\n    log(f"Russian names: {translated_items}/{len(items)} catalog items; untranslated: {missing_items}")\n    revision = f"cargo-items:{len(item_rows)}-recipes:{len(recipe_rows)}-ru:{len(RU_ITEM_NAMES)}-{datetime.now(timezone.utc):%Y%m%d}"
     publish_catalog(items, recipes, ingredients, revision, dry_run)
     return 0
 
