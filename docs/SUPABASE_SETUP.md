@@ -17,7 +17,7 @@ This is the remote backend for GitHub Pages. No local server, Docker, Apps Scrip
 4. Copy the entire file into a new SQL query and click **Run**.
 5. Confirm the query completes without errors.
 
-The migration creates the tracker tables, indexes and RPC functions. It enables Row Level Security and revokes direct access to the tables from the browser roles. The web app uses only the narrow RPC functions. PIN hashes are stored using bcrypt; raw PINs are not stored. Session tokens are random, expire after 12 hours, and only their SHA-256 hashes are stored.
+The migration creates the tracker tables, indexes and RPC functions. It enables Row Level Security and revokes direct access to the tables from the browser roles. The web app uses only the narrow RPC functions. PIN hashes are stored using bcrypt; raw PINs are not stored. Session tokens are random, do not expire automatically, and only their SHA-256 hashes are stored. Sessions end on explicit logout, player deletion, or world deactivation/deletion.
 
 ## 3. Get the frontend connection values
 
@@ -57,7 +57,7 @@ Use a test world before entering a real group's progress. Never send database pa
 
 - **Frontend:** React/Vite on GitHub Pages.
 - **Database/API:** Supabase PostgreSQL and PostgREST RPC.
-- **Authentication:** world code + player name + individual 6–12 digit PIN. Five failed PIN checks lock that player for 15 minutes.
+- **Authentication:** world code + player name + individual 6–12 digit PIN. Sessions do not expire automatically; users can end them with Logout. Five failed PIN checks lock that player for 15 minutes.
 - **Authorization:** the API resolves the active player and world from the session token. The browser cannot choose an arbitrary player ID for progress writes or transfers.
 - **Inventory transfers:** executed inside one PostgreSQL transaction, guarded by an idempotency key. A failed transfer rolls back all its database changes.
 - **Browser key:** only the publishable key is used. Table access is revoked for `anon` and `authenticated`; RLS is enabled, and only the RPC methods are granted.
