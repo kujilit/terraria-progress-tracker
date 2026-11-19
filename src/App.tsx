@@ -11,6 +11,7 @@ import { trackerApi, isRemoteMode } from './services'
 import { PixelAvatar } from './components/PixelAvatar'
 import { Badge, Button, Panel, SectionHeading, StatCard } from './components/ui'
 import { PotionItemIcon } from './components/PotionItemIcon'
+import { ruBoss, ruClass, ruItem, ruStage, ruText } from './localization'
 
 type Tab = 'players' | 'companion' | 'progression' | 'accessories' | 'inventory' | 'bosses' | 'crafting' | 'catalog' | 'alchemy' | 'notes' | 'settings' | 'admin'
 const nav: { id: Tab; label: string; icon: typeof Swords; tabs: Tab[] }[] = [
@@ -419,19 +420,19 @@ export default function App() {
           <path d="m21 10 6-6 10 10-6 6z" fill="#00bce9" stroke="#123c49" strokeWidth="2.5"/>
           <path d="m25 6 4-4 9 9-4 4z" fill="#f5e3bb" stroke="#123c49" strokeWidth="2"/>
           <path d="m5 31 5-5 5 5-5 5z" fill="#087d65" stroke="#123c49" strokeWidth="2"/>
-        </svg></div><div><b>TERRARIA</b><small>PROGRESS TRACKER</small></div></div>
+        </svg></div><div><b>TERRARIA</b><small>ТРЕКЕР ПРОГРЕССА</small></div></div>
         <button type="button" className="mobile-nav-toggle" aria-label={mobileNavOpen ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen(value => !value)}>
           {mobileNavOpen ? <X size={22}/> : <Menu size={22}/>}
         </button>
       </div>
-      <div className="world-switch"><span className="eyebrow">ТЕКУЩИЙ МИР</span><b>{session?.world.name || 'For The Worthy'}</b><small>{session ? `${session.world.difficulty} · ${session.world.evilBiome} · ${session.world.gameVersion}` : 'Master · Crimson · 1.4.5.x'}</small>{session && <button className="invite-code" onClick={() => navigator.clipboard.writeText(session.world.joinCode)}>КОД МИРА · {session.world.joinCode}</button>}</div>
+      <div className="world-switch"><span className="eyebrow">ТЕКУЩИЙ МИР</span><b>{session?.world.name || 'Достойный вызов'}</b><small>{session ? `${session.world.difficulty} · ${session.world.evilBiome} · ${session.world.gameVersion}` : 'Master · Crimson · 1.4.5.x'}</small>{session && <button className="invite-code" onClick={() => navigator.clipboard.writeText(session.world.joinCode)}>КОД МИРА · {session.world.joinCode}</button>}</div>
       <div className="nav-label">МИР</div>
       {nav.map(n => <button key={n.id} className={'nav-item ' + (n.tabs.includes(tab) ? 'active' : '')} onClick={() => { setTab(n.id); setMobileNavOpen(false) }}>
         <n.icon size={17}/>{n.label}
       </button>)}
       {canSeeAdmin && <button className={'nav-item ' + (tab === 'admin' ? 'active' : '')} onClick={() => { setTab('admin'); setMobileNavOpen(false) }}><Settings size={17}/>Администрирование</button>}
       <div className="sidebar-bottom">
-        {canSeeAdmin && <div className="connection"><span className="status-dot"/> {isRemoteMode ? 'REMOTE API' : 'DEMO MODE'} <small>{isRemoteMode ? 'Supabase · синхронизация' : 'Локальное сохранение'}</small></div>}
+        {canSeeAdmin && <div className="connection"><span className="status-dot"/> {isRemoteMode ? 'УДАЛЁННЫЙ СЕРВЕР' : 'ДЕМО-РЕЖИМ'} <small>{isRemoteMode ? 'Supabase · синхронизация' : 'Локальное сохранение'}</small></div>}
         <button className={'nav-item ' + (tab === 'settings' ? 'active' : '')} onClick={() => { setTab('settings'); setMobileNavOpen(false) }}><Settings size={17}/>Настройки</button>
       </div>
     </aside>
@@ -439,17 +440,17 @@ export default function App() {
       <div className={'boss-ambient-sprite ' + (nextBoss.id === 'mechs' ? 'boss-ambient-mechs' : '')}>
         {(bossWikiSprites[nextBoss.id] || []).map(file => <img key={file} src={`https://images.weserv.nl/?url=${encodeURIComponent(`terraria.wiki.gg/wiki/Special:FilePath/${file}`)}`} alt="" loading="lazy" />)}
       </div>
-      <div className="boss-ambient-label"><span>СЛЕДУЮЩИЙ БОСС</span><b>{nextBoss.name}</b></div>
+      <div className="boss-ambient-label"><span>СЛЕДУЮЩИЙ БОСС</span><b>{ruBoss(nextBoss.name)}</b></div>
     </div>}
     <main className="main">
       <header className="topbar">
-        <div className="crumb">МИРЫ <ChevronRight size={13}/> <b>{(session?.world.name || 'FOR THE WORTHY').toUpperCase()}</b> <ChevronRight size={13}/> {pageTitle.toUpperCase()}</div>
-        <div className="top-actions"><span className="version">{session?.world.gameVersion || 'VANILLA 1.4.5.x'}</span><PixelAvatar playerId={player.id} className="avatar"/><span className="player-name">{player.name}</span>{session && <button className="logout-button" onClick={handleLogout}>Выйти</button>}</div>
+        <div className="crumb">МИРЫ <ChevronRight size={13}/> <b>{(session?.world.name || 'ДОСТОЙНЫЙ ВЫЗОВ').toUpperCase()}</b> <ChevronRight size={13}/> {pageTitle.toUpperCase()}</div>
+        <div className="top-actions"><span className="version">{session?.world.gameVersion || 'БЕЗ МОДОВ 1.4.5.x'}</span><PixelAvatar playerId={player.id} className="avatar"/><span className="player-name">{player.name}</span>{session && <button className="logout-button" onClick={handleLogout}>Выйти</button>}</div>
       </header>
       <div className="content">
         {syncError && <div className="notice sync-error">Синхронизация: {syncError}</div>}
         {(tab === 'settings' || tab === 'admin') && <div className="page-heading">
-          <div><div className="eyebrow">TERRARIA TRACKER</div><h1>{pageTitle}</h1></div>
+          <div><div className="eyebrow">ТРЕКЕР TERRARIA</div><h1>{pageTitle}</h1></div>
         </div>}
         {activeGroup && subnav[activeGroup.id] && <div className="section-tabs" role="tablist" aria-label="Подразделы">
           {subnav[activeGroup.id]!.map(entry => <button type="button" role="tab" aria-selected={tab === entry.id} className={tab === entry.id ? 'selected' : ''} key={entry.id} onClick={() => setTab(entry.id)}>{entry.label}</button>)}
@@ -457,11 +458,11 @@ export default function App() {
         {tab === 'players' && <>
           <section className="world-overview">
             <div className="world-overview-heading">
-              <div><span className="eyebrow">WORLD STATUS</span><h2>{session?.world.name || 'For The Worthy'}</h2><p>{session ? `${session.world.difficulty} · ${session.world.evilBiome} · Terraria ${session.world.gameVersion}` : 'Master · Crimson · Terraria 1.4.5.x'}</p></div>
+              <div><span className="eyebrow">СОСТОЯНИЕ МИРА</span><h2>{session?.world.name || 'For The Worthy'}</h2><p>{session ? `${ruText(session.world.difficulty)} · ${ruText(session.world.evilBiome)} · Terraria ${session.world.gameVersion}` : 'Мастер · Багрянец · Terraria 1.4.5.x'}</p></div>
               <Badge tone="success">{currentPlayers.length} игроков онлайн в составе</Badge>
             </div>
             <div className="world-overview-stats">
-              <article className="world-stat"><span>Текущий этап</span><b>{nextBoss ? nextBoss.stage : 'Победа над финальным боссом'}</b><small>{nextBoss ? `Следующая цель: ${nextBoss.name}` : 'Все боссы отмечены побеждёнными'}</small><div className="world-stat-track"><i style={{width: (defeatedBossCount / Math.max(bosses.length,1) * 100) + '%'}}/></div><small>{defeatedBossCount}/{mainBossCount} основных боссов побеждено</small></article>
+              <article className="world-stat"><span>Текущий этап</span><b>{nextBoss ? ruStage(nextBoss.stage) : 'Победа над финальным боссом'}</b><small>{nextBoss ? `Следующая цель: ${ruBoss(nextBoss.name)}` : 'Все боссы отмечены побеждёнными'}</small><div className="world-stat-track"><i style={{width: (defeatedBossCount / Math.max(bosses.length,1) * 100) + '%'}}/></div><small>{defeatedBossCount}/{mainBossCount} основных боссов побеждено</small></article>
               <article className="world-stat"><span>Прогресс экипировки</span><b>{teamAverageProgress}%</b><small>Среднее по персонажам</small><div className="world-stat-track"><i style={{width: teamAverageProgress + '%'}}/></div><small>{teamGearSummary.reduce((sum,row)=>sum+row.ownedCount,0)} предметов собрано суммарно</small></article>
               <article className="world-stat world-backlog-stat"><span>Последняя задача бэклога</span>{latestBacklogNote ? <><b>{latestBacklogNote.title}</b><small>{latestBacklogNote.status === 'doing' ? 'В работе' : 'В бэклоге'} · {new Date(latestBacklogNote.updatedAt).toLocaleDateString('ru-RU')}</small><p>{latestBacklogNote.body || 'Описание не добавлено.'}</p></> : <><b>Задач пока нет</b><small>Добавьте первую задачу команды</small></>}<div className="world-backlog-counts"><span>{openBacklogCount} в бэклоге</span><span>{doingNoteCount} в работе</span>{highPriorityCount > 0 && <strong>{highPriorityCount} срочных</strong>}</div></article>
             </div>
@@ -469,7 +470,7 @@ export default function App() {
           </section>
           <section className="player-roster">
             <div className="player-roster-heading">
-              <div><span className="eyebrow">WORLD ROSTER</span><h2>Персонажи мира</h2></div>
+              <div><span className="eyebrow">ИГРОКИ МИРА</span><h2>Персонажи мира</h2></div>
               <span>{currentPlayers.length} {currentPlayers.length === 1 ? 'игрок' : 'игрока'}</span>
             </div>
             <div className="player-roster-grid">{currentPlayers.map(p => {
@@ -579,18 +580,18 @@ export default function App() {
           {!isRemoteMode && <div className="item-grid">{catalogItems.filter(i => i.category !== 'material' && statuses[i.id] === 'owned').map(i => <Panel as="article" className="item-card" key={i.id}><ItemArtwork item={i} className="item-art"/><div className="item-details"><b><button type="button" className="item-recipe-link" onClick={() => setCraftModalItem(i)}>{i.name}<GitBranch size={13}/></button></b><small>{i.gameClass.join(', ')}</small><Badge tone="success">Есть в команде</Badge></div></Panel>)}</div>}
         </>}
         {tab === 'bosses' && <>
-          <div className="notice"><Skull size={18}/> Boss Gates: отметка босса открывает последующие этапы. В демо используются примерные связи — перед production их нужно сверить с игровыми условиями 1.4.5.x.</div>
-          <div className="boss-grid">{bosses.map(b => <Panel as="article" className="boss-card" key={b.id}><div className={'boss-portrait ' + (bossStatus(b.id) === 'defeated' ? 'won' : '')}>{bossStatus(b.id) === 'defeated' ? '☠' : '?'}</div><div><b>{b.name}</b><small>{b.stage}</small><Badge tone={bossStatus(b.id) === 'defeated' ? 'success' : 'warning'}>{bossStatus(b.id) === 'defeated' ? 'Побеждён' : b.requires.length ? 'Зависит от предыдущего этапа' : 'Доступен'}</Badge></div><Button size="sm" variant={bossStatus(b.id) === 'defeated' ? 'secondary' : 'primary'} onClick={() => setBossStatus(b.id,bossStatus(b.id) === 'defeated' ? 'pending' : 'defeated')}>{bossStatus(b.id) === 'defeated' ? 'Отменить' : 'Отметить'}</Button></Panel>)}</div>
+          <div className="notice"><Skull size={18}/> Отметка о победе над боссом открывает следующие этапы. В демонстрационном режиме связи примерные — перед публикацией их нужно сверить с условиями игры версии 1.4.5.x.</div>
+          <div className="boss-grid">{bosses.map(b => <Panel as="article" className="boss-card" key={b.id}><div className={'boss-portrait ' + (bossStatus(b.id) === 'defeated' ? 'won' : '')}>{bossStatus(b.id) === 'defeated' ? '☠' : '?'}</div><div><b>{ruBoss(b.name)}</b><small>{ruStage(b.stage)}</small><Badge tone={bossStatus(b.id) === 'defeated' ? 'success' : 'warning'}>{bossStatus(b.id) === 'defeated' ? 'Побеждён' : b.requires.length ? 'Зависит от предыдущего этапа' : 'Доступен'}</Badge></div><Button size="sm" variant={bossStatus(b.id) === 'defeated' ? 'secondary' : 'primary'} onClick={() => setBossStatus(b.id,bossStatus(b.id) === 'defeated' ? 'pending' : 'defeated')}>{bossStatus(b.id) === 'defeated' ? 'Отменить' : 'Отметить'}</Button></Panel>)}</div>
         </>}
         {tab === 'crafting' && <>
           <div className="craft-layout">
             <Panel className="panel craft-picker"><div className="panel-head"><h2>Целевой предмет</h2><Hammer size={17}/></div>
               <label className="craft-search"><Search size={16}/><input type="search" value={craftQuery} onChange={event => setCraftQuery(event.target.value)} placeholder="Поиск предмета..." aria-label="Поиск предмета для дерева крафта"/>{craftQuery && <button type="button" onClick={() => setCraftQuery('')} aria-label="Очистить поиск"><X size={14}/></button>}</label>
               <div className="craft-search-count">{catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).length} предметов</div>
-              {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><ItemArtwork item={i} className="craft-choice-art"/><b>{i.name}</b><ChevronRight size={15}/></button>)}
+              {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).map(i => <button className={'craft-choice ' + (target === i.id ? 'selected' : '')} onClick={() => setTarget(i.id)} key={i.id}><ItemArtwork item={i} className="craft-choice-art"/><b>{ruItem(i)}</b><ChevronRight size={15}/></button>)}
               {catalogItems.filter(i => i.category !== 'material' && i.recipe?.length && (!craftQuery.trim() || [i.name,i.ru,i.id].some(value => value.toLowerCase().includes(craftQuery.trim().toLowerCase())))).length === 0 && <p className="craft-search-empty">Ничего не найдено</p>}
             </Panel>
-            <Panel className="panel tree-panel"><div className="panel-head"><div><h2>{current?.name || 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {tree?.station || current?.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
+            <Panel className="panel tree-panel"><div className="panel-head"><div><h2>{current ? ruItem(current) : 'Выбери предмет'}</h2><small className="muted">Дерево компонентов · {tree?.station || current?.station || 'Способ получения'}</small></div><GitBranch size={18}/></div>
               {(current?.recipes?.length || 0) > 1 && <label className="recipe-select">Вариант рецепта<select value={recipeIndex} onChange={event => setRecipeIndex(Number(event.target.value))}>{current.recipes?.map((recipe, index) => <option value={index} key={recipe.id}>{recipe.station || 'Без станции'} · {recipe.version || 'Все версии'} · ×{recipe.amount}</option>)}</select></label>}
               <div className="tree-root">{tree && <TreeNode node={tree} statuses={statuses} onOpenItem={setCraftModalItem}/>}</div>
               <div className="notice compact"><Sparkles size={16}/> Рецепты загружаются из Terraria Wiki. Проверьте версию игры и доступность конкретного рецепта для вашей платформы.</div>
@@ -672,7 +673,7 @@ export default function App() {
             ? <div className="catalog-grid">{filtered.map(item => <CatalogItemCard key={item.id} item={item} status={statuses[item.id] || 'missing'} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
             : <div className="catalog-empty"><Search size={25}/><b>Ничего не найдено</b><span>Измени запрос или сбрось фильтры.</span><button onClick={resetCatalogFilters}>Сбросить фильтры</button></div>}
         </>}
-        <footer>TERRARIA PROGRESS TRACKER {canSeeAdmin && <span>НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · {isRemoteMode ? "REMOTE DATA" : "DEMO DATA"}</span>}</footer>
+        <footer>TERRARIA PROGRESS TRACKER {canSeeAdmin && <span>НЕОФИЦИАЛЬНЫЙ ФАН-ПРОЕКТ · {isRemoteMode ? "УДАЛЁННЫЕ ДАННЫЕ" : "ДЕМО-ДАННЫЕ"}</span>}</footer>
       </div>
     </main>
     {craftModalItem && <RecipeModal
@@ -730,7 +731,7 @@ function AuthScreen({ onSession }: { onSession: (session: TrackerSession) => voi
     {mode === 'create' ? <label>Название мира<input required minLength={2} maxLength={48} value={worldName} onChange={e=>setWorldName(e.target.value)} /></label> : <label>Код мира<input required minLength={8} maxLength={8} autoCapitalize="characters" value={joinCode} onChange={e=>setJoinCode(e.target.value.toUpperCase())} placeholder="8 символов" /></label>}
     <label>Имя игрока<input required minLength={2} maxLength={24} value={playerName} onChange={e=>setPlayerName(e.target.value)} /></label>
     <label>PIN (6–12 цифр)<input required inputMode="numeric" type="password" pattern="[0-9]{6,12}" minLength={6} maxLength={12} value={pin} onChange={e=>setPin(e.target.value)} /></label>
-    {mode !== 'login' && <label>Класс персонажа<select value={gameClass} onChange={e=>setGameClass(e.target.value as GameClass)}><option>Melee</option><option>Ranger</option><option>Mage</option><option>Summoner</option></select></label>}
+    {mode !== 'login' && <label>Класс персонажа<select value={gameClass} onChange={e=>setGameClass(e.target.value as GameClass)}><option value="Melee">Ближний бой</option><option value="Ranger">Стрелок</option><option value="Mage">Маг</option><option value="Summoner">Призыватель</option></select></label>}
     {error && <div className="auth-error">{error}</div>}
     <button className="gold-button auth-submit" disabled={busy}>{busy ? 'Подключение…' : mode === 'create' ? 'Создать мир' : mode === 'join' ? 'Вступить в мир' : 'Войти'}</button>
     <p className="auth-help">Сессия хранится в текущей вкладке браузера и автоматически истекает через 12 часов.</p>
@@ -795,13 +796,13 @@ function categoryLabel(category: string) {
 
 function stageLabel(stage: string) {
   if (/^\d+$/.test(stage)) return `Этап ${stage}`
-  if (stage === 'Pre-Hardmode') return 'Pre-Hardmode'
-  if (stage === 'Hardmode') return 'Hardmode'
+  if (stage === 'Pre-Hardmode') return 'До хардмода'
+  if (stage === 'Hardmode') return 'Хардмод'
   if (stage === 'Post-Mechanical') return 'После механических боссов'
   if (stage === 'Post-Plantera') return 'После Плантеры'
   if (stage === 'Post-Golem') return 'После Голема'
   if (stage === 'Post-Moon Lord') return 'После Лунного лорда'
-  return 'Этап не указан'
+  return ruStage(stage) || 'Этап не указан'
 }
 
 function CatalogItemCard({ item, status, onStatus, onCraft, disabled = false }: {
@@ -822,10 +823,10 @@ function CatalogItemCard({ item, status, onStatus, onCraft, disabled = false }: 
       <div className="catalog-card-tags"><span>{categoryLabel(item.category)}</span><span>{stageLabel(item.stage)}</span></div>
     </div>
     <div className="catalog-card-body">
-      <h3><button type="button" className="item-recipe-link" onClick={() => onCraft(item)} title="Открыть дерево крафта">{item.name}<GitBranch size={13}/></button></h3>
-      {item.ru && item.ru !== item.name && <p className="catalog-card-ru">{item.ru}</p>}
+      <h3><button type="button" className="item-recipe-link" onClick={() => onCraft(item)} title="Открыть дерево крафта">{ruItem(item)}<GitBranch size={13}/></button></h3>
+      
       {description && <p className="catalog-card-description">{description}</p>}
-      <div className="catalog-card-classes">{item.gameClass.map(gameClass => <span key={gameClass}>{({Melee:'Melee',Ranger:'Ranger',Mage:'Mage',Summoner:'Summoner'})[gameClass]}</span>)}</div>
+      <div className="catalog-card-classes">{item.gameClass.map(gameClass => <span key={gameClass}>{({Melee:'Ближний бой',Ranger:'Стрелок',Mage:'Маг',Summoner:'Призыватель'})[gameClass]}</span>)}</div>
     </div>
     <div className="catalog-card-footer">
       <Badge tone={status === 'owned' ? 'success' : status === 'crafting' ? 'info' : status === 'planned' ? 'warning' : status === 'skipped' ? 'neutral' : 'danger'}>{labels[status]}</Badge>
@@ -879,7 +880,7 @@ function RecipeModal({ item, catalogItems, statuses, onClose, onOpenItem }: {
       <header className="recipe-modal-header">
         <div className="recipe-modal-item">
           <ItemArtwork item={item} className="recipe-modal-art"/>
-          <div><span className="eyebrow">ДЕРЕВО КРАФТА · {categoryLabel(item.category)}</span><h2 id="recipe-modal-title">{item.name}</h2><small>{stageLabel(item.stage)}{tree?.station ? ` · ${tree.station}` : ''}</small></div>
+          <div><span className="eyebrow">ДЕРЕВО КРАФТА · {categoryLabel(item.category)}</span><h2 id="recipe-modal-title">{ruItem(item)}</h2><small>{stageLabel(item.stage)}{tree?.station ? ` · ${tree.station}` : ''}</small></div>
         </div>
         <Button variant="ghost" className="recipe-modal-close" onClick={onClose} aria-label="Закрыть"><X size={20}/></Button>
       </header>
@@ -916,8 +917,8 @@ function TreeNode({ node, statuses, onOpenItem }: {
       >{node.children.length ? (open ? '−' : '+') : '·'}</Button>
       {node.it && <ItemArtwork item={node.it} className="tree-item-art"/>}
       {node.it && !node.missingCatalog
-        ? <button type="button" className="tree-recipe-link" onClick={() => onOpenItem?.(node.it)} title="Открыть дерево крафта">{node.it.name}<GitBranch size={12}/></button>
-        : <b>{node.it?.name || 'Неизвестный компонент'}</b>}
+        ? <button type="button" className="tree-recipe-link" onClick={() => onOpenItem?.(node.it)} title="Открыть дерево крафта">{ruItem(node.it)}<GitBranch size={12}/></button>
+        : <b>{node.it ? ruItem(node.it) : 'Неизвестный компонент'}</b>}
       <Badge tone={status === 'owned' ? 'success' : 'warning'}>{status === 'owned' ? 'Есть' : 'Проверить'}{node.qty ? ` · ×${node.qty}` : ''}</Badge>
       {node.alternatives?.length > 0 && <small>Альтернативы: {node.alternatives.map((option: { name: string }) => option.name).join(' / ')}</small>}
     </div>
