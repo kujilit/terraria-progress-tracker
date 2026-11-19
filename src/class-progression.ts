@@ -74,7 +74,7 @@ const rows: [GameClass,string,string,string,string,string][] = [
  ['Ranger','mech','Ледяная броня','Frost Armor','Броня','Перед механическими боссами'],
  ['Ranger','mech','Штормовой лук Дедала','Daedalus Stormbow','Оружие','Перед механическими боссами'],
  ['Ranger','mech','Мега-акула','Megashark','Оружие','После первого механического босса'],
- ['Ranger','plantera','Хлорофитовая броня','Chlorophyte Armor','Броня','После Плантеры'],
+ ['Ranger','postmech','Хлорофитовая броня','Chlorophyte Armor','Броня','После всех механических боссов'],
  ['Ranger','plantera','Пульсирующий лук','Pulse Bow','Оружие','После Плантеры'],
  ['Ranger','golem','Грибная броня','Shroomite Armor','Броня','После Голема'],
  ['Ranger','golem','Цунами','Tsunami','Оружие','После Голема'],
@@ -88,7 +88,7 @@ const rows: [GameClass,string,string,string,string,string][] = [
  ['Mage','hell','Огнеплеть','Flamelash','Оружие','Пре-хардмод'],
  ['Mage','mech','Освящённая броня','Hallowed Armor','Броня','Перед механическими боссами'],
  ['Mage','mech','Радужный жезл','Rainbow Rod','Оружие','После первого механического босса'],
- ['Mage','plantera','Хлорофитовая броня','Chlorophyte Armor','Броня','После Плантеры'],
+ ['Mage','postmech','Хлорофитовая броня','Chlorophyte Armor','Броня','После всех механических боссов'],
  ['Mage','plantera','Ядовитый посох','Venom Staff','Оружие','После Плантеры'],
  ['Mage','golem','Спектральная броня','Spectre Armor','Броня','После Голема'],
  ['Mage','golem','Бритвенный тайфун','Razorblade Typhoon','Оружие','После Голема'],
@@ -122,7 +122,7 @@ const rows: [GameClass,string,string,string,string,string][] = [
  ['Summoner','moon','Посох дракона звёздной пыли','Stardust Dragon Staff','Призыв','После Лунного лорда'],
 ]
 const stageFor = (cls:GameClass,key:string) => {
- const n=key==='pre'?1:key==='hell'?3:key==='mech'?4:key==='plantera'?7:key==='golem'?8:10
+ const n=key==='pre'?1:key==='hell'?3:key==='mech'?4:key==='postmech'?5:key==='plantera'?7:key==='golem'?8:10
  return cls==='Summoner' && n>4 ? (n===7?6:n===8?7:9) : n
 }
 export const progressionItems: Item[] = rows.map(([gameClass,key,ru,name,category,description]) => {
