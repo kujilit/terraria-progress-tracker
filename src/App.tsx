@@ -224,17 +224,6 @@ export default function App() {
     } catch { return bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending' }
   }
   const nextBoss = bosses.find(boss => bossStatus(boss.id) !== 'defeated')
-  const defeatedBossCount = bosses.filter(boss => bossStatus(boss.id) === 'defeated').length
-  const latestBacklogNote = [...teamNotes].filter(note => note.status !== 'done').sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0]
-  const openBacklogCount = teamNotes.filter(note => note.status === 'backlog').length
-  const doingNoteCount = teamNotes.filter(note => note.status === 'doing').length
-  const highPriorityCount = teamNotes.filter(note => note.status !== 'done' && note.priority === 'high').length
-  const teamGearSummary = currentPlayers.map(member => {
-    const gear = getClassProgressItems(catalogItems, member.gameClass, id => statusForPlayer(member.id,id), hideWeakerGear)
-    const ownedCount = gear.filter(item => statusForPlayer(member.id,item.id) === 'owned').length
-    return { member, ownedCount, total: gear.length, percent: Math.round(ownedCount / Math.max(gear.length,1) * 100) }
-  })
-  const teamAverageProgress = Math.round(teamGearSummary.reduce((sum,row) => sum + row.percent,0) / Math.max(teamGearSummary.length,1))
   const bossWikiSprites: Record<string, string[]> = {
     king_slime: ['King Slime.gif'],
     eye: ['Eye of Cthulhu.gif'],
@@ -320,6 +309,17 @@ export default function App() {
     }
     return statuses[`${playerId}:${itemId}`] || statuses[itemId] || 'missing'
   }
+  const defeatedBossCount = bosses.filter(boss => bossStatus(boss.id) === 'defeated').length
+  const latestBacklogNote = [...teamNotes].filter(note => note.status !== 'done').sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0]
+  const openBacklogCount = teamNotes.filter(note => note.status === 'backlog').length
+  const doingNoteCount = teamNotes.filter(note => note.status === 'doing').length
+  const highPriorityCount = teamNotes.filter(note => note.status !== 'done' && note.priority === 'high').length
+  const teamGearSummary = currentPlayers.map(member => {
+    const gear = getClassProgressItems(catalogItems, member.gameClass, id => statusForPlayer(member.id,id), hideWeakerGear)
+    const ownedCount = gear.filter(item => statusForPlayer(member.id,item.id) === 'owned').length
+    return { member, ownedCount, total: gear.length, percent: Math.round(ownedCount / Math.max(gear.length,1) * 100) }
+  })
+  const teamAverageProgress = Math.round(teamGearSummary.reduce((sum,row) => sum + row.percent,0) / Math.max(teamGearSummary.length,1))
   const teamCount = catalogItems.filter(i => categoryKey(i.category) !== 'material' && (isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)))).length
   const filtered = useMemo(() => {
     const statusOrder: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
