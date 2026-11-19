@@ -9,5 +9,7 @@ set
     where category <> 'weapon'
     order by category
   ),
+  classes = array['Melee', 'Ranger', 'Mage', 'Summoner']::text[],
+  class_assignment = 'shared-equipment-default',
   icon = '💍'
 where lower(name) = 'shield of cthulhu';
