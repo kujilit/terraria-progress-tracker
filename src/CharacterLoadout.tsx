@@ -130,7 +130,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
                 </button>
                 {openSlot === slot.id && <div className="terraria-item-picker">
                   <input className="terraria-picker-search" type="search" value={pickerSearch} onChange={event => setPickerSearch(event.target.value)} placeholder="Поиск предмета..." aria-label="Поиск предмета"/><button type="button" className="terraria-picker-empty" onClick={() => { setLoadout(current => ({ ...current, [slot.id]: '' })); setOpenSlot(null); setPickerSearch('') }}>Очистить слот</button>
-                  <div className="terraria-picker-grid">{options(slot).map(item => <button type="button" key={item.id} className={'terraria-picker-item' + (loadout[slot.id] === item.id ? ' selected' : '')} title={item.name} onClick={() => { setLoadout(current => ({ ...current, [slot.id]: item.id })); setOpenSlot(null) }}>
+                  <div className="terraria-picker-grid">{visibleOptions(slot).map(item => <button type="button" key={item.id} className={'terraria-picker-item' + (loadout[slot.id] === item.id ? ' selected' : '')} title={item.name} onClick={() => { setLoadout(current => ({ ...current, [slot.id]: item.id })); setOpenSlot(null) }}>
                     <EquipmentIcon item={item}/><span>{item.ru || item.name}</span><small>{stageTitle(player.gameClass, item.stage)}</small>
                   </button>)}</div>
                 </div>}
@@ -150,7 +150,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
                 </button>
                 {openSlot === slot.id && <div className="terraria-item-picker">
                   <input className="terraria-picker-search" type="search" value={pickerSearch} onChange={event => setPickerSearch(event.target.value)} placeholder="Поиск предмета..." aria-label="Поиск предмета"/><button type="button" className="terraria-picker-empty" onClick={() => { setLoadout(current => ({ ...current, [slot.id]: '' })); setOpenSlot(null); setPickerSearch('') }}>Очистить слот</button>
-                  <div className="terraria-picker-grid">{options(slot).map(item => <button type="button" key={item.id} className={'terraria-picker-item' + (loadout[slot.id] === item.id ? ' selected' : '')} title={item.name} onClick={() => { setLoadout(current => ({ ...current, [slot.id]: item.id })); setOpenSlot(null) }}>
+                  <div className="terraria-picker-grid">{visibleOptions(slot).map(item => <button type="button" key={item.id} className={'terraria-picker-item' + (loadout[slot.id] === item.id ? ' selected' : '')} title={item.name} onClick={() => { setLoadout(current => ({ ...current, [slot.id]: item.id })); setOpenSlot(null) }}>
                     <EquipmentIcon item={item}/><span>{item.ru || item.name}</span><small>{stageTitle(player.gameClass, item.stage)}</small>
                   </button>)}</div>
                 </div>}
