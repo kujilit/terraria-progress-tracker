@@ -464,7 +464,7 @@ export default function App() {
               <article className="world-stat"><span>Прогресс экипировки</span><b>{teamAverageProgress}%</b><small>Среднее по персонажам</small><div className="world-stat-track"><i style={{width: teamAverageProgress + '%'}}/></div><small>{teamGearSummary.reduce((sum,row)=>sum+row.ownedCount,0)} предметов собрано суммарно</small></article>
               <article className="world-stat world-backlog-stat"><span>Последняя задача бэклога</span>{latestBacklogNote ? <><b>{latestBacklogNote.title}</b><small>{latestBacklogNote.status === 'doing' ? 'В работе' : 'В бэклоге'} · {new Date(latestBacklogNote.updatedAt).toLocaleDateString('ru-RU')}</small><p>{latestBacklogNote.body || 'Описание не добавлено.'}</p></> : <><b>Задач пока нет</b><small>Добавьте первую задачу команды</small></>}<div className="world-backlog-counts"><span>{openBacklogCount} в бэклоге</span><span>{doingNoteCount} в работе</span>{highPriorityCount > 0 && <strong>{highPriorityCount} срочных</strong>}</div></article>
             </div>
-            <div className="world-player-progress">{teamGearSummary.map(row=><button type="button" key={row.member.id} onClick={()=>setSelected(row.member.id)} className={selected === row.member.id ? 'active' : ''}><PixelAvatar playerId={row.member.id} className="world-player-avatar"/><span><b>{row.member.name}</b><small>{classLabel(row.member.gameClass)}</small></span><strong>{row.percent}%</strong></button>)}</div>
+            <div className="world-player-progress">{teamGearSummary.map(row=><div className="world-player-progress-card" key={row.member.id}><PixelAvatar playerId={row.member.id} className="world-player-avatar"/><span><b>{row.member.name}</b><small>{classLabel(row.member.gameClass)}</small></span><strong>{row.percent}%</strong></div>)}</div>
           </section>
           <section className="player-roster">
             <div className="player-roster-heading">
@@ -480,12 +480,12 @@ export default function App() {
               )
               const collected = gear.filter(item => statusForPlayer(p.id, item.id) === 'owned').length
               const percent = Math.round(collected / Math.max(gear.length, 1) * 100)
-              return <button type="button" className={'player-roster-card ' + (selected === p.id ? 'selected' : '')} onClick={() => setSelected(p.id)} key={p.id}>
+              return <article className="player-roster-card" key={p.id}>
                 <PixelAvatar playerId={p.id} className="roster-emblem"/>
                 <span className="roster-identity"><b>{p.name}</b><small>{classLabel(p.gameClass)}</small></span>
                 <span className="roster-progress"><b>{percent}%</b><small>{collected}/{gear.length}</small></span>
                 <span className="roster-progress-track"><i style={{ width: percent + '%' }}/></span>
-              </button>
+              </article>
             })}</div>
           </section>
 
