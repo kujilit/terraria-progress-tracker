@@ -2526,3 +2526,13 @@ input:focus-visible, textarea:focus-visible {
 .alchemy-page .alchemy-tips h3,
 .alchemy-page .alchemy-tips li{color:#e2eee2!important}
 .alchemy-page .alchemy-tips a{color:#82dfb5!important}
+
+/* World roster is informational only; player cards never switch the active character. */
+.world-player-progress-card{display:flex;align-items:center;gap:9px;min-width:0;padding:8px 10px;text-align:left;background:#192e39;border:1px solid #3c5662;color:#e8e5d9}
+.world-player-progress-card>span{display:flex;flex:1;flex-direction:column;min-width:0}
+.world-player-progress-card b{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.world-player-progress-card small{color:#9fb2b7;font-size:9px}
+.world-player-progress-card strong{color:#e7c783;font-size:12px}
+.player-roster-card{cursor:default}
+.player-roster-card:hover{border-color:#3b505c}
+.player-roster-card.selected{background:#1b2d38;border-color:#3b505c;box-shadow:none}
