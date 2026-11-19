@@ -1,0 +1,15 @@
+import type { GameClass, Item } from './types'
+
+const textMap: Record<string,string> = {
+  'Pre-Hardmode':'До хардмода','Hardmode':'Хардмод','Post-Mechanical':'После механических боссов','Post-Plantera':'После Плантеры','Post-Golem':'После Голема','Post-Moon Lord':'После Лунного лорда','Endgame':'Финальная стадия',
+  'Melee':'Ближний бой','Ranger':'Стрелок','Mage':'Маг','Summoner':'Призыватель',
+  'King Slime':'Король слизней','Eye of Cthulhu':'Глаз Ктулху','Eater of Worlds / Brain of Cthulhu':'Пожиратель миров / Мозг Ктулху','Skeletron':'Скелетрон','Wall of Flesh':'Стена плоти','The Destroyer':'Разрушитель','The Twins':'Близнецы','Skeletron Prime':'Скелетрон Прайм','Plantera':'Плантера','Golem':'Голем','Lunatic Cultist':'Безумный культист','Moon Lord':'Лунный лорд','Queen Bee':'Королева пчёл','Deerclops':'Олень-циклоп','Dreadnautilus':'Дредноутилус','Duke Fishron':'Герцог Рыбокрыл','Empress of Light':'Императрица света',
+  'Demon / Crimson Altar':'Алтарь демонов / кровавый алтарь','Mythril / Orichalcum Anvil':'Мифриловая / орихалковая наковальня','Dungeon chest':'Сундук в Данже','Crafting':'Изготовление','Spider Caves':'Паучьи пещеры','Hellstone Bars':'Слитки адского камня','Hallowed Bars':'Освящённые слитки','Mothron':'Мотрон','Terraria Wiki':'Вики Terraria','Desktop':'ПК',
+  'Damage':'Урон','Damage Build':'Сборка на урон','damage':'урон','survivability':'выживаемость','specialization':'специализация','Master Mode':'Режим мастера','Demon Heart':'Сердце демона','Imbuing Station':'Станция настоев',
+  'WORLD STATUS':'СОСТОЯНИЕ МИРА','WORLD ROSTER':'ИГРОКИ МИРА','ADVENTURE COMPANION':'ПЛАН ПРИКЛЮЧЕНИЯ','MAIN PROGRESSION':'ОСНОВНОЕ ПРОХОЖДЕНИЕ','OPTIONAL CONTENT':'НЕОБЯЗАТЕЛЬНЫЕ ИСПЫТАНИЯ','GEAR ADVISOR':'СОВЕТНИК ПО ЭКИПИРОВКЕ','BOSS PREPARATION':'ПОДГОТОВКА К БОССУ','CURRENT LOADOUT':'ТЕКУЩАЯ ЭКИПИРОВКА','NEXT UP':'СЛЕДУЮЩИЕ ЦЕЛИ','CRAFTING COMPENDIUM':'СПРАВОЧНИК РЕЦЕПТОВ','TERRARIA TRACKER':'ТРЕКЕР TERRARIA','PROGRESS TRACKER':'ТРЕКЕР ПРОГРЕССА','MULTIPLAYER WORLD ACCESS':'ДОСТУП К МНОГОПОЛЬЗОВАТЕЛЬСКОМУ МИРУ',
+}
+export const ruText = (value: string): string => textMap[value] || value
+export const ruClass = (value: GameClass): string => textMap[value] || value
+export const ruStage = (value: string): string => textMap[value] || (/^\d+$/.test(value) ? 'Этап ' + value : value)
+export const ruBoss = (value: string): string => textMap[value] || value
+export const ruItem = (item: Pick<Item,'name'|'ru'>): string => item.ru?.trim() || ruText(item.name)
