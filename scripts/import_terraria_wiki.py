@@ -1197,6 +1197,9 @@ def publish_catalog(
 
 def main() -> int:
     dry_run = "--dry-run" in sys.argv
+    global RU_ITEM_NAMES
+    log("Loading official Russian Terraria Wiki item names...")
+    RU_ITEM_NAMES = fetch_ru_item_names()
     log("Discovering Cargo schemas...")
     item_fields = cargo_fields("Items")
     recipe_fields = cargo_fields("Recipes")
