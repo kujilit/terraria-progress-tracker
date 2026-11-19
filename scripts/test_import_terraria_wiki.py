@@ -124,6 +124,8 @@ class ItemClassificationTests(unittest.TestCase):
         self.assertIsNotNone(shield)
         self.assertEqual(shield["primary_category"], "accessory")
         self.assertEqual(shield["categories"], ["accessory"])
+        self.assertEqual(shield["classes"], ["Melee", "Ranger", "Mage", "Summoner"])
+        self.assertEqual(shield["class_assignment"], "shared-equipment-default")
 
     def test_curated_armor_set_is_assigned_to_its_class(self):
         armor = classify_item({
