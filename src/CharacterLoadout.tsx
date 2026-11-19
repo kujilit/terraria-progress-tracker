@@ -112,10 +112,11 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
             })}
           </div>
           <div className="terraria-equipment-group">
-            <div className="terraria-equipment-group-title">Аксессуары</div>
-            <div className="terraria-accessory-count" role="group" aria-label="Количество слотов аксессуаров">
-              <button type="button" className={accessorySlots === 6 ? 'active' : ''} disabled={disabled} onClick={() => setAccessorySlots(6)}>6 слотов</button>
-              <button type="button" className={accessorySlots === 7 ? 'active' : ''} disabled={disabled} onClick={() => setAccessorySlots(7)}>7 слотов</button>
+            <div className="terraria-equipment-group-title terraria-accessory-heading"><span>Аксессуары</span>
+              <div className="terraria-accessory-count" role="group" aria-label="Количество слотов аксессуаров">
+                <button type="button" className={accessorySlots === 6 ? 'active' : ''} disabled={disabled} onClick={() => setAccessorySlots(6)}>6</button>
+                <button type="button" className={accessorySlots === 7 ? 'active' : ''} disabled={disabled} onClick={() => setAccessorySlots(7)}>7</button>
+              </div>
             </div>
             {activeSlots.filter(slot => slot.category === 'accessory').map(slot => {
               const selected = itemFor(loadout[slot.id])
@@ -163,7 +164,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
         {recommendations.length ? <>
           <div className="roadmap-current-stage"><span>Ближайшие цели</span><b>{stageTitle(player.gameClass, recommendations[0].stage)}</b></div>
           <div className="roadmap-track">{recommendations.map((item, index) => <article className="roadmap-node" key={item.id}>
-            <span className="roadmap-node-index">{index + 1}</span><div className="roadmap-node-copy"><small>{item.slotLabel} · {stageTitle(player.gameClass, item.stage)}</small><b>{item.ru || item.name}</b><span>{item.name}</span></div>
+            <span className="roadmap-node-index">{index + 1}</span><span className="roadmap-node-art"><EquipmentIcon item={item}/></span><div className="roadmap-node-copy"><small>{item.slotLabel} · {stageTitle(player.gameClass, item.stage)}</small><b>{item.ru || item.name}</b><span>{item.name}</span></div>
             <span className={"roadmap-node-status status-" + item.status}>{item.status === 'crafting' ? 'В работе' : item.status === 'planned' ? 'В планах' : 'Не получено'}</span>
           </article>)}</div>
         </> : <div className="roadmap-complete"><Shield size={24}/><b>Основные цели закрыты</b><span>Для этого класса пока нет следующих рекомендаций.</span></div>}
