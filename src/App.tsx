@@ -3,10 +3,8 @@ import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, 
 import { AccessoryBuilds } from './AccessoryBuilds'
 import { ProgressionCompanion } from './ProgressionCompanion'
 import { CharacterLoadout } from './CharacterLoadout'
-import { armorPieceEffect, armorSetsForClass } from './armor-sets'
-import { getClassProgressItems, getItemStageRank } from './gear-progression'
+import { getClassProgressItems } from './gear-progression'
 import { itemsWithProgression as items, players, bosses } from './data'
-import { classStages } from './class-progression'
 import type { GameClass, Item, ItemStatus, Player } from './types'
 import type { BossRecord, InventoryRecord, ProgressRecord, TeamNote, TrackerPlayer, TrackerSession } from './services/api'
 import { trackerApi, isRemoteMode } from './services'
@@ -126,8 +124,6 @@ export default function App() {
   const [craftQuery, setCraftQuery] = useState('')
   const [recipeIndex, setRecipeIndex] = useState(0)
   const [craftModalItem, setCraftModalItem] = useState<Item | null>(null)
-  const [currentLoadouts, setCurrentLoadouts] = useState<Record<string,string>>(() => { try { return JSON.parse(localStorage.getItem('terraria-current-loadouts') || '{}') } catch { return {} } })
-  const [currentStages, setCurrentStages] = useState<Record<string,string>>(() => { try { return JSON.parse(localStorage.getItem('terraria-current-stages') || '{}') } catch { return {} } })
   const [potionQuery, setPotionQuery] = useState('')
   const [potionFilter, setPotionFilter] = useState('Все')
   const classColors: Record<GameClass, string> = { Melee:'#d98d54', Ranger:'#79a8d8', Mage:'#a88add', Summoner:'#76b98c' }
@@ -313,13 +309,6 @@ export default function App() {
     }
     return statuses[`${playerId}:${itemId}`] || statuses[itemId] || 'missing'
   }
-  const currentSetId = currentLoadouts[player.id] || ''
-  const currentSet = armorSetsForClass(player.gameClass).find(set => set.id === currentSetId)
-  const setOwnedPieces = currentSet?.pieces.filter(piece => classItems.some(item => item.name === piece.name && statusForPlayer(player.id,item.id) === 'owned')).length || 0
-  const setOptions = armorSetsForClass(player.gameClass).filter(set => classItems.some(item => set.pieces.some(piece => piece.name === item.name)))
-  const setCurrentSet = (value:string) => { const next={...currentLoadouts,[player.id]:value}; setCurrentLoadouts(next); localStorage.setItem('terraria-current-loadouts',JSON.stringify(next)) }
-  const stageCurrent = currentStages[player.id] || progressionStageGroups[0]?.stage || ''
-  const setStageCurrent = (value:string) => { const next={...currentStages,[player.id]:value}; setCurrentStages(next); localStorage.setItem('terraria-current-stages',JSON.stringify(next)) }
   const teamCount = catalogItems.filter(i => categoryKey(i.category) !== 'material' && (isRemoteMode ? remoteProgress.some(row => row.itemId === i.id && row.status === 'owned') : (currentPlayers.some(p => statuses[`${p.id}:${i.id}`] === 'owned') || owned(i.id)))).length
   const filtered = useMemo(() => {
     const statusOrder: Record<ItemStatus, number> = { planned: 0, crafting: 1, missing: 2, owned: 3, skipped: 4 }
@@ -745,116 +734,6 @@ function classLabel(gameClass: GameClass) {
     Melee: 'Ближний бой', Ranger: 'Стрелок', Mage: 'Маг', Summoner: 'Призыватель',
   }
   return labels[gameClass]
-}
-
-function PlayerArmorSetCard({ set, items, allItems, matchedCount, statusForItem, onStatus, onCraft, disabled = false }: {
-  set: ReturnType<typeof armorSetsForClass>[number]
-  items: Item[]
-  allItems: Item[]
-  matchedCount: number
-  statusForItem: (itemId: string) => ItemStatus
-  onStatus: (id: string, status: ItemStatus) => void
-  onCraft: (item: Item) => void
-  disabled?: boolean
-}) {
-  const labels: Record<ItemStatus, string> = {
-    owned: 'Получен', planned: 'В планах', crafting: 'В работе',
-    missing: 'Не получен', skipped: 'Пропущен',
-  }
-  const classNames: Record<GameClass, string> = {
-    Melee: 'Ближний бой', Ranger: 'Стрелок', Mage: 'Маг', Summoner: 'Призыватель',
-  }
-  const visiblePieces = set.pieces.filter(piece => items.some(item => item.name === piece.name))
-  const collectedCount = set.pieces.filter(piece => {
-    const item = allItems.find(entry => entry.name === piece.name)
-    return item && statusForItem(item.id) === 'owned'
-  }).length
-  const hiddenCount = set.pieces.length - visiblePieces.length
-
-  return <Panel as="article" className="player-armor-set-card">
-    <header className="player-armor-set-head">
-      <div>
-        <span className="eyebrow">КОМПЛЕКТ БРОНИ · {stageLabel(set.stage)}</span>
-        <h3>{set.name}</h3>
-        <div className="player-armor-set-classes">{set.classes.map(gameClass => <span key={gameClass}>{classNames[gameClass]}</span>)}</div>
-      </div>
-      <Badge tone={collectedCount === set.pieces.length ? 'success' : 'info'}>{collectedCount}/{set.pieces.length} получено</Badge>
-    </header>
-    {set.bonuses.length > 0 && <div className="player-armor-bonuses">
-      <span className="player-armor-block-label">Суммарные бонусы частей комплекта</span>
-      <div>{set.bonuses.map(bonus => <span className="player-armor-bonus" key={bonus}>{bonus}</span>)}</div>
-    </div>}
-    <div className="player-armor-set-bonus">
-      <span className="player-armor-block-label">Особый бонус комплекта</span>
-      <p>{set.setBonus}</p>
-      {set.buffName && <div className="player-gear-buff"><Sparkles size={13}/> {set.buffName.toLowerCase().includes('дебафф') ? 'Дебафф:' : 'Бафф:'} <b>{set.buffName}</b>{set.buffDuration && <small>{set.buffDuration}</small>}</div>}
-    </div>
-    <div className="player-armor-pieces">
-      {visiblePieces.map(piece => {
-        const item = items.find(entry => entry.name === piece.name)
-        if (!item) return null
-        const status = statusForItem(item.id)
-        const effect = cleanWikiText(armorPieceEffect(set, piece.name) || piece.effect || item.equipmentEffect || item.description)
-        return <div className="player-armor-piece" key={piece.name}>
-          <ItemArtwork item={item} className="player-armor-piece-art"/>
-          <div className="player-armor-piece-info">
-            <span className="player-armor-piece-slot">{piece.slot}</span>
-            <button type="button" className="item-recipe-link armor-recipe-link" onClick={() => onCraft(item)} title="Открыть дерево крафта">{item.name}<GitBranch size={12}/></button>
-            {effect && <small>{effect}</small>}
-            <Badge tone={status === 'owned' ? 'success' : status === 'crafting' ? 'info' : status === 'planned' ? 'warning' : status === 'skipped' ? 'neutral' : 'danger'}>{labels[status]}</Badge>
-          </div>
-          <select value={status} disabled={disabled} onChange={event => onStatus(item.id, event.target.value as ItemStatus)} aria-label={'Статус ' + item.name}>
-            <option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option>
-          </select>
-        </div>
-      })}
-    </div>
-    {hiddenCount > 0 && <small className="player-armor-filter-note">Скрыто более слабых частей: {hiddenCount}. Они не учитываются в прогрессе.</small>}
-    {matchedCount < items.length && <small className="player-armor-filter-note">Поиск или фильтры совпали с {matchedCount} из {items.length} отображаемых частей.</small>}
-  </Panel>
-}
-
-function WeakerGearToggle({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) {
-  return <label className="weaker-gear-toggle">
-    <input type="checkbox" checked={checked} onChange={event => onChange(event.target.checked)}/>
-    <span><b>Скрыть более слабую экипировку</b><small>Старое оружие и части брони, для которых уже есть более сильная замена, не показываются и не входят в расчёт прогресса.</small></span>
-  </label>
-}
-
-function PlayerGearCard({ item, status, onStatus, onCraft, disabled = false }: {
-  item: Item
-  status: ItemStatus
-  onStatus: (id: string, status: ItemStatus) => void
-  onCraft: (item: Item) => void
-  disabled?: boolean
-}) {
-  const labels: Record<ItemStatus, string> = {
-    owned: 'Получен', planned: 'В планах', crafting: 'В работе',
-    missing: 'Не получен', skipped: 'Пропущен',
-  }
-  const description = cleanWikiText(item.equipmentEffect || item.description)
-  return <Panel as="article" className="player-gear-card">
-    <ItemArtwork item={item} className="player-gear-art"/>
-    <div className="player-gear-main">
-      <div className="player-gear-tags"><span>{categoryLabel(item.category)}</span><span>{stageLabel(item.stage)}</span></div>
-      <h3><button type="button" className="item-recipe-link" onClick={() => onCraft(item)} title="Открыть дерево крафта">{item.name}<GitBranch size={12}/></button></h3>
-      {item.ru && item.ru !== item.name && <p className="player-gear-ru">{item.ru}</p>}
-      {description && <p className="player-gear-description">{description}</p>}
-      <div className="player-gear-highlights">
-        {item.damage !== null && item.damage !== undefined && <span>{item.damage} урона</span>}
-        {item.defense !== null && item.defense !== undefined && item.defense > 0 && <span>{item.defense} защиты</span>}
-        {item.damageType && <span>{item.damageType}</span>}
-        {item.buffName && <span className="player-gear-buff"><Sparkles size={11}/> Эффект: {item.buffName}{item.buffDuration ? ` · ${item.buffDuration}` : ''}</span>}
-      </div>
-      <small className="player-gear-source">{item.source}</small>
-      <div className="player-gear-status">
-        <Badge tone={status === 'owned' ? 'success' : status === 'crafting' ? 'info' : status === 'planned' ? 'warning' : status === 'skipped' ? 'neutral' : 'danger'}>{labels[status]}</Badge>
-        <select value={status} disabled={disabled} onChange={event => onStatus(item.id, event.target.value as ItemStatus)} aria-label={'Статус ' + item.name}>
-          <option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option>
-        </select>
-      </div>
-    </div>
-  </Panel>
 }
 
 function cleanWikiText(value: string | null | undefined): string {
