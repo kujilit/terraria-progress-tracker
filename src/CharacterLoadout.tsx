@@ -67,30 +67,51 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
     <div className="character-loadout-grid">
       <section className="character-equipment-panel">
         <div className="character-panel-title"><div><span className="eyebrow">CURRENT LOADOUT</span><h3>Текущая экипировка</h3></div><span>{equippedCount}/7 слотов</span></div>
-        <div className="character-stage">
-          <div className="character-silhouette">
-            <svg viewBox="0 0 180 250" role="img" aria-label="Пиксельный персонаж Terraria">
-              <rect x="62" y="14" width="56" height="48" fill="#d6b28a" stroke="#101a24" strokeWidth="6"/><rect x="55" y="8" width="70" height="17" fill="#8fc4df" stroke="#101a24" strokeWidth="6"/>
-              <rect x="69" y="29" width="8" height="8" fill="#172630"/><rect x="103" y="29" width="8" height="8" fill="#172630"/>
-              <rect x="59" y="63" width="62" height="70" fill="#456b80" stroke="#101a24" strokeWidth="6"/>
-              <rect x="28" y="70" width="25" height="68" fill="#d6b28a" stroke="#101a24" strokeWidth="6"/><rect x="127" y="70" width="25" height="68" fill="#d6b28a" stroke="#101a24" strokeWidth="6"/>
-              <rect x="64" y="137" width="23" height="83" fill="#293f4d" stroke="#101a24" strokeWidth="6"/><rect x="94" y="137" width="23" height="83" fill="#293f4d" stroke="#101a24" strokeWidth="6"/>
-              <rect x="56" y="218" width="38" height="16" fill="#d3a15a" stroke="#101a24" strokeWidth="5"/><rect x="87" y="218" width="38" height="16" fill="#d3a15a" stroke="#101a24" strokeWidth="5"/>
-              <path d="M151 92 L169 40 L176 43 L159 101 Z" fill="#d3a15a" stroke="#101a24" strokeWidth="4"/>
-            </svg>
-            <span>{player.gameClass === 'Melee' ? '⚔' : player.gameClass === 'Ranger' ? '➶' : player.gameClass === 'Mage' ? '✦' : '♧'}</span>
+        <div className="terraria-equipment-layout">
+          <div className="terraria-equipment-group">
+            <div className="terraria-equipment-group-title">Броня</div>
+            {slots.filter(slot => slot.category === 'armor').map(slot => {
+              const selected = itemFor(loadout[slot.id])
+              return <label className="terraria-equipment-slot" key={slot.id}>
+                <span className="terraria-slot-label">{slot.label}</span>
+                <span className={"terraria-slot-icon" + (selected ? ' is-filled' : '')}>
+                  {selected ? selected.icon : slot.id === 'head' ? '◈' : slot.id === 'body' ? '▣' : '▤'}
+                </span>
+                <select aria-label={slot.label} value={loadout[slot.id]} disabled={disabled} onChange={event => setLoadout(current => ({ ...current, [slot.id]: event.target.value }))}>
+                  <option value="">Пусто</option>{options(slot).map(item => <option key={item.id} value={item.id}>{item.ru || item.name}</option>)}
+                </select>
+                {selected && <small title={selected.name}>{selected.ru || selected.name}</small>}
+              </label>
+            })}
           </div>
-          <p>Снаряжение персонажа</p>
-        </div>
-        <div className="character-slot-grid">
-          {slots.map(slot => {
-            const selected = itemFor(loadout[slot.id])
-            return <label className="character-slot" key={slot.id}><span>{slot.label}</span>
-              <select value={loadout[slot.id]} disabled={disabled} onChange={event => setLoadout(current => ({ ...current, [slot.id]: event.target.value }))}>
-                <option value="">Не выбрано</option>{options(slot).map(item => <option key={item.id} value={item.id}>{item.ru || item.name}</option>)}
-              </select>{selected && <small>{selected.name}</small>}
-            </label>
-          })}
+          <div className="terraria-equipment-group">
+            <div className="terraria-equipment-group-title">Аксессуары</div>
+            {slots.filter(slot => slot.category === 'accessory').map(slot => {
+              const selected = itemFor(loadout[slot.id])
+              return <label className="terraria-equipment-slot" key={slot.id}>
+                <span className="terraria-slot-label">{slot.label}</span>
+                <span className={"terraria-slot-icon" + (selected ? ' is-filled' : '')}>{selected ? selected.icon : '◇'}</span>
+                <select aria-label={slot.label} value={loadout[slot.id]} disabled={disabled} onChange={event => setLoadout(current => ({ ...current, [slot.id]: event.target.value }))}>
+                  <option value="">Пусто</option>{options(slot).map(item => <option key={item.id} value={item.id}>{item.ru || item.name}</option>)}
+                </select>
+                {selected && <small title={selected.name}>{selected.ru || selected.name}</small>}
+              </label>
+            })}
+          </div>
+          <div className="terraria-equipment-group terraria-weapon-group">
+            <div className="terraria-equipment-group-title">Оружие</div>
+            {slots.filter(slot => slot.id === 'weapon').map(slot => {
+              const selected = itemFor(loadout[slot.id])
+              return <label className="terraria-equipment-slot" key={slot.id}>
+                <span className="terraria-slot-label">{slot.label}</span>
+                <span className={"terraria-slot-icon" + (selected ? ' is-filled' : '')}>{selected ? selected.icon : '⚔'}</span>
+                <select aria-label={slot.label} value={loadout[slot.id]} disabled={disabled} onChange={event => setLoadout(current => ({ ...current, [slot.id]: event.target.value }))}>
+                  <option value="">Пусто</option>{options(slot).map(item => <option key={item.id} value={item.id}>{item.ru || item.name}</option>)}
+                </select>
+                {selected && <small title={selected.name}>{selected.ru || selected.name}</small>}
+              </label>
+            })}
+          </div>
         </div>
         {disabled && <p className="character-readonly-note">Редактировать экипировку можно только у своего персонажа.</p>}
       </section>
