@@ -29,12 +29,19 @@ const category = (value: string) => {
   return 'other'
 }
 const bossPrep: Record<string, { title: string; tasks: string[]; potions: string[] }> = {
-  king_slime: { title: 'Первое испытание', tasks: ['Подготовить ровную площадку для манёвров', 'Взять платформы и источник света', 'Проверить запас лечебных зелий'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Любая еда'] },
+  king_slime: { title: 'Слизневый король', tasks: ['Подготовить ровную площадку для манёвров', 'Взять платформы и источник света', 'Проверить запас лечебных зелий'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Любая еда'] },
+  queen_bee: { title: 'Охота в улье', tasks: ['Найти улей в подземных джунглях', 'Расчистить пространство для уклонения', 'Подготовить оружие против быстрых целей'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье скорости', 'Любая еда'] },
+  deerclops: { title: 'Встреча в метели', tasks: ['Дождаться метели в снежном биоме', 'Подготовить арену с пространством для отступления', 'Не подходить близко к атакам по области'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье скорости', 'Любая еда'] },
+  dreadnautilus: { title: 'Кровавая луна', tasks: ['Начать рыбалку во время Кровавой луны', 'Подготовить арену над водой', 'Взять оружие для уклонения от рывков'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье выносливости', 'Любая еда'] },
+  duke_fishron: { title: 'Морская охота', tasks: ['Подготовить длинную воздушную арену над океаном', 'Использовать приманку трюфельного червя в океане', 'Подготовить мобильность для трёх фаз боя'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье скорости', 'Зелье выносливости', 'Любая еда'] },
+  empress_of_light: { title: 'Сияющая дуэль', tasks: ['Вызвать Принцессу света в Святых землях ночью', 'Подготовить длинную арену и высокую мобильность', 'Изучить траектории световых атак'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье скорости', 'Зелье жизненной силы', 'Любая еда'] },
   eye: { title: 'Ночная охота', tasks: ['Построить арену из платформ в несколько уровней', 'Освободить аксессуары для мобильности', 'Подготовить дальнобойное оружие'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье скорости', 'Любая еда'] },
   eater: { title: 'Битва в порче / кримзоне', tasks: ['Подготовить пространство в биоме босса', 'Взять кирку для добычи руды после победы', 'Подготовить оружие по площади'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье ярости или гнева', 'Любая еда'] },
   skeletron: { title: 'Поход в Данж', tasks: ['Построить длинную арену рядом с Данжем', 'Подготовить оружие для рук и головы', 'Проверить мобильность и запас здоровья'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье скорости', 'Зелье ярости или гнева'] },
   wof: { title: 'Переход в Hardmode', tasks: ['Построить длинный мост в Аду', 'Подготовить запас блоков и платформ', 'Освободить инвентарь для новых руд', 'Взять оружие с хорошей дальностью'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье выносливости', 'Зелье скорости', 'Любая еда'] },
-  mechs: { title: 'Механические боссы', tasks: ['Подготовить большую арену с кострами и фонарями-сердцами', 'Получить крылья или другой надёжный способ полёта', 'Подготовить оружие под выбранного механического босса', 'Запастись боеприпасами или маной'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье выносливости', 'Зелье жизненной силы', 'Зелье ярости или гнева', 'Любая еда'] },
+  destroyer: { title: 'Охота на Разрушителя', tasks: ['Подготовить высокую арену с платформами', 'Взять оружие с уроном по нескольким сегментам', 'Подготовить защиту от лазеров и зондов'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье выносливости', 'Зелье жизненной силы', 'Любая еда'] },
+  twins: { title: 'Битва с Близнецами', tasks: ['Подготовить длинную арену для постоянного движения', 'Взять оружие с высокой точностью и дальностью', 'Продумать порядок уничтожения Ретинайзера и Спазматизма'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье скорости', 'Зелье выносливости', 'Любая еда'] },
+  skeletron_prime: { title: 'Ночь с Скелетроном Праймом', tasks: ['Подготовить просторную арену', 'Взять оружие для быстрого уничтожения конечностей', 'Следить за таймером ночи и не затягивать бой'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье выносливости', 'Зелье жизненной силы', 'Любая еда'] },
   plantera: { title: 'Сражение в подземных джунглях', tasks: ['Найти большую открытую камеру в джунглях', 'Расчистить арену, не выходя за пределы джунглей', 'Установить сердечные фонари и костры'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье выносливости', 'Зелье жизненной силы', 'Зелье ярости или гнева'] },
   golem: { title: 'Храм джунглей', tasks: ['Подготовить арену внутри Храма', 'Проверить доступ к алтарю Голема', 'Взять оружие для ближней и дальней дистанции'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье выносливости', 'Зелье жизненной силы'] },
   cultist: { title: 'Лунные события', tasks: ['Подготовить арену у входа в Данж', 'Убедиться, что экипировка после Голема улучшена', 'Подготовить оружие для быстрого уничтожения клонов'], potions: ['Зелье железной кожи', 'Зелье регенерации', 'Зелье выносливости', 'Зелье жизненной силы', 'Зелье ярости или гнева'] },
@@ -80,19 +87,35 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
     </header>
     <nav className="companion-tabs">{tabs.map(tab => <button type="button" key={tab.id} className={section === tab.id ? 'selected' : ''} onClick={() => setSection(tab.id)}><tab.icon size={16}/>{tab.label}</button>)}</nav>
 
-    {section === 'tree' && <div className="companion-tree">
-      {orderedBosses.map((boss, index) => {
-        const defeated = bossStatus(boss.id) === 'defeated'
-        const unlocked = boss.requires.every(required => bossStatus(required) === 'defeated')
-        const current = !defeated && unlocked
-        return <Panel as="article" className={`companion-boss-node ${defeated ? 'defeated' : current ? 'current' : 'locked'}`} key={boss.id}>
-          <div className="companion-node-rail"><span>{defeated ? <Check size={15}/> : index + 1}</span>{index < orderedBosses.length - 1 && <i/>}</div>
-          <div className="companion-node-card">
-            <div className="companion-node-copy"><span className="eyebrow">{boss.stage} · ЭТАП {index + 1}</span><h3>{boss.name}</h3><p>{defeated ? 'Победа зафиксирована' : unlocked ? 'Доступен для сражения' : 'Сначала победите предыдущего босса'}</p></div>
-            <div className="companion-node-actions"><Badge tone={defeated ? 'success' : current ? 'warning' : 'neutral'}>{defeated ? 'Побеждён' : unlocked ? 'Открыт' : 'Закрыт'}</Badge><Button size="sm" variant={defeated ? 'secondary' : 'primary'} disabled={disabled || !unlocked && !defeated} onClick={() => onBossStatus(boss.id, defeated ? 'pending' : 'defeated')}>{defeated ? 'Отменить' : 'Побеждён'}</Button><Button size="sm" variant="ghost" className="companion-detail-button" onClick={() => { setSelectedBoss(boss.id); setSection('boss') }}>Подготовка <ArrowRight size={13}/></Button></div>
-          </div>
-        </Panel>
-      })}
+    {section === 'tree' && <div className="companion-tree-layout">
+      <section className="companion-tree companion-mainline">
+        <div className="companion-line-heading"><span className="eyebrow">MAIN PROGRESSION</span><h3>Основная линия</h3><p>Обязательные боссы и переходы между этапами.</p></div>
+        {orderedBosses.filter(boss => !boss.optional).map((boss, index, list) => {
+          const defeated = bossStatus(boss.id) === 'defeated'
+          const unlocked = boss.requires.every(required => bossStatus(required) === 'defeated')
+          const current = !defeated && unlocked
+          return <Panel as="article" className={`companion-boss-node ${defeated ? 'defeated' : current ? 'current' : 'locked'}`} key={boss.id}>
+            <div className="companion-node-rail"><span>{defeated ? <Check size={15}/> : index + 1}</span>{index < list.length - 1 && <i/>}</div>
+            <div className="companion-node-card">
+              <div className="companion-node-copy"><span className="eyebrow">{boss.stage} · ЭТАП {index + 1}</span><h3>{boss.name}</h3><p>{defeated ? 'Победа зафиксирована' : unlocked ? 'Доступен для сражения' : 'Сначала победите предыдущих боссов'}</p></div>
+              <div className="companion-node-actions"><Badge tone={defeated ? 'success' : current ? 'warning' : 'neutral'}>{defeated ? 'Побеждён' : unlocked ? 'Открыт' : 'Закрыт'}</Badge><Button size="sm" variant={defeated ? 'secondary' : 'primary'} disabled={disabled || !unlocked && !defeated} onClick={() => onBossStatus(boss.id, defeated ? 'pending' : 'defeated')}>{defeated ? 'Отменить' : 'Побеждён'}</Button><Button size="sm" variant="ghost" className="companion-detail-button" onClick={() => { setSelectedBoss(boss.id); setSection('boss') }}>Подготовка <ArrowRight size={13}/></Button></div>
+            </div>
+          </Panel>
+        })}
+      </section>
+      <section className="companion-optional-line">
+        <div className="companion-line-heading"><span className="eyebrow">OPTIONAL CONTENT</span><h3>Необязательные боссы</h3><p>Дополнительные испытания. Не блокируют основное прохождение.</p></div>
+        <div className="companion-optional-grid">{orderedBosses.filter(boss => boss.optional).map(boss => {
+          const defeated = bossStatus(boss.id) === 'defeated'
+          const unlocked = boss.requires.every(required => bossStatus(required) === 'defeated')
+          return <Panel as="article" className={`companion-boss-node optional ${defeated ? 'defeated' : unlocked ? 'current' : 'locked'}`} key={boss.id}>
+            <div className="companion-node-card">
+              <div className="companion-node-copy"><span className="eyebrow">{boss.stage} · ДОПОЛНИТЕЛЬНО</span><h3>{boss.name}</h3><p>{defeated ? 'Победа зафиксирована' : unlocked ? 'Можно сразиться в любой момент' : 'Откроется по ходу прохождения'}</p></div>
+              <div className="companion-node-actions"><Badge tone={defeated ? 'success' : unlocked ? 'warning' : 'neutral'}>{defeated ? 'Побеждён' : unlocked ? 'Доступен' : 'Позже'}</Badge><Button size="sm" variant={defeated ? 'secondary' : 'primary'} disabled={disabled || !unlocked && !defeated} onClick={() => onBossStatus(boss.id, defeated ? 'pending' : 'defeated')}>{defeated ? 'Отменить' : 'Побеждён'}</Button><Button size="sm" variant="ghost" className="companion-detail-button" onClick={() => { setSelectedBoss(boss.id); setSection('boss') }}>Подготовка <ArrowRight size={13}/></Button></div>
+            </div>
+          </Panel>
+        })}</div>
+      </section>
     </div>}
 
     {section === 'gear' && <div className="companion-gear">
