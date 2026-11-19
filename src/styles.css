@@ -2436,3 +2436,9 @@ input:focus-visible, textarea:focus-visible {
 /* Equipment picker search */
 .terraria-picker-search{display:block;width:100%;min-height:34px;margin:0 0 7px;padding:7px 9px;color:#e5e9e5;background:#0c1a23;border:1px solid #607783;font:inherit;font-size:11px;outline-offset:2px}
 .terraria-picker-search::placeholder{color:#8fa2aa}
+
+/* Effects and recipe actions in progression roadmap */
+.roadmap-node-copy{gap:4px}
+.roadmap-node-effect{margin:3px 0 2px;color:#b8c9c8;font-size:11px;line-height:1.45}
+.roadmap-craft-button{display:inline-flex;align-items:center;align-self:flex-start;gap:6px;margin-top:3px;padding:5px 8px;color:#f0d49a;background:#263a43;border:1px solid #806b45;font-size:10px;font-weight:700}
+.roadmap-craft-button:hover{background:#354a52;border-color:#d1aa62}
