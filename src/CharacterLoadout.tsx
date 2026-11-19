@@ -4,15 +4,20 @@ import type { Item, Player } from './types'
 import { armorSetsForClass, isItemUsefulForClass } from './armor-sets'
 import { classStages } from './class-progression'
 import { getItemStageRank } from './gear-progression'
+import { accessoryBuilds } from './accessory-builds'
 
-type Slot = 'head' | 'body' | 'legs' | 'weapon' | 'accessory1' | 'accessory2' | 'accessory3'
+type Slot = 'head' | 'body' | 'legs' | 'weapon' | 'accessory1' | 'accessory2' | 'accessory3' | 'accessory4' | 'accessory5' | 'accessory6' | 'accessory7'
 type Slots = Record<Slot, string>
-const empty: Slots = { head: '', body: '', legs: '', weapon: '', accessory1: '', accessory2: '', accessory3: '' }
+const empty: Slots = { head: '', body: '', legs: '', weapon: '', accessory1: '', accessory2: '', accessory3: '', accessory4: '', accessory5: '', accessory6: '', accessory7: '' }
 const slots: { id: Slot; label: string; category: string }[] = [
   { id: 'head', label: 'Голова', category: 'armor' }, { id: 'body', label: 'Тело', category: 'armor' },
   { id: 'legs', label: 'Ноги', category: 'armor' }, { id: 'weapon', label: 'Оружие', category: 'weapon' },
   { id: 'accessory1', label: 'Аксессуар I', category: 'accessory' }, { id: 'accessory2', label: 'Аксессуар II', category: 'accessory' },
   { id: 'accessory3', label: 'Аксессуар III', category: 'accessory' },
+  { id: 'accessory4', label: 'Аксессуар IV', category: 'accessory' },
+  { id: 'accessory5', label: 'Аксессуар V', category: 'accessory' },
+  { id: 'accessory6', label: 'Аксессуар VI', category: 'accessory' },
+  { id: 'accessory7', label: 'Аксессуар VII', category: 'accessory' },
 ]
 const category = (value: string) => value.toLowerCase().includes('armor') || value.toLowerCase().includes('брон') ? 'armor'
   : value.toLowerCase().includes('weapon') || value.toLowerCase().includes('оруж') ? 'weapon'
@@ -25,12 +30,23 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
   player: Player; items: Item[]; statusForItem: (id: string) => string; disabled?: boolean; onOpenCatalog: () => void
 }) {
   const key = 'terraria-character-loadout:' + player.id
+  const [accessorySlots, setAccessorySlots] = useState<6 | 7>(() => localStorage.getItem(key + ':accessory-slots') === '6' ? 6 : 7)
+  const activeSlots = slots.filter(slot => !slot.id.startsWith('accessory') || Number(slot.id.replace('accessory', '')) <= accessorySlots)
   const [loadout, setLoadout] = useState<Slots>(() => {
     try { return { ...empty, ...JSON.parse(localStorage.getItem(key) || '{}') } } catch { return empty }
   })
   useEffect(() => { try { setLoadout({ ...empty, ...JSON.parse(localStorage.getItem(key) || '{}') }) } catch { setLoadout(empty) } }, [key])
   useEffect(() => { localStorage.setItem(key, JSON.stringify(loadout)) }, [key, loadout])
-  const classItems = useMemo(() => items.filter(item => isItemUsefulForClass(item, player.gameClass)), [items, player.gameClass])
+  useEffect(() => { localStorage.setItem(key + ':accessory-slots', String(accessorySlots)) }, [key, accessorySlots])
+  const accessoryItems = useMemo(() => {
+    const unique = new Map<string, Item>()
+    accessoryBuilds[player.gameClass].flatMap(build => build.items).forEach(entry => {
+      const id = 'accessory-' + player.gameClass.toLowerCase() + '-' + entry.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+      if (!unique.has(id)) unique.set(id, { id, name: entry.name, ru: entry.name, gameClass: [player.gameClass], category: 'Аксессуар', stage: entry.stage, icon: '◇', description: entry.effect, source: 'Рекомендации аксессуарных сборок', verified: true, imageUrl: 'https://terraria.wiki.gg/wiki/Special:FilePath/' + encodeURIComponent(entry.name + '.png') })
+    })
+    return [...unique.values()]
+  }, [player.gameClass])
+  const classItems = useMemo(() => [...items.filter(item => isItemUsefulForClass(item, player.gameClass)), ...accessoryItems], [items, player.gameClass, accessoryItems])
   const armorSlot = useMemo(() => {
     const result = new Map<string, Slot>()
     armorSetsForClass(player.gameClass).forEach(set => set.pieces.forEach(piece => {
@@ -45,7 +61,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
     .sort((a, b) => stageRank(a.stage) - stageRank(b.stage) || a.name.localeCompare(b.name))
   const equipped = new Set(Object.values(loadout).filter(Boolean))
   const recommendationIds = new Set<string>()
-  const recommendations = slots.map(slot => {
+  const recommendations = activeSlots.map(slot => {
     const current = itemFor(loadout[slot.id])
     const ownedRank = options(slot).filter(item => statusForItem(item.id) === 'owned')
       .reduce((rank, item) => Math.max(rank, stageRank(item.stage)), 0)
@@ -57,20 +73,21 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
     return next ? { ...next, slotLabel: slot.label, status: statusForItem(next.id) } : null
   }).filter((item): item is NonNullable<typeof item> => Boolean(item))
     .sort((a, b) => stageRank(a.stage) - stageRank(b.stage)).slice(0, 6)
-  const equippedCount = Object.values(loadout).filter(Boolean).length
+  const equippedCount = activeSlots.filter(slot => Boolean(loadout[slot.id])).length
+  const totalSlots = 4 + accessorySlots
 
   return <section className="character-loadout-page">
     <header className="character-loadout-header">
       <div><span className="eyebrow">ПЕРСОНАЖ / ЭКИПИРОВКА</span><h2>{player.name}</h2><p>{player.gameClass === 'Melee' ? 'Ближний бой' : player.gameClass === 'Ranger' ? 'Стрелок' : player.gameClass === 'Mage' ? 'Маг' : 'Призыватель'} · Текущие слоты и дальнейшее развитие</p></div>
-      <div className="character-progress"><b>{equippedCount}/7</b><span>слотов заполнено</span><div><i style={{ width: (equippedCount / 7 * 100) + '%' }}/></div></div>
+      <div className="character-progress"><b>{equippedCount}/{totalSlots}</b><span>слотов заполнено</span><div><i style={{ width: (equippedCount / totalSlots * 100) + '%' }}/></div></div>
     </header>
     <div className="character-loadout-grid">
       <section className="character-equipment-panel">
-        <div className="character-panel-title"><div><span className="eyebrow">CURRENT LOADOUT</span><h3>Текущая экипировка</h3></div><span>{equippedCount}/7 слотов</span></div>
+        <div className="character-panel-title"><div><span className="eyebrow">CURRENT LOADOUT</span><h3>Текущая экипировка</h3></div><span>{equippedCount}/{totalSlots} слотов</span></div>
         <div className="terraria-equipment-layout">
           <div className="terraria-equipment-group">
             <div className="terraria-equipment-group-title">Броня</div>
-            {slots.filter(slot => slot.category === 'armor').map(slot => {
+            {activeSlots.filter(slot => slot.category === 'armor').map(slot => {
               const selected = itemFor(loadout[slot.id])
               return <label className="terraria-equipment-slot" key={slot.id}>
                 <span className="terraria-slot-label">{slot.label}</span>
@@ -86,7 +103,11 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
           </div>
           <div className="terraria-equipment-group">
             <div className="terraria-equipment-group-title">Аксессуары</div>
-            {slots.filter(slot => slot.category === 'accessory').map(slot => {
+            <div className="terraria-accessory-count" role="group" aria-label="Количество слотов аксессуаров">
+              <button type="button" className={accessorySlots === 6 ? 'active' : ''} disabled={disabled} onClick={() => setAccessorySlots(6)}>6 слотов</button>
+              <button type="button" className={accessorySlots === 7 ? 'active' : ''} disabled={disabled} onClick={() => setAccessorySlots(7)}>7 слотов</button>
+            </div>
+            {activeSlots.filter(slot => slot.category === 'accessory').map(slot => {
               const selected = itemFor(loadout[slot.id])
               return <label className="terraria-equipment-slot" key={slot.id}>
                 <span className="terraria-slot-label">{slot.label}</span>
@@ -100,7 +121,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
           </div>
           <div className="terraria-equipment-group terraria-weapon-group">
             <div className="terraria-equipment-group-title">Оружие</div>
-            {slots.filter(slot => slot.id === 'weapon').map(slot => {
+            {activeSlots.filter(slot => slot.id === 'weapon').map(slot => {
               const selected = itemFor(loadout[slot.id])
               return <label className="terraria-equipment-slot" key={slot.id}>
                 <span className="terraria-slot-label">{slot.label}</span>
