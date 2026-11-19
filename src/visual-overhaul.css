@@ -1,0 +1,292 @@
+/* Visual refinement: Terraria-inspired surfaces with modern application ergonomics. */
+:root {
+  color-scheme: dark;
+  --ui-bg: #0b151c;
+  --ui-surface: #172832;
+  --ui-surface-raised: #1d3440;
+  --ui-surface-soft: #223b46;
+  --ui-border: #38515d;
+  --ui-border-strong: #617783;
+  --ui-text: #edf0e7;
+  --ui-muted: #a2b5b8;
+  --ui-gold: #e4b96b;
+  --ui-green: #8ac69a;
+  --ui-shadow: 0 14px 34px #02090e66;
+  --ui-pixel-shadow: 0 3px 0 #09151d, 0 8px 18px #0004;
+  font-feature-settings: "ss01" on;
+  scrollbar-color: #49616c #101d25;
+}
+html { scroll-behavior: smooth; }
+body {
+  color: var(--ui-text);
+  background:
+    radial-gradient(ellipse at 12% 0%, #29435455, transparent 34rem),
+    radial-gradient(ellipse at 88% 18%, #7b65301c, transparent 28rem),
+    linear-gradient(180deg, #101e27 0%, var(--ui-bg) 68%);
+}
+::selection { color: #101a1f; background: #e6c27c; }
+:focus-visible { outline: 2px solid #e7c47d; outline-offset: 3px; }
+button, input, select, textarea { transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+
+/* Navigation */
+.sidebar {
+  background: linear-gradient(180deg, #192e39 0%, #13232d 58%, #101d26 100%);
+  border-right: 1px solid #405965;
+  box-shadow: 8px 0 28px #02090d30;
+}
+.brand { border-bottom-color: #405762; }
+.brand-mark {
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 2px #8d5b28, 0 4px 12px #0005;
+}
+.brand b { letter-spacing: 1.4px; }
+.world-switch {
+  border-color: #536b76;
+  background: linear-gradient(145deg, #263e49, #1a2c36);
+  box-shadow: inset 0 1px #ffffff0a, 0 5px 14px #0002;
+  border-radius: 4px;
+}
+.nav-item {
+  position: relative;
+  min-height: 42px;
+  border-left-width: 3px;
+  border-radius: 0 4px 4px 0;
+  transition: color .16s ease, background .16s ease, border-color .16s ease, padding .16s ease;
+}
+.nav-item:hover { padding-left: 15px; background: #2c4551; }
+.nav-item.active {
+  background: linear-gradient(90deg, #3b4b48, #2b414a);
+  border-left-color: var(--ui-gold);
+  color: #ffe2a5;
+  box-shadow: inset 0 1px #ffffff0a, inset 0 -1px #0002;
+}
+.connection { border-top-color: #405762; }
+
+/* Main layout and page hierarchy */
+.main { min-width: 0; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  backdrop-filter: blur(16px);
+  background: #101d25dc;
+  border-bottom-color: #354d58;
+}
+.crumb { font-size: 11px; }
+.version { border-radius: 3px; background: #1a2c35; }
+.content { padding-top: 30px; }
+.page-heading { gap: 18px; }
+.page-heading h1 {
+  font-size: clamp(25px, 2.5vw, 34px);
+  letter-spacing: -.035em;
+  line-height: 1.12;
+  text-shadow: 0 2px 14px #0004;
+}
+.page-heading p { line-height: 1.55; }
+.eyebrow { color: #a6b9b9; letter-spacing: 1.35px; }
+.section-title { margin-top: 32px; }
+.section-title h2, .panel h2 { letter-spacing: -.02em; }
+
+/* Surfaces */
+.panel, .player-card, .stat-card, .catalog-toolbar, .catalog-card,
+.world-overview, .profile-banner, .stage-card, .item-card, .boss-card,
+.companion-line-heading, .notice, .auth-card {
+  border-radius: 5px;
+}
+.panel {
+  background: linear-gradient(155deg, #1c303b, #172832 72%);
+  border-color: #405965;
+  box-shadow: inset 0 1px #ffffff08, 0 5px 18px #0002;
+}
+.player-card, .stat-card, .stage-card, .item-card, .boss-card {
+  background: linear-gradient(145deg, #203641, #192b35);
+  border-color: #3d5661;
+  box-shadow: inset 0 1px #ffffff08, 0 4px 12px #0002;
+}
+.player-card:hover, .player-card.chosen {
+  border-color: #d0a65f;
+  background: linear-gradient(145deg, #2b4650, #1d333d);
+  box-shadow: inset 0 1px #ffffff10, 0 7px 18px #0003;
+  transform: translateY(-2px);
+}
+.item-card:hover, .boss-card:hover, .stage-card:hover {
+  border-color: #7e795e;
+  background-color: #233b45;
+}
+.hero-panel {
+  border-radius: 6px;
+  border-color: #71817b;
+  background:
+    linear-gradient(105deg, #1b3442f2, #294958e8 58%, #3b514fe8),
+    radial-gradient(circle at 85% 40%, #e6bd6c44, transparent 15rem);
+  box-shadow: inset 0 0 0 3px #142833, inset 0 1px #ffffff16, var(--ui-shadow);
+}
+.hero-panel:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .16;
+  background: repeating-linear-gradient(0deg, transparent 0 5px, #d8e2d6 5px 6px);
+  mask-image: linear-gradient(90deg, transparent 45%, #000 100%);
+}
+.pixel-sun { filter: drop-shadow(0 0 20px #f3cb7a55); }
+.hero-ground { filter: saturate(.85); }
+.progress-track, .mini-progress { border-radius: 2px; overflow: hidden; }
+.progress-track div, .mini-progress span { transition: width .35s ease; }
+.progress-track div { background: linear-gradient(90deg, #b27b3d, #f0cf7e); }
+
+/* Buttons and controls */
+.gold-button, .ui-button--primary, .auth-submit {
+  border-radius: 3px;
+  border: 1px solid #e3bb70;
+  background: linear-gradient(180deg, #edc779, #c28a43);
+  color: #201d17;
+  box-shadow: 0 3px 0 #795126, 0 6px 13px #0003, inset 0 1px #fff6;
+  font-weight: 800;
+}
+.gold-button:hover, .ui-button--primary:hover, .auth-submit:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 #795126, 0 9px 18px #0004, inset 0 1px #fff8;
+}
+.gold-button:active, .ui-button--primary:active, .auth-submit:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #795126, inset 0 1px #fff5;
+}
+.ui-button, .small-button, .text-button, .catalog-reset, .logout-button {
+  border-radius: 3px;
+}
+.ui-button--secondary, .small-button {
+  background: linear-gradient(180deg, #2d4855, #223944);
+  border-color: #58717d;
+}
+.ui-button--secondary:hover, .small-button:hover {
+  background: #365462;
+  border-color: #91a5a8;
+}
+input, select, textarea {
+  border-radius: 3px;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #d9b56f !important;
+  box-shadow: 0 0 0 3px #d9b56f20;
+}
+.search-bar, .catalog-search {
+  border-radius: 4px;
+  background: #12232d;
+  border-color: #4a626d;
+}
+.search-bar:focus-within, .catalog-search:focus-within {
+  border-color: #d5b16e;
+  box-shadow: 0 0 0 3px #d5b16e18;
+}
+
+/* Item slots, rarity cues and cards */
+.item-art, .item-icon, .catalog-card-art, .terraria-slot-icon, .terraria-picker-item img {
+  border-radius: 3px;
+  box-shadow: inset 0 1px #ffffff0a, 0 2px 6px #0003;
+}
+.item-art, .catalog-card-art {
+  background: linear-gradient(145deg, #2d4652, #1b303b);
+  border-color: #5a707a;
+}
+.terraria-equipment-slot {
+  border-radius: 4px;
+  background: linear-gradient(145deg, #243d48, #192d37);
+  border-color: #4b6570;
+  box-shadow: inset 0 1px #ffffff0a, 0 3px 9px #0002;
+}
+.terraria-slot-icon {
+  border-radius: 3px;
+  width: 58px;
+  height: 58px;
+}
+.terraria-slot-icon.is-filled {
+  border-color: #d5ad67;
+  box-shadow: inset 2px 2px #111c24, inset -2px -2px #536d72, 0 0 0 1px #d5ad6730;
+}
+.terraria-picker-trigger, .terraria-item-picker, .terraria-picker-item {
+  border-radius: 3px;
+}
+.terraria-picker-item:hover { border-color: #b89a62; background: #2a4652; }
+.catalog-card {
+  background: linear-gradient(155deg, #213944, #172a34);
+  border-color: #405a65;
+  box-shadow: inset 0 1px #ffffff08, 0 5px 15px #0002;
+}
+.catalog-card:hover { border-color: #b38c52; box-shadow: 0 9px 22px #0004; }
+.catalog-filter-chips button, .player-switch button, .class-tabs button {
+  border-radius: 3px;
+}
+.catalog-filter-chips button.active, .player-switch button.selected, .class-tabs button.selected {
+  box-shadow: inset 0 -2px #d5a65d, inset 0 1px #ffffff0a;
+}
+.state, .roadmap-node-status, .class-tag { border-radius: 3px; }
+
+/* Progression and boss roadmap */
+.companion-boss-node, .companion-node-card, .roadmap-node {
+  border-radius: 4px;
+}
+.companion-node-card, .roadmap-node {
+  box-shadow: 0 4px 12px #0002;
+}
+.companion-line-heading {
+  background: linear-gradient(120deg, #233e49, #1a303a);
+  border-color: #526b74;
+  box-shadow: inset 0 1px #ffffff0a;
+}
+.tree-item {
+  border-radius: 3px;
+  background: linear-gradient(120deg, #2b4551, #203641);
+  border-color: #526b75;
+}
+.tree-item:hover { border-color: #c49d5b; }
+.tree-children { border-left-color: #718b8d; }
+.tree-branch:before { border-top-color: #718b8d; }
+.notice {
+  border-radius: 4px;
+  background: linear-gradient(100deg, #293d46, #21343e);
+  border-color: #586e76;
+  line-height: 1.5;
+}
+
+/* Modals and authentication */
+.recipe-modal, .auth-card {
+  border-radius: 6px;
+  box-shadow: 0 24px 70px #000a, inset 0 1px #ffffff0a;
+}
+.recipe-modal-close { border-radius: 3px; }
+.auth-shell { background: radial-gradient(ellipse at 50% 0%, #315365, #101c25 65%, #0b141b); }
+.auth-card { border-color: #617782; background: linear-gradient(155deg, #203641, #152832); }
+.auth-card input, .auth-card select { border-radius: 3px; background: #101f28; }
+.auth-tabs button { border-radius: 3px; }
+
+/* Readability and responsive rhythm */
+.muted, .item-details small, .goal-info small, .boss-card small { line-height: 1.45; }
+footer { border-top-color: #3b515b; }
+@media (min-width: 1400px) {
+  .content { padding-left: 44px; padding-right: 44px; }
+}
+@media (max-width: 700px) {
+  .sidebar {
+    box-shadow: 0 5px 18px #0003;
+    background: linear-gradient(180deg, #1b303b, #14252f);
+  }
+  .content { padding-top: 20px; }
+  .hero-panel { border-radius: 4px; }
+  .hero-panel:after { opacity: .09; }
+  .section-title { margin-top: 25px; }
+  .player-card, .panel, .stat-card { box-shadow: inset 0 1px #ffffff08, 0 3px 10px #0002; }
+  .catalog-toolbar { border-radius: 4px; padding: 12px; }
+  .terraria-equipment-slot { padding: 8px 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *:before, *:after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
