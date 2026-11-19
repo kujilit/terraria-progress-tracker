@@ -551,12 +551,12 @@ export default function App() {
             })}</div>
           </section>
 
-          <section className="player-profile-panel">
+          <Panel as="section" unstyled className="player-profile-panel">
             <div className="player-profile-identity">
               <PixelAvatar playerId={player.id} className="player-emblem big"/>
               <div><span className="eyebrow">АКТИВНЫЙ ПЕРСОНАЖ</span><h2>{player.name}</h2><p>{classLabel(player.gameClass)} · Master Mode</p></div>
             </div>
-          </section>
+          </Panel>
 
           <div className="player-stat-grid">
             <div><small>Получено</small><b className="stat-owned">{playerStatusCounts.owned}</b></div>
@@ -565,7 +565,7 @@ export default function App() {
             <div><small>Не получено</small><b>{playerStatusCounts.missing}</b></div>
           </div>
 
-          <section className="player-gear-section">
+          <Panel as="section" unstyled className="player-gear-section">
             <div className="player-gear-heading">
               <div><span className="eyebrow">LOADOUT / GEAR</span><h2>Экипировка персонажа</h2><p>Предметы подходят классу {classLabel(player.gameClass).toLowerCase()}. Отмечай полученное, запланированное и то, что сейчас собираешь.</p></div>
               <span className="player-gear-total">{playerFilteredItems.length.toLocaleString('ru-RU')} <small>предметов</small></span>
@@ -637,7 +637,7 @@ export default function App() {
               <span>Показано {visibleGearCount} · отдельных предметов {visiblePlayerItems.length} из {standalonePlayerItems.length}</span>
               {visiblePlayerItems.length < standalonePlayerItems.length && <button type="button" onClick={() => setPlayerVisibleCount(count => count + 60)}>Показать ещё 60</button>}
             </div>
-          </section>
+          </Panel>
         </>}
         {tab === 'accessories' && <AccessoryBuilds items={catalogItems} onOpenCraft={setCraftModalItem}/>}
         {tab === 'notes' && <section className="notes-layout">
@@ -681,7 +681,7 @@ export default function App() {
         {tab === 'alchemy' && <section className="alchemy-page">
           <div className="alchemy-intro"><div><span className="eyebrow">CRAFTING COMPENDIUM</span><h2>Алхимия и полезные рецепты</h2><p>Подборка базовых боевых зелий для подготовки к боссам. Рецепты для версии Desktop 1.4.5.x.</p></div><div className="alchemy-station"><FlaskConical size={28}/><b>Алхимический стол</b><small>33% шанс не потратить каждый ингредиент</small></div></div>
           <div className="alchemy-filters"><input value={potionQuery} onChange={e=>setPotionQuery(e.target.value)} placeholder="Найти зелье или ингредиент..."/><select value={potionFilter} onChange={e=>setPotionFilter(e.target.value)}><option>Все</option><option>Бой</option><option>Защита</option><option>Исследование</option><option>Магия</option></select></div>
-          <div className="potion-grid">{potionRecipes.filter(recipe=>(potionFilter==='Все'||recipe.group===potionFilter)&&([recipe.name,recipe.effect,...recipe.ingredients].join(' ').toLowerCase().includes(potionQuery.toLowerCase()))).map(recipe=><article className="potion-card" key={recipe.name}><div className="potion-card-top"><span>{recipe.group}</span><small>{recipe.station}</small></div><div className="potion-card-title"><PotionItemIcon icon={potionImageFiles[recipe.name]} className="potion-art" label={recipe.name}/><div><h3>{recipe.name}</h3><p>{recipe.effect}</p></div></div><div className="potion-ingredients"><b>Ингредиенты</b>{recipe.ingredients.map(ingredient=><span className="potion-ingredient" key={ingredient}><PotionItemIcon icon={potionIngredientImages[ingredient]} className="potion-ingredient-art" label={ingredient}/><span>{ingredient}</span></span>)}</div><small className="potion-amount">Выход: {recipe.amount}</small></article>)}</div>
+          <div className="potion-grid">{potionRecipes.filter(recipe=>(potionFilter==='Все'||recipe.group===potionFilter)&&([recipe.name,recipe.effect,...recipe.ingredients].join(' ').toLowerCase().includes(potionQuery.toLowerCase()))).map(recipe=><Panel as="article" unstyled className="potion-card" key={recipe.name}><div className="potion-card-top"><span>{recipe.group}</span><small>{recipe.station}</small></div><div className="potion-card-title"><PotionItemIcon icon={potionImageFiles[recipe.name]} className="potion-art" label={recipe.name}/><div><h3>{recipe.name}</h3><p>{recipe.effect}</p></div></div><div className="potion-ingredients"><b>Ингредиенты</b>{recipe.ingredients.map(ingredient=><span className="potion-ingredient" key={ingredient}><PotionItemIcon icon={potionIngredientImages[ingredient]} className="potion-ingredient-art" label={ingredient}/><span>{ingredient}</span></span>)}</div><small className="potion-amount">Выход: {recipe.amount}</small></Panel>)}</div>
           <div className="alchemy-tips"><h3>Полезно знать</h3><ul><li>Алхимический стол находится в Данже и после победы над Скелетроном может быть получен также рыбалкой в Данже.</li><li>Алхимический стол даёт отдельный шанс 1/3 не потратить каждую единицу каждого ингредиента.</li><li>Колба алхимика заменяет алхимический стол и увеличивает длительность большинства эффектов зелий на 20%.</li><li>Колбы для оружия создаются не на алхимическом столе, а на станции для настоев (Imbuing Station).</li></ul><a href="https://terraria.wiki.gg/wiki/Alchemy" target="_blank" rel="noreferrer">Официальная Terraria Wiki: зелья и алхимия</a></div>
         </section>}
         {tab === 'progression' && <>
@@ -703,7 +703,7 @@ export default function App() {
               </select>
             </div>
             <div className="progression-analytics">
-              <section className="analytics-card stage-chart-card">
+              <Panel as="section" unstyled className="analytics-card stage-chart-card">
                 <div className="analytics-card-heading"><div><span className="eyebrow">STAGE OVERVIEW</span><h3>Готовность по этапам</h3></div><small>Получено / всего</small></div>
                 <div className="stage-chart">
                   {progressionStageGroups.map(({stage,items:stageItems}) => {
@@ -716,7 +716,7 @@ export default function App() {
                     </div>
                   })}
                 </div>
-              </section>
+              </Panel>
             </div>
           </section>
           <div className="class-tabs progression-class-tabs">
@@ -827,29 +827,29 @@ export default function App() {
         {tab === 'settings' && <>
           <div className="settings-layout">
             <div className="settings-column">
-            <section className="settings-section">
+            <Panel as="section" unstyled className="settings-section">
               <div className="settings-section-heading"><SlidersHorizontal size={19}/><div><h2>Игровой процесс</h2><p>Управление расчётом прогресса и отображением экипировки.</p></div></div>
               <label className="settings-row"><span><b>Скрывать более слабую экипировку</b><small>Не учитывать старое оружие и броню, если уже есть более сильная замена.</small></span><input type="checkbox" checked={hideWeakerGear} onChange={event => setHideWeakerGear(event.target.checked)}/></label>
-            </section>
-            <section className="settings-section">
+            </Panel>
+            <Panel as="section" unstyled className="settings-section">
               <div className="settings-section-heading"><BookOpen size={19}/><div><h2>Данные и сохранения</h2><p>Создание резервной копии и перенос прохождения.</p></div></div>
               <div className="settings-actions"><button type="button" className="small-button" onClick={exportProgress}><BookOpen size={15}/> Экспорт JSON</button><label className="small-button settings-file-button"><Search size={15}/> Импорт JSON<input type="file" accept="application/json,.json" onChange={importProgress} disabled={isRemoteMode}/></label></div>
               <div className="settings-warning"><b>Сброс прогресса</b><span>{isRemoteMode ? 'В сетевом режиме сброс недоступен — данные мира общие.' : 'Удаляет локальные отметки предметов и боссов.'}</span><Button size="sm" variant="danger" className="settings-danger" disabled={isRemoteMode} onClick={resetProgress} leadingIcon={<RotateCcw size={14}/>}>Сбросить прогресс</Button></div>
-            </section>
+            </Panel>
             </div>
             <div className="settings-column">
-            <section className="settings-section">
+            <Panel as="section" unstyled className="settings-section">
               <div className="settings-section-heading"><Settings size={19}/><div><h2>Интерфейс</h2><p>Настрой внешний вид под размер экрана.</p></div></div>
               <label className="settings-row"><span><b>Компактный режим</b><small>Уменьшает отступы и плотнее размещает карточки.</small></span><input type="checkbox" checked={compactMode} onChange={event => setCompactMode(event.target.checked)}/></label>
               <label className="settings-row"><span><b>Анимации</b><small>Отключает анимации и переходы интерфейса.</small></span><input type="checkbox" checked={animationsEnabled} onChange={event => setAnimationsEnabled(event.target.checked)}/></label>
               <label className="settings-scale"><span><b>Масштаб интерфейса</b><strong>{uiScale}%</strong></span><input type="range" min="90" max="110" step="5" value={uiScale} onChange={event => setUiScale(Number(event.target.value))}/><small>Изменяет базовый размер текста. Для мобильных устройств масштаб лучше оставить 100%.</small></label>
-            </section>
+            </Panel>
             </div>
             <div className="settings-footnote">Настройки интерфейса и фильтр экипировки сохраняются в этом браузере. Экспорт включает отметки предметов, боссов и основные предпочтения.</div>
           </div>
         </>}
         {tab === 'catalog' && <>
-          <section className="catalog-toolbar">
+          <Panel as="section" unstyled className="catalog-toolbar">
             <div className="catalog-toolbar-top">
               <div className="catalog-search"><Search size={18}/><input placeholder="Название, описание или эффект предмета..." value={query} onChange={e => setQuery(e.target.value)}/></div>
               <label className="catalog-sort"><span>Сортировка</span><select value={catalogSort} onChange={e => setCatalogSort(e.target.value as 'name' | 'stage' | 'status')}><option value="name">По названию</option><option value="stage">По этапу игры</option><option value="status">По статусу</option></select></label>
@@ -875,7 +875,7 @@ export default function App() {
               <div className="catalog-results"><b>{filtered.length.toLocaleString('ru-RU')}</b><span>из {catalogItems.length.toLocaleString('ru-RU')} предметов</span></div>
               {catalogFiltersActive && <button className="catalog-reset" onClick={resetCatalogFilters}><RotateCcw size={13}/> Сбросить</button>}
             </div>
-          </section>
+          </Panel>
           {filtered.length
             ? <div className="catalog-grid">{filtered.map(item => <CatalogItemCard key={item.id} item={item} status={statuses[item.id] || 'missing'} onStatus={setStatus} onCraft={setCraftModalItem} disabled={isRemoteMode && selected !== session?.player.id}/>)}</div>
             : <div className="catalog-empty"><Search size={25}/><b>Ничего не найдено</b><span>Измени запрос или сбрось фильтры.</span><button onClick={resetCatalogFilters}>Сбросить фильтры</button></div>}
@@ -931,7 +931,7 @@ function AuthScreen({ onSession }: { onSession: (session: TrackerSession) => voi
       setError(err instanceof Error ? err.message : 'Не удалось выполнить вход')
     } finally { setBusy(false) }
   }
-  return <div className="auth-shell"><form className="auth-card" onSubmit={submit}>
+  return <div className="auth-shell"><Panel as="form" unstyled className="auth-card" onSubmit={submit}>
     <div className="brand auth-brand"><div className="brand-mark">T</div><div><b>TERRARIA</b><small>PROGRESS TRACKER</small></div></div>
     <span className="eyebrow">MULTIPLAYER WORLD ACCESS</span><h1>{mode === 'create' ? 'Создать мир' : mode === 'join' ? 'Присоединиться' : 'Войти в мир'}</h1>
     <div className="auth-tabs"><button type="button" className={mode==='login'?'selected':''} onClick={()=>setMode('login')}>Вход</button><button type="button" className={mode==='join'?'selected':''} onClick={()=>setMode('join')}>Вступить</button><button type="button" className={mode==='create'?'selected':''} onClick={()=>setMode('create')}>Создать</button></div>
@@ -942,7 +942,7 @@ function AuthScreen({ onSession }: { onSession: (session: TrackerSession) => voi
     {error && <div className="auth-error">{error}</div>}
     <button className="gold-button auth-submit" disabled={busy}>{busy ? 'Подключение…' : mode === 'create' ? 'Создать мир' : mode === 'join' ? 'Вступить в мир' : 'Войти'}</button>
     <p className="auth-help">Сессия хранится в текущей вкладке браузера и автоматически истекает через 12 часов.</p>
-  </form></div>
+  </Panel></div>
 }
 
 function ItemArtwork({ item, className }: { item: Pick<Item, 'icon' | 'imageUrl'>; className: string }) {
