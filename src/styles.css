@@ -1487,3 +1487,246 @@ input, select, textarea {
     min-height: 38px;
   }
 }
+
+
+/* ==========================================================================
+   READABILITY PASS — keep pixel art in the artwork, not in body typography.
+   ========================================================================== */
+:root {
+  --font-ui: 'Inter', 'Roboto Condensed', Arial, sans-serif;
+  --font-pixel: 'Press Start 2P', monospace;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 15px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-display: 36px;
+}
+
+/* Pixel font is reserved for the logo. It is not suitable for long headings. */
+.page-heading h1,
+.section-title h2,
+.panel h2,
+.admin-panel-heading h2,
+.notes-editor .panel-head h2,
+.notes-board .panel-head h2,
+.settings-section-heading h2,
+.auth-card h1 {
+  font-family: var(--font-ui);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.admin-panel-heading h2 { font-size: 24px; }
+.notes-editor .panel-head h2,
+.notes-board .panel-head h2 { font-size: 20px; }
+
+body, button, input, select, textarea {
+  font-family: var(--font-ui);
+  letter-spacing: 0;
+}
+
+.eyebrow, .nav-label, .connection, .team-note-top {
+  letter-spacing: .04em;
+}
+
+.admin-panel {
+  padding: 24px;
+  border-radius: 4px;
+}
+
+.admin-panel-heading {
+  align-items: center;
+  padding-bottom: 18px;
+}
+
+.admin-panel-heading p,
+.admin-summary small,
+.admin-player-identity small {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.admin-summary {
+  padding: 18px 0;
+  gap: 12px;
+}
+
+.admin-summary>b {
+  font: 800 28px/1 var(--font-ui);
+}
+
+.admin-player-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  padding: 14px 8px;
+}
+
+.admin-player-identity {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.admin-player-identity b {
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.admin-player-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.admin-player-role {
+  font-size: 13px;
+}
+
+.admin-player-row .small-button {
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.notes-layout {
+  grid-template-columns: minmax(300px, .78fr) minmax(0, 1.55fr);
+  gap: 16px;
+}
+
+.notes-editor, .notes-board {
+  padding: 20px;
+  border-radius: 4px;
+}
+
+.notes-editor {
+  gap: 16px;
+}
+
+.notes-editor label {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.notes-editor input,
+.notes-editor textarea,
+.notes-editor select {
+  padding: 11px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 2px;
+}
+
+.notes-editor textarea {
+  min-height: 132px;
+}
+
+.notes-form-row { gap: 12px; }
+
+.notes-players {
+  gap: 8px;
+  padding: 12px;
+}
+
+.notes-players label {
+  min-height: 38px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.notes-filters { gap: 8px; }
+
+.notes-filters button {
+  min-height: 40px;
+  padding: 8px 13px;
+  font-size: 14px;
+  border-radius: 2px;
+}
+
+.notes-list {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 520px));
+  align-content: start;
+  gap: 12px;
+}
+
+.team-note {
+  padding: 16px;
+  background: #fff0cf !important;
+  color: #123c49;
+  border: 1px solid #c4b58f;
+  border-radius: 3px;
+  box-shadow: 2px 2px 0 #b9a77d;
+}
+
+.team-note-top {
+  color: #087d65;
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 800;
+}
+
+.team-note h3 {
+  margin: 10px 0 7px;
+  color: #123c49;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.team-note p {
+  color: #49636b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.team-note>small {
+  color: #647b80;
+  font-size: 12px;
+}
+
+.team-note-players span {
+  font-size: 12px;
+  padding: 5px 8px;
+}
+
+.team-note-actions {
+  padding-top: 12px;
+  gap: 8px;
+}
+
+.team-note-actions .small-button {
+  min-height: 36px;
+  padding: 7px 11px;
+  font-size: 12px;
+}
+
+.admin-role, .admin-player-role,
+.team-note-top, .team-note>small {
+  letter-spacing: 0;
+}
+
+@media (max-width: 900px) {
+  .notes-layout { grid-template-columns: 1fr; }
+  .notes-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 520px)); }
+}
+
+@media (max-width: 560px) {
+  .admin-panel { padding: 16px; }
+  .admin-player-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+  .admin-player-identity { grid-column: 1 / -1; }
+  .admin-player-role { justify-self: start; }
+  .admin-player-row .small-button { justify-self: stretch; }
+  .notes-editor, .notes-board { padding: 15px; }
+  .notes-form-row { grid-template-columns: 1fr; }
+  .notes-list { grid-template-columns: 1fr; }
+  .admin-panel-heading h2 { font-size: 21px; }
+}
