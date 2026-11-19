@@ -195,7 +195,7 @@ const textMap: Record<string, string> = {
 
 export const ruText = (value: string): string => textMap[value] || value
 export const ruClass = (value: GameClass): string => textMap[value] || value
-export const ruStage = (value: string): string => textMap[value] || (/^\\d+$/.test(value) ? 'Этап ' + value : value)
+export const ruStage = (value: string): string => textMap[value] || (value.trim() !== '' && Number.isInteger(Number(value)) ? 'Этап ' + value : value)
 export const ruBoss = (value: string): string => textMap[value] || value
 export const ruItem = (item: Pick<Item, 'name' | 'ru'>): string =>
   textMap[item.name] || item.ru?.trim() || ruText(item.name)
