@@ -518,6 +518,7 @@ export default function App() {
           statusForItem={itemId => statusForPlayer(player.id, itemId)}
           disabled={isRemoteMode && selected !== session?.player.id}
           onOpenCatalog={() => setTab('catalog')}
+          onOpenCraft={setCraftModalItem}
         />}
         {tab === 'companion' && <ProgressionCompanion
           playerName={player.name}
