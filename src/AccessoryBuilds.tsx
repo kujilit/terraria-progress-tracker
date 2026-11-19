@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { ExternalLink, GitBranch, Shield, Sparkles, Swords, Target } from 'lucide-react'
 import type { GameClass, Item } from './types'
 import { accessoryBuilds, classLabels } from './accessory-builds'
+import { Badge, Button, Panel, SectionHeading } from './components/ui'
 
 const classes: GameClass[] = ['Melee', 'Ranger', 'Mage', 'Summoner']
 const classIcons: Record<GameClass, string> = {
@@ -41,11 +42,11 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
 
   return <div className="accessory-page">
     <section className="accessory-intro">
-      <div>
-        <span className="eyebrow">LOADOUT LAB / MASTER MODE</span>
-        <h2>Сборки аксессуаров</h2>
-        <p>Подборки для четырёх классов: урон, специализация и выживаемость. У каждого предмета показан конкретный эффект, а не просто название.</p>
-      </div>
+      <SectionHeading
+        title="Сборки аксессуаров"
+        description="Подборки для четырёх классов: урон, специализация и выживаемость. У каждого предмета показан конкретный эффект, а не просто название."
+        className="accessory-intro-heading"
+      />
       <div className="accessory-intro-stat">
         <Shield size={19}/>
         <b>1.4.5.8</b>
@@ -79,7 +80,7 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
       </button>)}
     </div>
 
-    <section className="accessory-build-panel">
+    <Panel as="section" className="accessory-build-panel">
       <div className="accessory-build-head">
         <div>
           <span className="eyebrow">РЕКОМЕНДОВАННАЯ СБОРКА</span>
@@ -89,8 +90,8 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
         <div className="slot-picker">
           <span>Слоты аксессуаров</span>
           <div>
-            <button type="button" className={slotCount === 6 ? 'selected' : ''} onClick={() => setSlotCount(6)}>6</button>
-            <button type="button" className={slotCount === 7 ? 'selected' : ''} onClick={() => setSlotCount(7)}>7</button>
+            <Button size="sm" variant={slotCount === 6 ? 'primary' : 'secondary'} className={slotCount === 6 ? 'selected' : ''} onClick={() => setSlotCount(6)}>6</Button>
+            <Button size="sm" variant={slotCount === 7 ? 'primary' : 'secondary'} className={slotCount === 7 ? 'selected' : ''} onClick={() => setSlotCount(7)}>7</Button>
           </div>
           <small>{slotCount === 6 ? 'Master Mode без Demon Heart' : 'Master Mode + Demon Heart'}</small>
         </div>
@@ -100,7 +101,7 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
         {chosenItems.map((accessory, index) => {
           const catalogItem = itemIndex.get(normalizeName(accessory.name))
           const wikiUrl = 'https://terraria.wiki.gg/wiki/' + encodeURIComponent(accessory.name.replace(/ /g, '_'))
-          return <article className="accessory-card" key={accessory.name}>
+          return <Panel as="article" className="accessory-card" key={accessory.name}>
             <div className="accessory-slot">{index + 1}</div>
             <div className="accessory-art">
               {catalogItem?.imageUrl
@@ -110,7 +111,7 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
             <div className="accessory-details">
               <div className="accessory-name-row">
                 <h3>{catalogItem ? <button type="button" className="item-recipe-link" onClick={() => onOpenCraft(catalogItem)} title="Открыть дерево крафта">{accessory.name}<GitBranch size={13}/></button> : accessory.name}</h3>
-                <span className="accessory-role">{accessory.role}</span>
+                <Badge tone="info" className="accessory-role">{accessory.role}</Badge>
               </div>
               <p>{accessory.effect}</p>
               <div className="accessory-meta">
@@ -118,7 +119,7 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
                 <a href={wikiUrl} target="_blank" rel="noreferrer">Terraria Wiki <ExternalLink size={12}/></a>
               </div>
             </div>
-          </article>
+          </Panel>
         })}
       </div>
 
@@ -130,7 +131,7 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
         </div>
         <Sparkles size={17}/>
       </div>}
-    </section>
+    </Panel>
 
     <div className="accessory-notes">
       <div><Target size={17}/><span>Сборки ориентированы на позднюю игру и бои с боссами. Для ранних этапов меняй недоступные аксессуары на аналоги с тем же назначением.</span></div>
