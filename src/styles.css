@@ -1272,7 +1272,7 @@ footer{border-color:#394052;color:#9297b5}
   --space-12: 48px;
 
   /* Typography scale */
-  --font-ui: 'Roboto Condensed', sans-serif;
+  --font-ui: 'Inter', system-ui, sans-serif;
   --font-pixel: 'Press Start 2P', monospace;
   --text-xs: 10px;
   --text-sm: 12px;
@@ -1739,4 +1739,355 @@ h1, h2, h3, h4 {
 }
 .brand-mark {
   font-family: var(--font-pixel);
+}
+
+
+/* ==========================================================================
+   DESIGN SYSTEM — STAGE 2
+   Unified surfaces, readable contrast and responsive workspaces.
+   ========================================================================== */
+:root {
+  --color-text: #f3ead8;
+  --color-text-muted: #b5c3c8;
+  --color-text-subtle: #91a4ad;
+  --color-surface: #1b2d39;
+  --color-surface-raised: #223947;
+  --color-surface-inset: #13232e;
+  --color-border: #3b5360;
+  --color-border-strong: #58717d;
+  --panel-bg: #1b2d39;
+  --panel-border: #3b5360;
+  --control-bg: #13232e;
+  --control-border: #58717d;
+  --control-text: #f3ead8;
+}
+
+/* Consistent typography: pixel font is reserved for the brand mark. */
+:root, body, button, input, select, textarea {
+  font-family: var(--font-ui);
+  letter-spacing: normal;
+}
+.brand-mark { font-family: var(--font-pixel); }
+h1, h2, h3, h4, .page-heading h1, .panel h2,
+.section-title h2, .admin-panel-heading h2 {
+  font-family: var(--font-ui);
+  letter-spacing: -.025em;
+  line-height: 1.25;
+}
+.eyebrow, .nav-label, .version, .connection {
+  letter-spacing: .08em;
+}
+small, .muted, .page-heading p, .panel p,
+.item-details small, .goal-info small {
+  color: var(--color-text-muted);
+}
+
+/* Crafting: one coherent dark surface, no pale nodes with low-contrast text. */
+.craft-layout {
+  grid-template-columns: minmax(245px, 290px) minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+}
+.craft-picker {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 92px);
+  overflow: auto;
+  scrollbar-color: var(--pixel-stone-600) transparent;
+}
+.craft-search {
+  min-height: 42px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--color-text-muted);
+  padding: 10px 12px;
+}
+.craft-search input {
+  min-width: 0;
+  color: var(--color-text);
+}
+.craft-search-count {
+  color: var(--color-text-subtle);
+  font-size: 12px;
+  margin: 12px 0 8px;
+}
+.craft-choice {
+  min-height: 48px;
+  gap: 10px;
+  padding: 9px 7px;
+  border-top-color: #344b57;
+  color: var(--color-text-muted);
+}
+.craft-choice b {
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.craft-choice:hover, .craft-choice.selected {
+  color: var(--color-accent-strong);
+  background: #223947;
+}
+.craft-choice.selected {
+  box-shadow: inset 3px 0 var(--color-accent);
+}
+.tree-panel {
+  min-width: 0;
+  min-height: 520px;
+  padding: 20px;
+}
+.tree-panel > .panel-head {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 14px;
+}
+.tree-panel .panel-head h2 {
+  color: var(--color-text);
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+.tree-panel .panel-head .muted {
+  display: block;
+  margin-top: 5px;
+  color: var(--color-text-subtle);
+  font-size: 12px;
+}
+.recipe-select {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+.recipe-select select {
+  min-width: min(100%, 260px);
+  max-width: 100%;
+  min-height: 40px;
+  padding: 8px 34px 8px 10px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--color-text);
+}
+.tree-root {
+  overflow-x: auto;
+  padding: 12px 0 18px;
+}
+.tree-node { min-width: 0; }
+.tree-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  min-width: min(100%, 390px);
+  max-width: min(100%, 620px);
+  min-height: 52px;
+  padding: 9px 12px;
+  background: #223947;
+  border: 1px solid #47616e;
+  color: var(--color-text);
+  box-shadow: 0 2px 5px rgb(0 0 0 / 14%);
+}
+.tree-item.has-item {
+  background: #203d36;
+  border-color: #4f9878;
+}
+.tree-item > button:first-child {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  color: #10241f;
+  background: #5ad9a0;
+  border: 1px solid #80e8b8;
+  font-weight: 800;
+}
+.tree-item b, .tree-item .tree-recipe-link {
+  min-width: 0;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.tree-item .tree-recipe-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.tree-item .tree-recipe-link:hover {
+  color: var(--color-accent-strong);
+}
+.tree-item small {
+  flex: 0 0 auto;
+  color: #c3d0d2;
+  font-size: 11px;
+}
+.tree-children {
+  margin-left: 18px;
+  padding-left: 18px;
+  border-left: 1px solid #607b87;
+}
+.tree-branch:before {
+  left: -18px;
+  width: 18px;
+  border-color: #607b87;
+}
+.tree-item-art, .craft-choice-art {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+}
+.tree-item-art img, .craft-choice-art img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.tree-panel .notice {
+  margin-top: 18px;
+  background: #203b36;
+  border: 1px solid #477c69;
+  color: #d4e8dc;
+  line-height: 1.5;
+}
+.tree-panel .notice svg { color: #72d9a8; }
+
+/* Catalog, gear progression and class builds share readable card hierarchy. */
+.catalog-toolbar {
+  background: #1b2d39;
+  border-color: var(--color-border);
+}
+.catalog-card {
+  background: #1b2d39;
+  border-color: #3b5360;
+  box-shadow: none;
+}
+.catalog-card-body h3, .player-gear-main h3,
+.progression-stage-title b, .companion-node-copy h3 {
+  color: var(--color-text);
+}
+.catalog-card-ru, .player-gear-ru,
+.catalog-card-description, .player-gear-description,
+.player-gear-source, .progression-stage-title small,
+.companion-node-copy p {
+  color: var(--color-text-muted);
+}
+.catalog-card-tags span, .player-gear-tags span {
+  font-size: 10px;
+  line-height: 1.35;
+}
+.player-gear-grid { gap: 12px; }
+.player-gear-card {
+  background: #1b2d39;
+  border-color: #3b5360;
+  padding: 13px;
+}
+.player-gear-main h3 { font-size: 14px; }
+.player-gear-ru { font-size: 12px; }
+.player-gear-description { font-size: 12px; line-height: 1.5; }
+.player-gear-source { font-size: 10px; }
+.progression-stage {
+  background: #1b2d39;
+  border-color: #3b5360;
+}
+.progression-stage-title b { font-size: 14px; }
+.progression-stage-title small, .progression-stage-count { font-size: 11px; color: var(--color-text-muted); }
+.companion-hero {
+  background: linear-gradient(110deg, #1b3543, #203c3d);
+  border-color: #49636c;
+}
+.companion-hero p, .companion-section-intro p,
+.companion-node-copy p { color: var(--color-text-muted); }
+.companion-node-card, .companion-recommendation,
+.current-loadout-panel {
+  background: #1b2d39;
+  border-color: #3b5360;
+}
+
+/* Notes and administration: avoid light/dark text collisions. */
+.team-note, .notes-editor, .notes-board, .admin-panel {
+  color: var(--color-text);
+}
+.team-note {
+  background: #1b2d39 !important;
+  border: 1px solid #3b5360;
+}
+.team-note h3, .team-note b, .team-note strong { color: var(--color-text); }
+.team-note p, .team-note small { color: var(--color-text-muted); }
+.notes-editor, .notes-board, .admin-panel {
+  background: #1b2d39;
+  border-color: #3b5360;
+}
+.notes-editor label, .notes-board h2,
+.admin-panel-heading h2 { color: var(--color-text); }
+
+/* Shared form and button contrast. */
+input::placeholder, textarea::placeholder {
+  color: #91a4ad;
+  opacity: 1;
+}
+button, select, input, textarea { font-size: inherit; }
+button:focus-visible, select:focus-visible,
+input:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--pixel-gold-300);
+  outline-offset: 2px;
+}
+.small-button, .catalog-filter-chips button,
+.player-switch button, .class-tabs button,
+.companion-tabs button {
+  min-height: 38px;
+  color: var(--color-text);
+  background: #223947;
+  border: 1px solid #58717d;
+  font-size: 12px;
+  font-weight: 600;
+}
+.small-button:hover, .catalog-filter-chips button:hover,
+.player-switch button:hover, .class-tabs button:hover,
+.companion-tabs button:hover {
+  border-color: var(--pixel-gold-300);
+  color: var(--pixel-gold-300);
+}
+.gold-button {
+  min-height: 40px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Desktop density and mobile stacking. */
+@media (min-width: 1400px) {
+  .content { max-width: 1600px; }
+  .catalog-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 1050px) {
+  .craft-layout { grid-template-columns: minmax(220px, 260px) minmax(0, 1fr); }
+  .tree-panel { padding: 16px; }
+}
+@media (max-width: 700px) {
+  .craft-layout { grid-template-columns: minmax(0, 1fr); }
+  .craft-picker {
+    position: static;
+    max-height: 320px;
+    width: 100%;
+  }
+  .tree-panel { min-height: 360px; padding: 14px; }
+  .tree-item {
+    min-width: 0;
+    width: max-content;
+    max-width: min(88vw, 520px);
+    flex-wrap: wrap;
+  }
+  .tree-item small { white-space: normal; }
+  .tree-children { margin-left: 10px; padding-left: 12px; }
+  .tree-branch:before { left: -12px; width: 12px; }
+  .player-gear-grid { grid-template-columns: minmax(0, 1fr); }
+  .progression-stage > summary {
+    grid-template-columns: minmax(0, 1fr) auto 18px;
+    gap: 8px;
+  }
+  .progression-stage-track { grid-column: 1 / 2; }
+  .progression-stage-count { grid-column: 2 / 3; }
 }
