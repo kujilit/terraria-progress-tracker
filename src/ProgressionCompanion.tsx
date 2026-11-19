@@ -20,6 +20,19 @@ type Props = {
 }
 
 const classNames: Record<GameClass, string> = { Melee: 'Ближний бой', Ranger: 'Стрелок', Mage: 'Маг', Summoner: 'Призыватель' }
+const bossMilestone: Record<string, string> = {
+  eye: 'Старт прохождения',
+  eater: 'После Глаза Ктулху',
+  skeletron: 'После босса Порчи или Багрянца',
+  wof: 'После Скелетрона',
+  destroyer: 'Первый механический босс',
+  twins: 'Механический этап',
+  skeletron_prime: 'Механический этап',
+  plantera: 'После всех механических боссов',
+  golem: 'После Плантеры',
+  cultist: 'После Голема',
+  moon_lord: 'После Лунатик-культиста',
+}
 const category = (value: string) => {
   const v = value.toLowerCase()
   if (v.includes('weapon') || v.includes('оруж')) return 'weapon'
@@ -126,7 +139,7 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
           return <Panel as="article" className={`companion-boss-node ${defeated ? 'defeated' : current ? 'current' : 'locked'}`} key={boss.id}>
             <div className="companion-node-rail"><span>{defeated ? <Check size={15}/> : index + 1}</span>{index < list.length - 1 && <i/>}</div>
             <div className="companion-node-card">
-              <div className="companion-node-copy"><span className="eyebrow">{ruStage(boss.stage)} · ЭТАП {index + 1}</span><h3>{ruBoss(boss.name)}</h3><p>{defeated ? 'Победа зафиксирована' : unlocked ? 'Доступен для сражения' : 'Сначала победите предыдущих боссов'}</p></div>
+              <div className="companion-node-copy"><span className="eyebrow">ЭТАП {index + 1} · {bossMilestone[boss.id] || ruStage(boss.stage)}</span><h3>{ruBoss(boss.name)}</h3><p>{defeated ? 'Победа зафиксирована' : unlocked ? 'Доступен для сражения' : 'Сначала победите предыдущих боссов'}</p></div>
               <div className="companion-node-actions"><Badge tone={defeated ? 'success' : current ? 'warning' : 'neutral'}>{defeated ? 'Побеждён' : unlocked ? 'Открыт' : 'Закрыт'}</Badge><Button size="sm" variant={defeated ? 'secondary' : 'primary'} disabled={disabled || !unlocked && !defeated} onClick={() => onBossStatus(boss.id, defeated ? 'pending' : 'defeated')}>{defeated ? 'Отменить' : 'Побеждён'}</Button><Button size="sm" variant="ghost" className="companion-detail-button" onClick={() => { setSelectedBoss(boss.id); setSection('boss') }}>Подготовка <ArrowRight size={13}/></Button></div>
             </div>
           </Panel>
@@ -139,7 +152,7 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
           const unlocked = boss.requires.every(required => bossStatus(required) === 'defeated')
           return <Panel as="article" className={`companion-boss-node optional ${defeated ? 'defeated' : unlocked ? 'current' : 'locked'}`} key={boss.id}>
             <div className="companion-node-card">
-              <div className="companion-node-copy"><span className="eyebrow">{ruStage(boss.stage)} · ДОПОЛНИТЕЛЬНО</span><h3>{ruBoss(boss.name)}</h3><p>{defeated ? 'Победа зафиксирована' : unlocked ? 'Можно сразиться в любой момент' : 'Откроется по ходу прохождения'}</p></div>
+              <div className="companion-node-copy"><span className="eyebrow">ДОПОЛНИТЕЛЬНО · {ruStage(boss.stage)}</span><h3>{ruBoss(boss.name)}</h3><p>{defeated ? 'Победа зафиксирована' : unlocked ? 'Можно сразиться в любой момент' : 'Откроется по ходу прохождения'}</p></div>
               <div className="companion-node-actions"><Badge tone={defeated ? 'success' : unlocked ? 'warning' : 'neutral'}>{defeated ? 'Побеждён' : unlocked ? 'Доступен' : 'Позже'}</Badge><Button size="sm" variant={defeated ? 'secondary' : 'primary'} disabled={disabled || !unlocked && !defeated} onClick={() => onBossStatus(boss.id, defeated ? 'pending' : 'defeated')}>{defeated ? 'Отменить' : 'Побеждён'}</Button><Button size="sm" variant="ghost" className="companion-detail-button" onClick={() => { setSelectedBoss(boss.id); setSection('boss') }}>Подготовка <ArrowRight size={13}/></Button></div>
             </div>
           </Panel>
