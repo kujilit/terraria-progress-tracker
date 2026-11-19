@@ -111,7 +111,7 @@ export function AccessoryBuilds({ items, onOpenCraft }: { items: Item[]; onOpenC
             </div>
             <div className="accessory-details">
               <div className="accessory-name-row">
-                <h3>{catalogItem ? <button type="button" className="item-recipe-link" onClick={() => onOpenCraft(catalogItem)} title="Открыть дерево крафта">{catalogItem ? ruItem(catalogItem) : ruText(accessory.name)}<GitBranch size={13}/></button> : ruText(accessory.name)}</h3>
+                <h3>{catalogItem ? <button type="button" className="item-recipe-link" onClick={() => onOpenCraft(catalogItem)} title="Открыть дерево крафта">{catalogItem ? ruItem(catalogItem) : accessory.ru}<GitBranch size={13}/></button> : ruText(accessory.name)}</h3>
                 <Badge tone="info" className="accessory-role">{ruText(accessory.role)}</Badge>
               </div>
               <p>{accessory.effect}</p>
