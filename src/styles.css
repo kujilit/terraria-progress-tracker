@@ -1230,3 +1230,260 @@ footer{border-color:#394052;color:#9297b5}
 .potion-art{width:48px;height:48px;filter:none}
 .potion-ingredient-art{width:24px;height:24px}
 .potion-ingredient{display:flex;align-items:center;gap:8px;min-height:28px}
+
+
+/* ==========================================================================
+   TERRARIA DESIGN SYSTEM
+   Primitive → semantic → component tokens. Keep pixel-art styling intentional.
+   ========================================================================== */
+:root {
+  /* 1. Primitive palette */
+  --pixel-night-950: #0b1219;
+  --pixel-night-900: #101a24;
+  --pixel-night-850: #14222d;
+  --pixel-night-800: #192a35;
+  --pixel-night-750: #203442;
+  --pixel-night-700: #293f4d;
+  --pixel-stone-600: #405663;
+  --pixel-stone-500: #607783;
+  --pixel-stone-400: #879da6;
+  --pixel-paper-100: #f6ead1;
+  --pixel-paper-200: #e8d2a2;
+  --pixel-gold-300: #f0c879;
+  --pixel-gold-500: #d3a15a;
+  --pixel-gold-700: #94652f;
+  --pixel-green-400: #9bd3a6;
+  --pixel-green-700: #477653;
+  --pixel-blue-300: #8fc4df;
+  --pixel-blue-700: #456b80;
+  --pixel-red-300: #f0b3a5;
+  --pixel-red-800: #482c2a;
+  --pixel-violet-400: #b5a0f4;
+
+  /* Spacing scale (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Typography scale */
+  --font-ui: 'Roboto Condensed', sans-serif;
+  --font-pixel: 'Press Start 2P', monospace;
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-md: 14px;
+  --text-lg: 17px;
+  --text-xl: 21px;
+  --text-2xl: 28px;
+  --text-display: 34px;
+
+  /* Shape and elevation */
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 7px;
+  --shadow-panel: inset 0 0 0 2px var(--pixel-night-850), 0 5px 16px rgb(0 0 0 / 18%);
+  --shadow-popover: 0 18px 48px rgb(0 0 0 / 42%);
+  --motion-fast: 120ms;
+  --motion-normal: 180ms;
+  --motion-slow: 260ms;
+
+  /* 2. Semantic tokens */
+  --color-canvas: var(--pixel-night-950);
+  --color-background: var(--pixel-night-900);
+  --color-surface: var(--pixel-night-800);
+  --color-surface-raised: var(--pixel-night-750);
+  --color-surface-inset: var(--pixel-night-850);
+  --color-border: #344955;
+  --color-border-strong: var(--pixel-stone-600);
+  --color-text: var(--pixel-paper-100);
+  --color-text-muted: #8fa2ac;
+  --color-text-subtle: #718692;
+  --color-accent: var(--pixel-gold-500);
+  --color-accent-strong: var(--pixel-gold-300);
+  --color-accent-contrast: #211d18;
+  --color-success: var(--pixel-green-400);
+  --color-success-surface: #1c352b;
+  --color-info: var(--pixel-blue-300);
+  --color-info-surface: #1e3441;
+  --color-warning: var(--pixel-gold-300);
+  --color-warning-surface: #382e20;
+  --color-danger: var(--pixel-red-300);
+  --color-danger-surface: var(--pixel-red-800);
+  --color-focus: var(--pixel-gold-300);
+
+  /* 3. Component tokens */
+  --panel-bg: var(--color-surface);
+  --panel-border: var(--color-border);
+  --panel-padding: var(--space-4);
+  --panel-shadow: var(--shadow-panel);
+  --control-bg: var(--color-surface-inset);
+  --control-border: var(--color-border-strong);
+  --control-text: var(--color-text);
+  --control-focus: var(--color-focus);
+  --button-primary-bg: var(--color-accent);
+  --button-primary-text: var(--color-accent-contrast);
+  --button-primary-border: var(--pixel-gold-700);
+  --button-secondary-bg: var(--color-surface-raised);
+  --button-secondary-text: var(--color-text);
+  --button-secondary-border: var(--color-border-strong);
+  --card-bg: var(--color-surface);
+  --card-border: var(--color-border);
+  --card-hover-border: var(--color-accent);
+}
+
+:root {
+  color-scheme: dark;
+  font-family: var(--font-ui);
+  color: var(--color-text);
+  background: var(--color-background);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 75% 0%, #1a2c3c 0%, var(--color-background) 45%, var(--color-canvas) 100%);
+  color: var(--color-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  color: var(--color-accent-contrast);
+  background: var(--color-accent-strong);
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+button:disabled, select:disabled, input:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+input, select, textarea {
+  color: var(--control-text);
+  background: var(--control-bg);
+  border-color: var(--control-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* Consistent semantic surfaces across existing feature screens. */
+.panel, .stat-card, .player-card, .item-card, .boss-card,
+.catalog-toolbar, .settings-section, .analytics-card,
+.team-note, .potion-card, .companion-target-card,
+.companion-recommendation, .current-loadout-panel {
+  background-color: var(--panel-bg);
+  border-color: var(--panel-border);
+}
+
+.panel, .catalog-toolbar, .settings-section, .analytics-card {
+  box-shadow: var(--panel-shadow);
+}
+
+.nav-item, .text-button, .small-button, .player-switch button,
+.class-tabs button, .catalog-filter-chips button {
+  transition:
+    color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
+}
+
+.nav-item:focus-visible, .text-button:focus-visible,
+.small-button:focus-visible, .gold-button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.gold-button {
+  background: linear-gradient(180deg, var(--pixel-gold-300), var(--color-accent));
+  border-color: var(--button-primary-border);
+  color: var(--button-primary-text);
+}
+
+.gold-button:hover:not(:disabled) {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+
+.gold-button:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 var(--pixel-gold-700);
+}
+
+.search-bar, .catalog-search, .inventory-form input,
+.inventory-form select, .transfer-form input, .transfer-form select,
+.settings-row input, .settings-row select, .notes-editor input,
+.notes-editor textarea, .notes-editor select {
+  background: var(--control-bg);
+  border-color: var(--control-border);
+  color: var(--control-text);
+}
+
+.search-bar:focus-within, .catalog-search:focus-within {
+  border-color: var(--control-focus);
+  box-shadow: 0 0 0 2px rgb(240 200 121 / 15%);
+}
+
+.state.owned {
+  color: var(--color-success);
+  border-color: var(--pixel-green-700);
+  background: var(--color-success-surface);
+}
+
+.state.crafting {
+  color: var(--color-info);
+  border-color: var(--pixel-blue-700);
+  background: var(--color-info-surface);
+}
+
+.state.planned {
+  color: var(--color-warning);
+  border-color: #80653d;
+  background: var(--color-warning-surface);
+}
+
+.auth-error, .settings-danger, .sync-error {
+  color: var(--color-danger);
+  border-color: #9c5548;
+  background: var(--color-danger-surface);
+}
+
+/* Better keyboard and touch ergonomics without changing the pixel identity. */
+@media (hover: hover) {
+  .player-card:hover, .item-card:hover, .boss-card:hover,
+  .stage-card:hover, .analytics-card:hover {
+    border-color: var(--card-hover-border);
+  }
+}
+
+@media (max-width: 700px) {
+  .nav-item { min-height: 42px; }
+  .gold-button, .small-button, .player-switch button,
+  .class-tabs button, .catalog-filter-chips button {
+    min-height: 38px;
+  }
+}
