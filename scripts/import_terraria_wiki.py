@@ -515,6 +515,9 @@ def classify_item(row: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     classes, assignment = extract_class_tags(row, categories)
+    if name.casefold() == "shield of cthulhu":
+        classes = list(CLASSES)
+        assignment = "shared-equipment-default"
     armor_meta = ARMOR_PIECE_INDEX.get(item_lookup_key(name)) if "armor" in categories else None
     if armor_meta:
         classes = list(armor_meta["classes"])
