@@ -950,14 +950,14 @@ function PlayerArmorSetCard({ set, items, allItems, matchedCount, statusForItem,
   }).length
   const hiddenCount = set.pieces.length - visiblePieces.length
 
-  return <article className="player-armor-set-card">
+  return <Panel as="article" className="player-armor-set-card">
     <header className="player-armor-set-head">
       <div>
         <span className="eyebrow">КОМПЛЕКТ БРОНИ · {stageLabel(set.stage)}</span>
         <h3>{set.name}</h3>
         <div className="player-armor-set-classes">{set.classes.map(gameClass => <span key={gameClass}>{classNames[gameClass]}</span>)}</div>
       </div>
-      <span className="player-armor-set-count">{collectedCount}/{set.pieces.length} <small>получено</small></span>
+      <Badge tone={collectedCount === set.pieces.length ? 'success' : 'info'}>{collectedCount}/{set.pieces.length} получено</Badge>
     </header>
     {set.bonuses.length > 0 && <div className="player-armor-bonuses">
       <span className="player-armor-block-label">Суммарные бонусы частей комплекта</span>
@@ -980,7 +980,7 @@ function PlayerArmorSetCard({ set, items, allItems, matchedCount, statusForItem,
             <span className="player-armor-piece-slot">{piece.slot}</span>
             <button type="button" className="item-recipe-link armor-recipe-link" onClick={() => onCraft(item)} title="Открыть дерево крафта">{item.name}<GitBranch size={12}/></button>
             {effect && <small>{effect}</small>}
-            <span className={'state ' + status}>{labels[status]}</span>
+            <Badge tone={status === 'owned' ? 'success' : status === 'crafting' ? 'info' : status === 'planned' ? 'warning' : status === 'skipped' ? 'neutral' : 'danger'}>{labels[status]}</Badge>
           </div>
           <select value={status} disabled={disabled} onChange={event => onStatus(item.id, event.target.value as ItemStatus)} aria-label={'Статус ' + item.name}>
             <option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option>
@@ -1012,7 +1012,7 @@ function PlayerGearCard({ item, status, onStatus, onCraft, disabled = false }: {
     missing: 'Не получен', skipped: 'Пропущен',
   }
   const description = cleanWikiText(item.equipmentEffect || item.description)
-  return <article className="player-gear-card">
+  return <Panel as="article" className="player-gear-card">
     <ItemArtwork item={item} className="player-gear-art"/>
     <div className="player-gear-main">
       <div className="player-gear-tags"><span>{categoryLabel(item.category)}</span><span>{stageLabel(item.stage)}</span></div>
@@ -1033,7 +1033,7 @@ function PlayerGearCard({ item, status, onStatus, onCraft, disabled = false }: {
         </select>
       </div>
     </div>
-  </article>
+  </Panel>
 }
 
 function cleanWikiText(value: string | null | undefined): string {
