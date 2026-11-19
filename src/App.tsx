@@ -174,7 +174,7 @@ export default function App() {
         const ownMember = members.find(member => member.id === session.player.id)
         if (ownMember && ownMember.role !== session.player.role) {
           const updatedSession = { ...session, player: ownMember }
-          sessionStorage.setItem('terraria-tracker-session', JSON.stringify(updatedSession))
+          localStorage.setItem('terraria-tracker-session', JSON.stringify(updatedSession))
           setSession(updatedSession)
         }
         setRemoteProgress(progressRows)
@@ -292,13 +292,13 @@ export default function App() {
   const saveTeamNote = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if ((isRemoteMode && !session) || !noteTitle.trim()) return; try { const saved=await trackerApi.saveNote(noteToken,{id:editingNote,title:noteTitle,body:noteBody,status:noteStatus,priority:notePriority,playerIds:notePlayers}); setTeamNotes(current=>[...current.filter(note=>note.id!==saved.id),saved]); resetNoteForm(); setSyncError('') } catch(error) { setSyncError(error instanceof Error?error.message:'Не удалось сохранить заметку') } }
   const deleteTeamNote = async (id:string) => { if((isRemoteMode && !session) || !window.confirm('Удалить заметку?')) return; try { await trackerApi.deleteNote(noteToken,id); setTeamNotes(current=>current.filter(note=>note.id!==id)); if(editingNote===id) resetNoteForm() } catch(error) { setSyncError(error instanceof Error?error.message:'Не удалось удалить заметку') } }
   const handleSession = (next: TrackerSession) => {
-    sessionStorage.setItem('terraria-tracker-session',JSON.stringify(next))
+    localStorage.setItem('terraria-tracker-session',JSON.stringify(next))
     setSession(next)
     setSelected(next.player.id)
   }
   const handleLogout = async () => {
     if (session) { try { await trackerApi.logout(session.token) } catch { /* local session is still cleared */ } }
-    sessionStorage.removeItem('terraria-tracker-session')
+    localStorage.removeItem('terraria-tracker-session')
     setSession(null); setRemotePlayers([]); setRemoteProgress([]); setRemoteBosses([]); setRemoteInventory([])
   }
 
@@ -691,11 +691,11 @@ export default function App() {
 
 function loadSession(): TrackerSession | null {
   try {
-    const raw = sessionStorage.getItem('terraria-tracker-session')
+    const raw = localStorage.getItem('terraria-tracker-session')
     if (!raw) return null
     const value = JSON.parse(raw) as TrackerSession
-    if (!value.token || new Date(value.expiresAt).getTime() <= Date.now()) {
-      sessionStorage.removeItem('terraria-tracker-session')
+    if (!value.token) {
+      localStorage.removeItem('terraria-tracker-session')
       return null
     }
     return value
@@ -734,7 +734,7 @@ function AuthScreen({ onSession }: { onSession: (session: TrackerSession) => voi
     {mode !== 'login' && <label>Класс персонажа<select value={gameClass} onChange={e=>setGameClass(e.target.value as GameClass)}><option value="Melee">Ближний бой</option><option value="Ranger">Стрелок</option><option value="Mage">Маг</option><option value="Summoner">Призыватель</option></select></label>}
     {error && <div className="auth-error">{error}</div>}
     <button className="gold-button auth-submit" disabled={busy}>{busy ? 'Подключение…' : mode === 'create' ? 'Создать мир' : mode === 'join' ? 'Вступить в мир' : 'Войти'}</button>
-    <p className="auth-help">Сессия хранится в текущей вкладке браузера и автоматически истекает через 12 часов.</p>
+    <p className="auth-help">Сессия не истекает автоматически и сохраняется между перезапусками браузера. Для завершения нажмите «Выйти».</p>
   </Panel></div>
 }
 
