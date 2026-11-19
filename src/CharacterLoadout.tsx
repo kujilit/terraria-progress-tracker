@@ -16,7 +16,7 @@ const slots: { id: Slot; label: string; category: string }[] = [
 ]
 const category = (value: string) => value.toLowerCase().includes('armor') || value.toLowerCase().includes('брон') ? 'armor'
   : value.toLowerCase().includes('weapon') || value.toLowerCase().includes('оруж') ? 'weapon'
-  : value.toLowerCase().includes('accessory') || value.toLowerCase().includes('аксесс') ? 'accessory' : value.toLowerCase()
+  : value.toLowerCase().includes('accessory') || value.toLowerCase().includes('аксесс') ? 'accessory' : value.toLowerCase().includes('summon') || value.toLowerCase().includes('призыв') ? 'weapon' : value.toLowerCase()
 const stageRank = (stage: string) => /^\d+$/.test(stage) ? Number(stage) : Math.max(1, getItemStageRank(stage) + 1)
 const stageTitle = (gameClass: Player['gameClass'], stage: string) => /^\d+$/.test(stage) ? (classStages[gameClass].find(entry => entry.id.endsWith('-' + stage))?.title || 'Этап ' + stage) : ({ 'Pre-Hardmode': 'До хардмода', Hardmode: 'Хардмод', 'Post-Mechanical': 'После механических боссов', 'Post-Plantera': 'После Плантеры', 'Post-Golem': 'После Голема', 'Post-Moon Lord': 'Финальный этап' } as Record<string, string>)[stage] || stage
 const armorSlotFor = (value: string): Slot | null => { const v = value.toLowerCase(); if (v.includes('head') || v.includes('голов') || v.includes('шлем')) return 'head'; if (v.includes('leg') || v.includes('ног') || v.includes('понож')) return 'legs'; if (v.includes('body') || v.includes('chest') || v.includes('тел') || v.includes('нагруд')) return 'body'; return null }
@@ -44,27 +44,29 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
     (slot.category !== 'armor' || !armorSlot.has(item.name) || armorSlot.get(item.name) === slot.id))
     .sort((a, b) => stageRank(a.stage) - stageRank(b.stage) || a.name.localeCompare(b.name))
   const equipped = new Set(Object.values(loadout).filter(Boolean))
+  const recommendationIds = new Set<string>()
   const recommendations = slots.map(slot => {
     const current = itemFor(loadout[slot.id])
-    const currentRank = current ? stageRank(current.stage) : 0
-    const next = options(slot).filter(item => !equipped.has(item.id) && !['owned', 'skipped'].includes(statusForItem(item.id)))
-      .filter(item => !current || stageRank(item.stage) > currentRank)
+    const ownedRank = options(slot).filter(item => statusForItem(item.id) === 'owned')
+      .reduce((rank, item) => Math.max(rank, stageRank(item.stage)), 0)
+    const baselineRank = Math.max(current ? stageRank(current.stage) : 0, ownedRank)
+    const next = options(slot).filter(item => !equipped.has(item.id) && !recommendationIds.has(item.id) && !['owned', 'skipped'].includes(statusForItem(item.id)))
+      .filter(item => stageRank(item.stage) > baselineRank)
       .sort((a, b) => stageRank(a.stage) - stageRank(b.stage) || a.name.localeCompare(b.name))[0]
+    if (next) recommendationIds.add(next.id)
     return next ? { ...next, slotLabel: slot.label, status: statusForItem(next.id) } : null
   }).filter((item): item is NonNullable<typeof item> => Boolean(item))
     .sort((a, b) => stageRank(a.stage) - stageRank(b.stage)).slice(0, 6)
-  const owned = classItems.filter(item => statusForItem(item.id) === 'owned' && category(item.category) !== 'material').length
-  const total = classItems.filter(item => category(item.category) !== 'material').length
-  const progress = total ? Math.round(owned / total * 100) : 0
+  const equippedCount = Object.values(loadout).filter(Boolean).length
 
   return <section className="character-loadout-page">
     <header className="character-loadout-header">
       <div><span className="eyebrow">ПЕРСОНАЖ / ЭКИПИРОВКА</span><h2>{player.name}</h2><p>{player.gameClass === 'Melee' ? 'Ближний бой' : player.gameClass === 'Ranger' ? 'Стрелок' : player.gameClass === 'Mage' ? 'Маг' : 'Призыватель'} · Текущие слоты и дальнейшее развитие</p></div>
-      <div className="character-progress"><b>{progress}%</b><span>экипировки получено</span><div><i style={{ width: progress + '%' }}/></div></div>
+      <div className="character-progress"><b>{equippedCount}/7</b><span>слотов заполнено</span><div><i style={{ width: (equippedCount / 7 * 100) + '%' }}/></div></div>
     </header>
     <div className="character-loadout-grid">
       <section className="character-equipment-panel">
-        <div className="character-panel-title"><div><span className="eyebrow">CURRENT LOADOUT</span><h3>Текущая экипировка</h3></div><span>{Object.values(loadout).filter(Boolean).length}/7 слотов</span></div>
+        <div className="character-panel-title"><div><span className="eyebrow">CURRENT LOADOUT</span><h3>Текущая экипировка</h3></div><span>{equippedCount}/7 слотов</span></div>
         <div className="character-stage">
           <div className="character-silhouette">
             <svg viewBox="0 0 180 250" role="img" aria-label="Пиксельный персонаж Terraria">
