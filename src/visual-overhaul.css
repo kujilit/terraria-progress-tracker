@@ -290,3 +290,34 @@ footer { border-top-color: #3b515b; }
     animation-iteration-count: 1 !important;
   }
 }
+
+
+/* Readability correction: prioritize legible type over decorative treatment. */
+body { color: #f1f3ed; }
+p, li, label, input, select, textarea { color: #e5ece9; }
+small, .muted, .eyebrow, .crumb, .version, .filter-row,
+.item-details small, .goal-info small, .boss-card small,
+.stage-main small, .player-card small, .stat-card small,
+.profile-percent small, .tree-item small {
+  color: #b8c7c9;
+}
+.eyebrow, .crumb, .version, .nav-label, .connection,
+footer { letter-spacing: .6px; }
+.eyebrow { font-size: 11px; }
+.nav-label { font-size: 11px; color: #a8b9bd; }
+.crumb { font-size: 12px; }
+.connection { font-size: 11px; }
+footer { font-size: 11px; color: #a8b9bd; }
+.muted, .item-details small, .goal-info small, .boss-card small,
+.stage-main small, .player-card small, .stat-card small,
+.profile-percent small, .tree-item small { font-size: 12px; }
+.page-heading p, .hero-panel p { color: #d0dddc; }
+.hero-stats { color: #c8d7d4; font-size: 12px; }
+.panel-head { color: #f0c979; }
+.state { color: #d2dddc; }
+.notice { color: #e0e9e6; }
+.tree-item small { color: #d0dddc; }
+.search-bar { color: #d0dddc; }
+.search-bar input { color: #f1f3ed; }
+.topbar { background: #101d25f2; }
+.hero-panel:after { display: none; }
