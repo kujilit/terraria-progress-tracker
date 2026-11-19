@@ -2432,3 +2432,7 @@ input:focus-visible, textarea:focus-visible {
   .roadmap-node-art{width:36px;height:36px}
   .roadmap-node-status{grid-column:3;justify-self:start}
 }
+
+/* Equipment picker search */
+.terraria-picker-search{display:block;width:100%;min-height:34px;margin:0 0 7px;padding:7px 9px;color:#e5e9e5;background:#0c1a23;border:1px solid #607783;font:inherit;font-size:11px;outline-offset:2px}
+.terraria-picker-search::placeholder{color:#8fa2aa}
