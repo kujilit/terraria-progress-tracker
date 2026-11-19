@@ -41,7 +41,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
   }, [player.gameClass])
   const itemFor = (id: string) => classItems.find(item => item.id === id)
   const options = (slot: typeof slots[number]) => classItems.filter(item => category(item.category) === slot.category &&
-    (slot.category !== 'armor' || !armorSlot.has(item.name) || armorSlot.get(item.name) === slot.id))
+    (slot.category !== 'armor' || armorSlot.get(item.name) === slot.id))
     .sort((a, b) => stageRank(a.stage) - stageRank(b.stage) || a.name.localeCompare(b.name))
   const equipped = new Set(Object.values(loadout).filter(Boolean))
   const recommendationIds = new Set<string>()
