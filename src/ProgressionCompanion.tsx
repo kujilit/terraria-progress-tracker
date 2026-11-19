@@ -68,20 +68,27 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
   const owned = classGear.filter(item => statusForItem(item.id) === 'owned')
   // Progression gates are derived from this character's actual boss victories.
   const defeated = (id: string) => bossStatus(id) === 'defeated'
-  const allMechsDefeated = ['destroyer', 'twins', 'skeletron_prime'].every(defeated)
-  const currentUnlockRank = !defeated('wof') ? 0
-    : !allMechsDefeated ? 1
-    : !defeated('plantera') ? 2
-    : !defeated('golem') ? 3
-    : !defeated('moon_lord') ? 4 : 5
+  const mechanicalBosses = ['destroyer', 'twins', 'skeletron_prime']
+  const defeatedMechs = mechanicalBosses.filter(defeated).length
+  const currentUnlockRank = !defeated('wof') ? 5
+    : defeatedMechs === 0 ? 6
+    : defeatedMechs === 1 ? 7
+    : defeatedMechs === 2 ? 8
+    : !defeated('plantera') ? 9
+    : !defeated('golem') ? 10
+    : !defeated('cultist') ? 11
+    : !defeated('moon_lord') ? 12 : 13
   const isItemUnlocked = (item: Item) => {
     const rank = getItemStageRank(item.stage)
     return rank < 0 || rank <= currentUnlockRank
   }
   const nextUnlockHint = !defeated('wof') ? 'Победите Стену плоти'
-    : !allMechsDefeated ? 'Победите Разрушителя, Близнецов и Скелетрона Прайма'
+    : defeatedMechs === 0 ? 'Победите первого механического босса'
+    : defeatedMechs === 1 ? 'Победите второго механического босса'
+    : defeatedMechs === 2 ? 'Победите третьего механического босса'
     : !defeated('plantera') ? 'Победите Плантеру'
     : !defeated('golem') ? 'Победите Голема'
+    : !defeated('cultist') ? 'Победите Лунатик-культиста'
     : !defeated('moon_lord') ? 'Победите Лунного лорда' : ''
   const lockedRecommendations = classGear
     .filter(item => !['owned', 'skipped'].includes(statusForItem(item.id)) && !isItemUnlocked(item))
@@ -156,7 +163,7 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
 
     {section === 'boss' && <div className="companion-boss-prep">
       <div className="companion-section-intro"><div><span className="eyebrow">ПОДГОТОВКА К БОССУ</span><h3>Подготовка к сражению</h3><p>Чек-лист для выбранного босса. Отметки сохраняются в этом браузере.</p></div><Target size={26}/></div>
-      <label className="companion-boss-select">Цель<select value={activeBoss?.id || ''} onChange={event => { setSelectedBoss(event.target.value); setTaskState({}) }}>{orderedBosses.map(boss => <option value={boss.id} key={boss.id}>{boss.name}</option>)}</select></label>
+      <label className="companion-boss-select">Цель<select value={activeBoss?.id || ''} onChange={event => { setSelectedBoss(event.target.value); setTaskState({}) }}>{orderedBosses.map(boss => <option value={boss.id} key={boss.id}>{ruBoss(boss.name)}</option>)}</select></label>
       {activeBoss && <><Panel as="div" className="companion-target-card"><div><span className="eyebrow">{ruStage(activeBoss.stage)}</span><h3>{ruBoss(activeBoss.name)}</h3><p>{prep.title}</p></div><Badge tone={bossStatus(activeBoss.id) === 'defeated' ? 'success' : 'warning'}>{bossStatus(activeBoss.id) === 'defeated' ? 'Побеждён' : 'Цель'}</Badge></Panel>
         <section className="companion-checklist"><div className="panel-head"><h3>Тактическая подготовка</h3><b>{prep.tasks.filter(task => taskState[task]).length}/{prep.tasks.length}</b></div>{prep.tasks.map(task => <label className={`companion-check-row ${taskState[task] ? 'checked' : ''}`} key={task}><input type="checkbox" checked={Boolean(taskState[task])} onChange={() => toggleTask(task)}/><span>{task}</span></label>)}</section>
         <section className="companion-checklist"><div className="panel-head"><h3><FlaskConical size={16}/> Расходники и баффы</h3></div>{prep.potions.map(potion => <div className="companion-potion-row" key={potion}><Sparkles size={14}/><span>{potion}</span></div>)}</section>
