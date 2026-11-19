@@ -34,7 +34,7 @@ export function Button({
 }
 
 type PanelProps = HTMLAttributes<HTMLElement> & {
-  as?: 'section' | 'div' | 'article'
+  as?: 'section' | 'div' | 'article' | 'form'
   children: ReactNode
 }
 
