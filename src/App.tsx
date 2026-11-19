@@ -1027,7 +1027,7 @@ function PlayerGearCard({ item, status, onStatus, onCraft, disabled = false }: {
       </div>
       <small className="player-gear-source">{item.source}</small>
       <div className="player-gear-status">
-        <span className={'state ' + status}>{labels[status]}</span>
+        <Badge tone={status === 'owned' ? 'success' : status === 'crafting' ? 'info' : status === 'planned' ? 'warning' : status === 'skipped' ? 'neutral' : 'danger'}>{labels[status]}</Badge>
         <select value={status} disabled={disabled} onChange={event => onStatus(item.id, event.target.value as ItemStatus)} aria-label={'Статус ' + item.name}>
           <option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option>
         </select>
@@ -1093,7 +1093,7 @@ function CatalogItemCard({ item, status, onStatus, onCraft, disabled = false }: 
     missing: 'Не получен', skipped: 'Пропущен',
   }
   const description = cleanWikiText(item.description)
-  return <article className="catalog-card">
+  return <Panel as="article" className="catalog-card">
     <div className="catalog-card-top">
       <ItemArtwork item={item} className="catalog-card-art"/>
       <div className="catalog-card-tags"><span>{categoryLabel(item.category)}</span><span>{stageLabel(item.stage)}</span></div>
@@ -1110,7 +1110,7 @@ function CatalogItemCard({ item, status, onStatus, onCraft, disabled = false }: 
         <option value="owned">Есть</option><option value="planned">В планах</option><option value="crafting">В работе</option><option value="missing">Нет</option><option value="skipped">Не нужен</option>
       </select>
     </div>
-  </article>
+  </Panel>
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
