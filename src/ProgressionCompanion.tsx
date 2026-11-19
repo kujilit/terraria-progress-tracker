@@ -66,8 +66,28 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
   useEffect(() => { if (activeBoss) setTaskState(readTasks(activeBoss.id, prep.tasks)) }, [activeBoss?.id])
   const classGear = useMemo(() => catalog.filter(item => isItemUsefulForClass(item, gameClass) && category(item.category) !== 'other' && category(item.category) !== 'ammo' && category(item.category) !== 'material'), [catalog, gameClass])
   const owned = classGear.filter(item => statusForItem(item.id) === 'owned')
+  // Progression gates are derived from this character's actual boss victories.
+  const defeated = (id: string) => bossStatus(id) === 'defeated'
+  const allMechsDefeated = ['destroyer', 'twins', 'skeletron_prime'].every(defeated)
+  const currentUnlockRank = !defeated('wof') ? 0
+    : !allMechsDefeated ? 1
+    : !defeated('plantera') ? 2
+    : !defeated('golem') ? 3
+    : !defeated('moon_lord') ? 4 : 5
+  const isItemUnlocked = (item: Item) => {
+    const rank = getItemStageRank(item.stage)
+    return rank < 0 || rank <= currentUnlockRank
+  }
+  const nextUnlockHint = !defeated('wof') ? 'Победите Стену плоти'
+    : !allMechsDefeated ? 'Победите Разрушителя, Близнецов и Скелетрона Прайма'
+    : !defeated('plantera') ? 'Победите Плантеру'
+    : !defeated('golem') ? 'Победите Голема'
+    : !defeated('moon_lord') ? 'Победите Лунного лорда' : ''
+  const lockedRecommendations = classGear
+    .filter(item => !['owned', 'skipped'].includes(statusForItem(item.id)) && !isItemUnlocked(item))
+    .sort((a, b) => getItemStageRank(a.stage) - getItemStageRank(b.stage))
   const recommendations = classGear
-    .filter(item => !['owned', 'skipped'].includes(statusForItem(item.id)))
+    .filter(item => !['owned', 'skipped'].includes(statusForItem(item.id)) && isItemUnlocked(item))
     .sort((a, b) => {
       const ar = getItemStageRank(a.stage), br = getItemStageRank(b.stage)
       const aRank = ar < 0 ? 99 : ar, bRank = br < 0 ? 99 : br
@@ -124,7 +144,14 @@ export function ProgressionCompanion({ playerName, gameClass, catalog, bosses, s
       <div className="companion-section-intro"><div><span className="eyebrow">СОВЕТНИК ПО ЭКИПИРОВКЕ</span><h3>Что улучшить дальше</h3><p>Рекомендации учитывают класс и текущие отметки персонажа. Уже полученные и пропущенные предметы исключены.</p></div><div className="companion-gear-owned"><b>{owned.length}</b><small>предметов получено</small></div></div>
       {recommendations.length ? <div className="companion-recommendations">{recommendations.map((item, index) => <Panel as="article" className="companion-recommendation" key={item.id}>
         <span className="companion-rank">{index + 1}</span><span className="companion-item-icon">{item.icon || '◆'}</span><div className="companion-item-copy"><b>{ruItem(item)}</b><small>{ruItem(item)} · {ruStage(item.stage)} · {ruText(item.category)}</small><p>{ruText(item.source || item.description || 'Доступен в текущем каталоге')}</p></div><select value={statusForItem(item.id)} disabled={disabled} onChange={event => onItemStatus(item.id, event.target.value as ItemStatus)} aria-label={`Статус ${item.name}`}><option value="missing">Нет</option><option value="planned">В планах</option><option value="crafting">Собираю</option><option value="owned">Есть</option><option value="skipped">Не нужен</option></select>
-      </Panel>)}</div> : <div className="player-gear-empty"><Check size={20}/><b>Нет рекомендаций</b><span>В каталоге не осталось незакрытых предметов для этого класса.</span></div>}
+      </Panel>)}</div> : <div className="player-gear-empty"><Check size={20}/><b>Нет доступных улучшений</b><span>Сейчас нет незакрытых предметов, доступных на этом этапе.</span></div>}
+      {lockedRecommendations.length > 0 && <section className="companion-locked-gear">
+        <div className="panel-head"><h3>Пока недоступно</h3><small>{lockedRecommendations.length} предметов следующих этапов</small></div>
+        <p>Эти предметы не входят в текущие рекомендации, потому что нужные боссы ещё не побеждены. Ближайшее условие: <b>{nextUnlockHint}</b>.</p>
+        <div className="companion-recommendations">{lockedRecommendations.slice(0, 8).map(item => <Panel as="article" className="companion-recommendation is-locked" key={item.id}>
+          <span className="companion-item-icon">🔒</span><div className="companion-item-copy"><b>{ruItem(item)}</b><small>{ruStage(item.stage)} · {ruText(item.category)}</small><p>Откроется после выполнения условий этапа.</p></div>
+        </Panel>)}</div>
+      </section>}
     </div>}
 
     {section === 'boss' && <div className="companion-boss-prep">
