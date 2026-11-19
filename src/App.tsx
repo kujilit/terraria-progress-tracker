@@ -466,13 +466,6 @@ export default function App() {
             })}</div>
           </section>
 
-          <CharacterLoadout
-            player={player}
-            items={catalogItems}
-            statusForItem={itemId => statusForPlayer(player.id, itemId)}
-            disabled={isRemoteMode && selected !== session?.player.id}
-            onOpenCatalog={() => setTab('catalog')}
-          />
         </>}
         {tab === 'accessories' && <AccessoryBuilds items={catalogItems} onOpenCraft={setCraftModalItem}/>}
         {tab === 'notes' && <section className="notes-layout">
