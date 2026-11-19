@@ -2390,3 +2390,11 @@ input:focus-visible, textarea:focus-visible {
 .terraria-weapon-group{grid-template-columns:1fr}
 .terraria-weapon-group .terraria-equipment-slot{max-width:130px;width:100%}
 @media(max-width:560px){.terraria-equipment-layout{grid-template-columns:1fr 1fr;gap:9px}.terraria-weapon-group{grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr))}.terraria-weapon-group .terraria-equipment-slot{max-width:none}}
+
+
+/* Six/seven accessory slot selector */
+.terraria-accessory-count{grid-column:1/-1;display:flex;gap:5px;padding-bottom:2px}
+.terraria-accessory-count button{flex:1;min-height:28px;color:var(--color-text-muted);background:#142630;border:1px solid #526b77;font-size:10px;font-weight:800}
+.terraria-accessory-count button.active{color:#172630;background:var(--pixel-gold-300);border-color:var(--pixel-gold-700)}
+.terraria-accessory-count button:disabled{opacity:.55;cursor:not-allowed}
+.terraria-equipment-group:has(.terraria-accessory-count){grid-template-columns:repeat(2,minmax(0,1fr))}
