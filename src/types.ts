@@ -13,4 +13,4 @@ export interface Item {
   buffName?:string|null; buffDuration?:string|null
 }
 export interface PlayerItem { playerId:string; itemId:string; status:ItemStatus; quantity:number }
-export interface Boss { id:string; name:string; stage:string; requires:string[] }
+export interface Boss { id:string; name:string; stage:string; requires:string[]; optional?:boolean }
