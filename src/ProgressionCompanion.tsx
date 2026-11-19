@@ -3,7 +3,7 @@ import { ArrowRight, Check, Crosshair, FlaskConical, Shield, Sparkles, Swords, T
 import { isItemUsefulForClass } from './armor-sets'
 import { getItemStageRank } from './gear-progression'
 import type { Boss, GameClass, Item, ItemStatus } from './types'
-import { Badge, Button, Panel, SectionHeading } from './components/ui'
+import { Badge, Button, Panel } from './components/ui'
 
 type BossStatus = 'defeated' | 'pending'
 type Props = {
