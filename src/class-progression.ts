@@ -1,54 +1,26 @@
 import type { GameClass, Item } from './types'
 
 export interface ProgressionStage { id: string; title: string; unlock: string }
+const progressionMilestones: Omit<ProgressionStage, 'id'>[] = [
+  {title:'Этап 1 · До Глаза Ктулху',unlock:'Старт мира и базовая экипировка'},
+  {title:'Этап 2 · После Глаза Ктулху',unlock:'Побеждён Глаз Ктулху'},
+  {title:'Этап 3 · После босса Порчи или Багрянца',unlock:'Побеждён Пожиратель миров или Мозг Ктулху'},
+  {title:'Этап 4 · После Скелетрона',unlock:'Открыт Данж'},
+  {title:'Этап 5 · Подготовка к Стене плоти',unlock:'Подготовка к переходу в хардмод'},
+  {title:'Этап 6 · После Стены плоти',unlock:'Начало хардмода'},
+  {title:'Этап 7 · После первого механического босса',unlock:'Побеждён Разрушитель, Близнецы или Скелетрон Прайм'},
+  {title:'Этап 8 · После второго механического босса',unlock:'Побеждены два механических босса'},
+  {title:'Этап 9 · После всех механических боссов',unlock:'Побеждены Разрушитель, Близнецы и Скелетрон Прайм'},
+  {title:'Этап 10 · После Плантеры',unlock:'Побеждена Плантера'},
+  {title:'Этап 11 · После Голема',unlock:'Побеждён Голем'},
+  {title:'Этап 12 · После Лунатик-культиста',unlock:'Побеждён Лунатик-культист, открыты небесные башни'},
+  {title:'Этап 13 · После Лунного лорда',unlock:'Побеждён Лунный лорд'},
+]
 export const classStages: Record<GameClass, ProgressionStage[]> = {
-  Melee: [
-    {id:'melee-1',title:'Этап 1 · Пре-боссовый',unlock:'До первого босса'},
-    {id:'melee-2',title:'Этап 2 · Пре-адский',unlock:'Подготовка к походу в Ад'},
-    {id:'melee-3',title:'Этап 3 · Пре-хардмод',unlock:'Перед Стеной плоти'},
-    {id:'melee-4',title:'Этап 4 · Перед механическими боссами',unlock:'После Стены плоти'},
-    {id:'melee-5',title:'Этап 5 · После первого механического босса',unlock:'Побеждён один механический босс'},
-    {id:'melee-6',title:'Этап 6 · После трёх механических боссов',unlock:'Побеждены все механические боссы'},
-    {id:'melee-7',title:'Этап 7 · После Плантеры',unlock:'Побеждена Плантера'},
-    {id:'melee-8',title:'Этап 8 · После Голема',unlock:'Побеждён Голем'},
-    {id:'melee-9',title:'Этап 9 · Небесные башни',unlock:'Побеждён Культ смерти / открыты башни'},
-    {id:'melee-10',title:'Этап 10 · После Лунного лорда',unlock:'Побеждён Лунный лорд'},
-  ],
-  Ranger: [
-    {id:'ranger-1',title:'Этап 1 · Пре-боссовый',unlock:'До первого босса'},
-    {id:'ranger-2',title:'Этап 2 · Пре-адский',unlock:'Подготовка к походу в Ад'},
-    {id:'ranger-3',title:'Этап 3 · Пре-хардмод',unlock:'Перед Стеной плоти'},
-    {id:'ranger-4',title:'Этап 4 · Перед механическими боссами',unlock:'После Стены плоти'},
-    {id:'ranger-5',title:'Этап 5 · После первого механического босса',unlock:'Побеждён один механический босс'},
-    {id:'ranger-6',title:'Этап 6 · После трёх механических боссов',unlock:'Побеждены все механические боссы'},
-    {id:'ranger-7',title:'Этап 7 · После Плантеры',unlock:'Побеждена Плантера'},
-    {id:'ranger-8',title:'Этап 8 · После Голема',unlock:'Побеждён Голем'},
-    {id:'ranger-9',title:'Этап 9 · Небесные башни',unlock:'Открыты небесные башни'},
-    {id:'ranger-10',title:'Этап 10 · После Лунного лорда',unlock:'Побеждён Лунный лорд'},
-  ],
-  Mage: [
-    {id:'mage-1',title:'Этап 1 · Пре-боссовый',unlock:'До первого босса'},
-    {id:'mage-2',title:'Этап 2 · Пре-адский',unlock:'Подготовка к походу в Ад'},
-    {id:'mage-3',title:'Этап 3 · Пре-хардмод',unlock:'Перед Стеной плоти'},
-    {id:'mage-4',title:'Этап 4 · Перед механическими боссами',unlock:'После Стены плоти'},
-    {id:'mage-5',title:'Этап 5 · После первого механического босса',unlock:'Побеждён один механический босс'},
-    {id:'mage-6',title:'Этап 6 · После трёх механических боссов',unlock:'Побеждены все механические боссы'},
-    {id:'mage-7',title:'Этап 7 · После Плантеры',unlock:'Побеждена Плантера'},
-    {id:'mage-8',title:'Этап 8 · После Голема',unlock:'Побеждён Голем'},
-    {id:'mage-9',title:'Этап 9 · Небесные башни',unlock:'Открыты небесные башни'},
-    {id:'mage-10',title:'Этап 10 · После Лунного лорда',unlock:'Побеждён Лунный лорд'},
-  ],
-  Summoner: [
-    {id:'summoner-1',title:'Этап 1 · Пре-боссовый',unlock:'До первого босса'},
-    {id:'summoner-2',title:'Этап 2 · Пре-адский',unlock:'Подготовка к походу в Ад'},
-    {id:'summoner-3',title:'Этап 3 · Пре-хардмод',unlock:'Перед Стеной плоти'},
-    {id:'summoner-4',title:'Этап 4 · Перед механическими боссами',unlock:'После Стены плоти'},
-    {id:'summoner-5',title:'Этап 5 · После первого механического босса',unlock:'Побеждён один механический босс'},
-    {id:'summoner-6',title:'Этап 6 · После Плантеры',unlock:'Побеждена Плантера'},
-    {id:'summoner-7',title:'Этап 7 · После Голема',unlock:'Побеждён Голем'},
-    {id:'summoner-8',title:'Этап 8 · Небесные башни',unlock:'Открыты небесные башни'},
-    {id:'summoner-9',title:'Этап 9 · После Лунного лорда',unlock:'Побеждён Лунный лорд'},
-  ],
+  Melee: progressionMilestones.map((stage,index)=>({...stage,id:`melee-${index+1}`})),
+  Ranger: progressionMilestones.map((stage,index)=>({...stage,id:`ranger-${index+1}`})),
+  Mage: progressionMilestones.map((stage,index)=>({...stage,id:`mage-${index+1}`})),
+  Summoner: progressionMilestones.map((stage,index)=>({...stage,id:`summoner-${index+1}`})),
 }
 
 const rows: [GameClass,string,string,string,string,string][] = [
@@ -60,7 +32,7 @@ const rows: [GameClass,string,string,string,string,string][] = [
  ['Melee','hell','Адская броня','Molten Armor','Броня','Пре-хардмод'],
  ['Melee','hell','Грань ночи','Night\'s Edge','Оружие','Пре-хардмод'],
  ['Melee','mech','Титановая броня','Titanium Armor','Броня','Перед механическими боссами'],
- ['Melee','mech','Святая броня','Hallowed Armor','Броня','После механических боссов'],
+ ['Melee','mech1','Святая броня','Hallowed Armor','Броня','После механических боссов'],
  ['Melee','postmech','Хлорофитовая броня','Chlorophyte Armor','Броня','После всех механических боссов'],
  ['Melee','plantera','Черепашья броня','Turtle Armor','Броня','После Плантеры'],
  ['Melee','plantera','Терра-меч','Terra Blade','Оружие','После Плантеры'],
@@ -74,7 +46,7 @@ const rows: [GameClass,string,string,string,string,string][] = [
  ['Ranger','hell','Пчелиный лук','Bee\'s Knees','Оружие','Пре-хардмод'],
  ['Ranger','mech','Ледяная броня','Frost Armor','Броня','Перед механическими боссами'],
  ['Ranger','mech','Штормовой лук Дедала','Daedalus Stormbow','Оружие','Перед механическими боссами'],
- ['Ranger','mech','Мега-акула','Megashark','Оружие','После первого механического босса'],
+ ['Ranger','mech1','Мега-акула','Megashark','Оружие','После первого механического босса'],
  ['Ranger','postmech','Хлорофитовая броня','Chlorophyte Armor','Броня','После всех механических боссов'],
  ['Ranger','plantera','Пульсирующий лук','Pulse Bow','Оружие','После Плантеры'],
  ['Ranger','golem','Грибная броня','Shroomite Armor','Броня','После Голема'],
@@ -87,8 +59,8 @@ const rows: [GameClass,string,string,string,string,string][] = [
  ['Mage','hell','Метеоритная броня','Meteor Armor','Броня','Пре-хардмод'],
  ['Mage','hell','Космическая пушка','Space Gun','Оружие','Пре-хардмод'],
  ['Mage','hell','Огнеплеть','Flamelash','Оружие','Пре-хардмод'],
- ['Mage','mech','Освящённая броня','Hallowed Armor','Броня','Перед механическими боссами'],
- ['Mage','mech','Радужный жезл','Rainbow Rod','Оружие','После первого механического босса'],
+ ['Mage','mech1','Освящённая броня','Hallowed Armor','Броня','Перед механическими боссами'],
+ ['Mage','mech1','Радужный жезл','Rainbow Rod','Оружие','После первого механического босса'],
  ['Mage','postmech','Хлорофитовая броня','Chlorophyte Armor','Броня','После всех механических боссов'],
  ['Mage','plantera','Ядовитый посох','Venom Staff','Оружие','После Плантеры'],
  ['Mage','golem','Спектральная броня','Spectre Armor','Броня','После Голема'],
@@ -122,10 +94,11 @@ const rows: [GameClass,string,string,string,string,string][] = [
  ['Summoner','moon','Броня звёздной пыли','Stardust Armor','Броня','После Лунного лорда'],
  ['Summoner','moon','Посох дракона звёздной пыли','Stardust Dragon Staff','Призыв','После Лунного лорда'],
 ]
-const stageFor = (cls:GameClass,key:string) => {
- const n=key==='pre'?1:key==='hell'?3:key==='mech'?4:key==='postmech'?5:key==='plantera'?7:key==='golem'?8:10
- return cls==='Summoner' && n>4 ? (n===7?6:n===8?7:9) : n
-}
+const stageFor = (_cls:GameClass,key:string) => ({
+ pre:1, eye:2, evil:3, skeletron:4, hell:5, wof:6,
+ mech:6, mech1:7, mech2:8, postmech:9, plantera:10,
+ golem:11, cultist:12, moon:13,
+}[key] ?? 1)
 export const progressionItems: Item[] = rows.map(([gameClass,key,ru,name,category,description]) => {
  const stage=stageFor(gameClass,key)
  const id='wiki-'+gameClass.toLowerCase()+'-'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-')
