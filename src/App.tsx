@@ -223,7 +223,7 @@ export default function App() {
       return saved[bossId] || (bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending')
     } catch { return bosses.findIndex(b => b.id === bossId) < 2 ? 'defeated' : 'pending' }
   }
-  const nextBoss = bosses.find(boss => bossStatus(boss.id) !== 'defeated')
+  const nextBoss = bosses.find(boss => !boss.optional && bossStatus(boss.id) !== 'defeated')
   const bossWikiSprites: Record<string, string[]> = {
     king_slime: ['King Slime.gif'],
     eye: ['Eye of Cthulhu.gif'],
@@ -309,7 +309,8 @@ export default function App() {
     }
     return statuses[`${playerId}:${itemId}`] || statuses[itemId] || 'missing'
   }
-  const defeatedBossCount = bosses.filter(boss => bossStatus(boss.id) === 'defeated').length
+  const defeatedBossCount = bosses.filter(boss => !boss.optional && bossStatus(boss.id) === 'defeated').length
+  const mainBossCount = bosses.filter(boss => !boss.optional).length
   const latestBacklogNote = [...teamNotes].filter(note => note.status !== 'done').sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0]
   const openBacklogCount = teamNotes.filter(note => note.status === 'backlog').length
   const doingNoteCount = teamNotes.filter(note => note.status === 'doing').length
@@ -460,7 +461,7 @@ export default function App() {
               <Badge tone="success">{currentPlayers.length} игроков онлайн в составе</Badge>
             </div>
             <div className="world-overview-stats">
-              <article className="world-stat"><span>Текущий этап</span><b>{nextBoss ? nextBoss.stage : 'Победа над финальным боссом'}</b><small>{nextBoss ? `Следующая цель: ${nextBoss.name}` : 'Все боссы отмечены побеждёнными'}</small><div className="world-stat-track"><i style={{width: (defeatedBossCount / Math.max(bosses.length,1) * 100) + '%'}}/></div><small>{defeatedBossCount}/{bosses.length} боссов побеждено</small></article>
+              <article className="world-stat"><span>Текущий этап</span><b>{nextBoss ? nextBoss.stage : 'Победа над финальным боссом'}</b><small>{nextBoss ? `Следующая цель: ${nextBoss.name}` : 'Все боссы отмечены побеждёнными'}</small><div className="world-stat-track"><i style={{width: (defeatedBossCount / Math.max(bosses.length,1) * 100) + '%'}}/></div><small>{defeatedBossCount}/{mainBossCount} основных боссов побеждено</small></article>
               <article className="world-stat"><span>Прогресс экипировки</span><b>{teamAverageProgress}%</b><small>Среднее по персонажам</small><div className="world-stat-track"><i style={{width: teamAverageProgress + '%'}}/></div><small>{teamGearSummary.reduce((sum,row)=>sum+row.ownedCount,0)} предметов собрано суммарно</small></article>
               <article className="world-stat world-backlog-stat"><span>Последняя задача бэклога</span>{latestBacklogNote ? <><b>{latestBacklogNote.title}</b><small>{latestBacklogNote.status === 'doing' ? 'В работе' : 'В бэклоге'} · {new Date(latestBacklogNote.updatedAt).toLocaleDateString('ru-RU')}</small><p>{latestBacklogNote.body || 'Описание не добавлено.'}</p></> : <><b>Задач пока нет</b><small>Добавьте первую задачу команды</small></>}<div className="world-backlog-counts"><span>{openBacklogCount} в бэклоге</span><span>{doingNoteCount} в работе</span>{highPriorityCount > 0 && <strong>{highPriorityCount} срочных</strong>}</div></article>
             </div>
