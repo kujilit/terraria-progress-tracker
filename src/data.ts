@@ -21,14 +21,21 @@ export const items:Item[]=[
 ]
 export const itemsWithProgression: Item[] = [...items, ...progressionItems]
 export const bosses:Boss[]=[
-{id:'king_slime',name:'King Slime',stage:'Pre-Hardmode',requires:[]},
 {id:'eye',name:'Eye of Cthulhu',stage:'Pre-Hardmode',requires:[]},
 {id:'eater',name:'Eater of Worlds / Brain of Cthulhu',stage:'Pre-Hardmode',requires:[]},
 {id:'skeletron',name:'Skeletron',stage:'Pre-Hardmode',requires:[]},
 {id:'wof',name:'Wall of Flesh',stage:'Hardmode',requires:['skeletron']},
-{id:'mechs',name:'Mechanical Bosses',stage:'Hardmode',requires:['wof']},
-{id:'plantera',name:'Plantera',stage:'Hardmode',requires:['mechs']},
+{id:'destroyer',name:'The Destroyer',stage:'Hardmode',requires:['wof']},
+{id:'twins',name:'The Twins',stage:'Hardmode',requires:['wof']},
+{id:'skeletron_prime',name:'Skeletron Prime',stage:'Hardmode',requires:['wof']},
+{id:'plantera',name:'Plantera',stage:'Hardmode',requires:['destroyer','twins','skeletron_prime']},
 {id:'golem',name:'Golem',stage:'Hardmode',requires:['plantera']},
 {id:'cultist',name:'Lunatic Cultist',stage:'Endgame',requires:['golem']},
-{id:'moon_lord',name:'Moon Lord',stage:'Endgame',requires:['cultist']}
+{id:'moon_lord',name:'Moon Lord',stage:'Endgame',requires:['cultist']},
+{id:'king_slime',name:'King Slime',stage:'Pre-Hardmode',requires:[],optional:true},
+{id:'queen_bee',name:'Queen Bee',stage:'Pre-Hardmode',requires:[],optional:true},
+{id:'deerclops',name:'Deerclops',stage:'Pre-Hardmode',requires:[],optional:true},
+{id:'dreadnautilus',name:'Dreadnautilus',stage:'Hardmode',requires:['wof'],optional:true},
+{id:'duke_fishron',name:'Duke Fishron',stage:'Hardmode',requires:['wof'],optional:true},
+{id:'empress_of_light',name:'Empress of Light',stage:'Hardmode',requires:['plantera'],optional:true}
 ]
