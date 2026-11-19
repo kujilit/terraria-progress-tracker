@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Sparkles, Shield } from 'lucide-react'
 import type { Item, Player } from './types'
-import { armorSetsForClass } from './armor-sets'
+import { armorSetsForClass, isItemUsefulForClass } from './armor-sets'
+import { classStages } from './class-progression'
 import { getItemStageRank } from './gear-progression'
 
 type Slot = 'head' | 'body' | 'legs' | 'weapon' | 'accessory1' | 'accessory2' | 'accessory3'
@@ -16,7 +17,9 @@ const slots: { id: Slot; label: string; category: string }[] = [
 const category = (value: string) => value.toLowerCase().includes('armor') || value.toLowerCase().includes('брон') ? 'armor'
   : value.toLowerCase().includes('weapon') || value.toLowerCase().includes('оруж') ? 'weapon'
   : value.toLowerCase().includes('accessory') || value.toLowerCase().includes('аксесс') ? 'accessory' : value.toLowerCase()
-const stageLabel = (stage: string) => ({ 'Pre-Hardmode': 'До хардмода', Hardmode: 'Хардмод', 'Post-Mechanical': 'После механических боссов', 'Post-Plantera': 'После Плантеры', 'Post-Golem': 'После Голема', 'Post-Moon Lord': 'Финальный этап' } as Record<string, string>)[stage] || (/^\d+$/.test(stage) ? 'Этап ' + stage : stage)
+const stageRank = (stage: string) => /^\d+$/.test(stage) ? Number(stage) : Math.max(1, getItemStageRank(stage) + 1)
+const stageTitle = (gameClass: Player['gameClass'], stage: string) => /^\d+$/.test(stage) ? (classStages[gameClass].find(entry => entry.id.endsWith('-' + stage))?.title || 'Этап ' + stage) : ({ 'Pre-Hardmode': 'До хардмода', Hardmode: 'Хардмод', 'Post-Mechanical': 'После механических боссов', 'Post-Plantera': 'После Плантеры', 'Post-Golem': 'После Голема', 'Post-Moon Lord': 'Финальный этап' } as Record<string, string>)[stage] || stage
+const armorSlotFor = (value: string): Slot | null => { const v = value.toLowerCase(); if (v.includes('head') || v.includes('голов') || v.includes('шлем')) return 'head'; if (v.includes('leg') || v.includes('ног') || v.includes('понож')) return 'legs'; if (v.includes('body') || v.includes('chest') || v.includes('тел') || v.includes('нагруд')) return 'body'; return null }
 
 export function CharacterLoadout({ player, items, statusForItem, disabled, onOpenCatalog }: {
   player: Player; items: Item[]; statusForItem: (id: string) => string; disabled?: boolean; onOpenCatalog: () => void
@@ -27,22 +30,29 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
   })
   useEffect(() => { try { setLoadout({ ...empty, ...JSON.parse(localStorage.getItem(key) || '{}') }) } catch { setLoadout(empty) } }, [key])
   useEffect(() => { localStorage.setItem(key, JSON.stringify(loadout)) }, [key, loadout])
-  const classItems = useMemo(() => items.filter(item => item.gameClass.includes(player.gameClass)), [items, player.gameClass])
+  const classItems = useMemo(() => items.filter(item => isItemUsefulForClass(item, player.gameClass)), [items, player.gameClass])
   const armorSlot = useMemo(() => {
     const result = new Map<string, Slot>()
     armorSetsForClass(player.gameClass).forEach(set => set.pieces.forEach(piece => {
-      const name = piece.slot.toLowerCase()
-      result.set(piece.name, name.includes('head') || name.includes('голов') || name.includes('шлем') ? 'head' : name.includes('leg') || name.includes('ног') ? 'legs' : 'body')
+      const slot = armorSlotFor(piece.slot)
+      if (slot) result.set(piece.name, slot)
     }))
     return result
   }, [player.gameClass])
   const itemFor = (id: string) => classItems.find(item => item.id === id)
   const options = (slot: typeof slots[number]) => classItems.filter(item => category(item.category) === slot.category &&
     (slot.category !== 'armor' || !armorSlot.has(item.name) || armorSlot.get(item.name) === slot.id))
-    .sort((a, b) => getItemStageRank(a.stage) - getItemStageRank(b.stage) || a.name.localeCompare(b.name))
+    .sort((a, b) => stageRank(a.stage) - stageRank(b.stage) || a.name.localeCompare(b.name))
   const equipped = new Set(Object.values(loadout).filter(Boolean))
-  const recommendations = classItems.filter(item => category(item.category) !== 'material' && !equipped.has(item.id) && !['owned', 'skipped'].includes(statusForItem(item.id)))
-    .sort((a, b) => getItemStageRank(a.stage) - getItemStageRank(b.stage)).slice(0, 5)
+  const recommendations = slots.map(slot => {
+    const current = itemFor(loadout[slot.id])
+    const currentRank = current ? stageRank(current.stage) : 0
+    const next = options(slot).filter(item => !equipped.has(item.id) && !['owned', 'skipped'].includes(statusForItem(item.id)))
+      .filter(item => !current || stageRank(item.stage) > currentRank)
+      .sort((a, b) => stageRank(a.stage) - stageRank(b.stage) || a.name.localeCompare(b.name))[0]
+    return next ? { ...next, slotLabel: slot.label, status: statusForItem(next.id) } : null
+  }).filter((item): item is NonNullable<typeof item> => Boolean(item))
+    .sort((a, b) => stageRank(a.stage) - stageRank(b.stage)).slice(0, 6)
   const owned = classItems.filter(item => statusForItem(item.id) === 'owned' && category(item.category) !== 'material').length
   const total = classItems.filter(item => category(item.category) !== 'material').length
   const progress = total ? Math.round(owned / total * 100) : 0
@@ -85,10 +95,10 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
       <aside className="character-roadmap-panel">
         <div className="character-panel-title"><div><span className="eyebrow">NEXT UP</span><h3>Рекомендуемое развитие</h3></div><Sparkles size={19}/></div>
         {recommendations.length ? <>
-          <div className="roadmap-current-stage"><span>Ближайшие цели</span><b>{stageLabel(recommendations[0].stage)}</b></div>
+          <div className="roadmap-current-stage"><span>Ближайшие цели</span><b>{stageTitle(player.gameClass, recommendations[0].stage)}</b></div>
           <div className="roadmap-track">{recommendations.map((item, index) => <article className="roadmap-node" key={item.id}>
-            <span className="roadmap-node-index">{index + 1}</span><div className="roadmap-node-copy"><small>{stageLabel(item.stage)}</small><b>{item.ru || item.name}</b><span>{item.name}</span></div>
-            <span className="roadmap-node-kind">{category(item.category) === 'weapon' ? 'Оружие' : category(item.category) === 'armor' ? 'Броня' : 'Аксессуар'}</span>
+            <span className="roadmap-node-index">{index + 1}</span><div className="roadmap-node-copy"><small>{item.slotLabel} · {stageTitle(player.gameClass, item.stage)}</small><b>{item.ru || item.name}</b><span>{item.name}</span></div>
+            <span className={"roadmap-node-status status-" + item.status}>{item.status === 'crafting' ? 'В работе' : item.status === 'planned' ? 'В планах' : 'Не получено'}</span>
           </article>)}</div>
         </> : <div className="roadmap-complete"><Shield size={24}/><b>Основные цели закрыты</b><span>Для этого класса пока нет следующих рекомендаций.</span></div>}
         <button className="character-catalog-link" type="button" onClick={onOpenCatalog}>Открыть полный каталог <ArrowRight size={15}/></button>
