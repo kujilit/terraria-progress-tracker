@@ -33,7 +33,7 @@ function read(): LocalState {
 }
 function write(state: LocalState) { localStorage.setItem(STORE_KEY, JSON.stringify(state)) }
 function sessionFor(world: TrackerWorld, player: TrackerPlayer): TrackerSession {
-  return { token:'local-demo-token', expiresAt:new Date(Date.now()+12*3600000).toISOString(), world, player }
+  return { token:'local-demo-token', expiresAt:null, world, player }
 }
 
 export const localApi: TrackerApi = {
