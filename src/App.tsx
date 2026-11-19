@@ -990,7 +990,7 @@ function PlayerArmorSetCard({ set, items, allItems, matchedCount, statusForItem,
     </div>
     {hiddenCount > 0 && <small className="player-armor-filter-note">Скрыто более слабых частей: {hiddenCount}. Они не учитываются в прогрессе.</small>}
     {matchedCount < items.length && <small className="player-armor-filter-note">Поиск или фильтры совпали с {matchedCount} из {items.length} отображаемых частей.</small>}
-  </article>
+  </Panel>
 }
 
 function WeakerGearToggle({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) {
