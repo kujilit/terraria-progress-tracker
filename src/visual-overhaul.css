@@ -321,3 +321,64 @@ footer { font-size: 11px; color: #a8b9bd; }
 .search-bar input { color: #f1f3ed; }
 .topbar { background: #101d25f2; }
 .hero-panel:after { display: none; }
+
+
+/* Contrast repair for the dark navigation and light player roster surfaces. */
+.sidebar,
+.sidebar * {
+  color: #e8eef0;
+}
+.sidebar .brand b,
+.sidebar .world-switch b,
+.sidebar .nav-item,
+.sidebar .connection {
+  color: #e8eef0 !important;
+}
+.sidebar .brand small,
+.sidebar .world-switch small,
+.sidebar .nav-label,
+.sidebar .connection small {
+  color: #b5c5ca !important;
+}
+.sidebar .world-switch {
+  background: #203743 !important;
+  border-color: #607985 !important;
+}
+.sidebar .nav-item:hover,
+.sidebar .nav-item.active {
+  color: #ffe2a5 !important;
+}
+
+/* The roster intentionally uses a parchment/light surface: keep all its text dark. */
+.player-roster {
+  background: #f5e3bb !important;
+  color: #173744 !important;
+  border-color: #101820 !important;
+}
+.player-roster .eyebrow,
+.player-roster-heading h2,
+.player-roster-heading > span,
+.player-roster .roster-identity b,
+.player-roster .roster-progress b {
+  color: #173744 !important;
+}
+.player-roster .roster-identity small,
+.player-roster .roster-progress small {
+  color: #405c64 !important;
+}
+.player-roster-card {
+  background: #203743 !important;
+  border-color: #405965 !important;
+}
+.player-roster-card .roster-identity b,
+.player-roster-card .roster-progress b {
+  color: #f4ead4 !important;
+}
+.player-roster-card .roster-identity small,
+.player-roster-card .roster-progress small {
+  color: #c2d0d2 !important;
+}
+.player-roster-card .roster-progress-track {
+  background: #101d25 !important;
+  border-color: #607985 !important;
+}
