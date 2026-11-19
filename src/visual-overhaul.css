@@ -382,3 +382,27 @@ footer { font-size: 11px; color: #a8b9bd; }
   background: #101d25 !important;
   border-color: #607985 !important;
 }
+
+
+/* Visually separate future gear from currently craftable recommendations. */
+.companion-locked-gear {
+  margin-top: 22px;
+  padding: 16px;
+  background: #14232c;
+  border: 1px dashed #647b82;
+}
+.companion-locked-gear > p {
+  margin: 8px 0 14px;
+  color: #c4d0d1;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.companion-locked-gear > p b { color: #f2cf83; }
+.companion-recommendation.is-locked {
+  opacity: .78;
+  border-style: dashed;
+}
+.companion-recommendation.is-locked .companion-item-copy small,
+.companion-recommendation.is-locked .companion-item-copy p {
+  color: #aebfc2;
+}
