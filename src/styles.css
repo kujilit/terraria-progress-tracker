@@ -2393,8 +2393,8 @@ input:focus-visible, textarea:focus-visible {
 
 
 /* Six/seven accessory slot selector */
-.terraria-accessory-count{grid-column:1/-1;display:flex;gap:5px;padding-bottom:2px}
-.terraria-accessory-count button{flex:1;min-height:28px;color:var(--color-text-muted);background:#142630;border:1px solid #526b77;font-size:10px;font-weight:800}
+.terraria-accessory-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.terraria-accessory-count{display:flex;flex:0 0 auto;gap:4px;padding:0}
+.terraria-accessory-count button{min-width:26px;min-height:24px;color:var(--color-text-muted);background:#142630;border:1px solid #526b77;font-size:10px;font-weight:800}
 .terraria-accessory-count button.active{color:#172630;background:var(--pixel-gold-300);border-color:var(--pixel-gold-700)}
 .terraria-accessory-count button:disabled{opacity:.55;cursor:not-allowed}
 .terraria-equipment-group:has(.terraria-accessory-count){grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -2417,3 +2417,18 @@ input:focus-visible, textarea:focus-visible {
 .terraria-picker-item>span:not(:first-child){font-size:10px;line-height:1.2;overflow-wrap:anywhere}
 .terraria-picker-item small{color:#a8b4b8;font-size:9px;line-height:1.2}
 @media(max-width:520px){.terraria-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.terraria-item-picker{width:min(320px,88vw)}}
+
+/* Align equipment groups and show roadmap item sprites. */
+.terraria-equipment-layout{align-items:start}
+.terraria-equipment-group{align-content:start}
+.terraria-accessory-heading{grid-column:1/-1}
+.terraria-accessory-count button{padding:2px 8px;font-size:10px}
+.roadmap-node{grid-template-columns:28px 42px minmax(0,1fr) auto}
+.roadmap-node-art{display:grid;place-items:center;width:40px;height:40px;background:#172a34;border:1px solid #526b77}
+.roadmap-node-art .terraria-slot-image{width:34px;height:34px}
+.roadmap-node-art>span{font-size:22px}
+@media(max-width:560px){
+  .roadmap-node{grid-template-columns:26px 38px minmax(0,1fr)}
+  .roadmap-node-art{width:36px;height:36px}
+  .roadmap-node-status{grid-column:3;justify-self:start}
+}
