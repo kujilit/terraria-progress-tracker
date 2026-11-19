@@ -1171,7 +1171,7 @@ def publish_catalog(
         recipe_rows = [{"batch_id": batch_id, **recipe} for recipe in recipes]
         ingredient_rows = [{"batch_id": batch_id, **ingredient} for ingredient in ingredients]
 
-        upload_rows(base, service_key, "tracker_wiki_item_localizations", localizations, "name_en")
+        upload_rows(base, service_key, "tracker_wiki_item_localizations", localizations, "terraria_id,name_en")
         upload_rows(base, service_key, "tracker_catalog_items", item_rows, "batch_id,item_key")
         upload_rows(base, service_key, "tracker_catalog_recipes", recipe_rows, "batch_id,recipe_key")
         upload_rows(
