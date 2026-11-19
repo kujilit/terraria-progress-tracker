@@ -4,7 +4,7 @@ import { isItemUsefulForClass } from './armor-sets'
 import { getItemStageRank } from './gear-progression'
 import type { Boss, GameClass, Item, ItemStatus } from './types'
 import { Badge, Button, Panel } from './components/ui'
-import { ruBoss, ruClass, ruItem, ruStage, ruText } from './localization'
+import { ruBoss, ruItem, ruStage, ruText } from './localization'
 
 type BossStatus = 'defeated' | 'pending'
 type Props = {
