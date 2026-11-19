@@ -3,7 +3,7 @@ import { Swords, Users, Backpack, Skull, GitBranch, BookOpen, Settings, Search, 
 import { AccessoryBuilds } from './AccessoryBuilds'
 import { ProgressionCompanion } from './ProgressionCompanion'
 import { CharacterLoadout } from './CharacterLoadout'
-import { armorPieceEffect, armorSetsForClass, armorSetForItemName, isItemUsefulForClass } from './armor-sets'
+import { armorPieceEffect, armorSetsForClass } from './armor-sets'
 import { getClassProgressItems, getItemStageRank } from './gear-progression'
 import { itemsWithProgression as items, players, bosses } from './data'
 import { classStages } from './class-progression'
