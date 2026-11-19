@@ -110,6 +110,21 @@ class ItemClassificationTests(unittest.TestCase):
         self.assertEqual(accessory["primary_category"], "accessory")
         self.assertEqual(accessory["classes"], ["Melee", "Ranger", "Mage", "Summoner"])
 
+    def test_shield_of_cthulhu_is_always_an_accessory(self):
+        shield = classify_item({
+            "itemid": "554",
+            "internalname": "ShieldofCthulhu",
+            "name": "Shield of Cthulhu",
+            "type": "Armor/Accessory",
+            "headSlot": "Shield",
+            "accessory": "Yes",
+            "defense": "0",
+            "hardmode": "No",
+        })
+        self.assertIsNotNone(shield)
+        self.assertEqual(shield["primary_category"], "accessory")
+        self.assertEqual(shield["categories"], ["accessory"])
+
     def test_curated_armor_set_is_assigned_to_its_class(self):
         armor = classify_item({
             "itemid": "2361",
