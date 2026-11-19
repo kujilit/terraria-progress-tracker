@@ -132,7 +132,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
                 {openSlot === slot.id && <div className="terraria-item-picker">
                   <input className="terraria-picker-search" type="search" value={pickerSearch} onChange={event => setPickerSearch(event.target.value)} placeholder="Поиск предмета..." aria-label="Поиск предмета"/><button type="button" className="terraria-picker-empty" onClick={() => { setLoadout(current => ({ ...current, [slot.id]: '' })); setOpenSlot(null); setPickerSearch('') }}>Очистить слот</button>
                   <div className="terraria-picker-grid">{visibleOptions(slot).map(item => <button type="button" key={item.id} className={'terraria-picker-item' + (loadout[slot.id] === item.id ? ' selected' : '')} title={item.name} onClick={() => { setLoadout(current => ({ ...current, [slot.id]: item.id })); setOpenSlot(null) }}>
-                    <EquipmentIcon item={item}/><span>{item.ru || item.name}</span><small>{stageTitle(player.gameClass, item.stage)}</small>
+                    <EquipmentIcon item={item}/><span>{ruItem(item)}</span><small>{stageTitle(player.gameClass, item.stage)}</small>
                   </button>)}</div>
                 </div>}
                 
@@ -167,7 +167,7 @@ export function CharacterLoadout({ player, items, statusForItem, disabled, onOpe
         {recommendations.length ? <>
           <div className="roadmap-current-stage"><span>Ближайшие цели</span><b>{stageTitle(player.gameClass, recommendations[0].stage)}</b></div>
           <div className="roadmap-track">{recommendations.map((item, index) => <article className="roadmap-node" key={item.id}>
-            <span className="roadmap-node-index">{index + 1}</span><span className="roadmap-node-art"><EquipmentIcon item={item}/></span><div className="roadmap-node-copy"><small>{item.slotLabel} · {stageTitle(player.gameClass, item.stage)}</small><b>{item.ru || item.name}</b><span>{item.name}</span>
+            <span className="roadmap-node-index">{index + 1}</span><span className="roadmap-node-art"><EquipmentIcon item={item}/></span><div className="roadmap-node-copy"><small>{item.slotLabel} · {stageTitle(player.gameClass, item.stage)}</small><b>{item.ru || item.name}</b>
               {(item.equipmentEffect || item.buffName || item.description) && <p className="roadmap-node-effect">{item.equipmentEffect || (item.buffName ? item.buffName + (item.buffDuration ? ' · ' + item.buffDuration : '') : item.description)}</p>}
               <button type="button" className="roadmap-craft-button" onClick={() => onOpenCraft(item)}><GitBranch size={13}/> Посмотреть крафт</button>
             </div>
