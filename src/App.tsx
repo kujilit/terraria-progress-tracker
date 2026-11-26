@@ -364,6 +364,20 @@ export default function App() {
   const activeGroup = nav.find(group => group.tabs.includes(tab))
   const activeSubnav = activeGroup ? subnav[activeGroup.id] : undefined
   const pageTitle = tab === 'settings' ? 'Настройки' : tab === 'admin' ? 'Администрирование' : activeSubnav?.find((entry: { id: Tab; label: string }) => entry.id === tab)?.label || activeGroup?.label || 'Игроки'
+  const pageDescriptions: Partial<Record<Tab, string>> = {
+    players: 'Общий прогресс прохождения, экипировка и состав команды.',
+    progression: 'Отслеживай экипировку персонажа по мере прохождения игры.',
+    accessories: 'Собирай подходящие аксессуары и сохраняй сборки для своего класса.',
+    companion: 'Планируй следующие шаги и открывай снаряжение по мере побед над боссами.',
+    crafting: 'Изучай рецепты и проверяй каждый компонент перед созданием предмета.',
+    catalog: 'Полный список предметов с фильтрами по классу, этапу и статусу.',
+    alchemy: 'Рецепты зелий и ингредиенты для подготовки к сложным сражениям.',
+    notes: 'Координируй задачи, ресурсы и планы участников мира.',
+    inventory: 'Следи за общими запасами и передачей предметов между игроками.',
+    bosses: 'Отмечай победы и контролируй продвижение по боссам Terraria.',
+    settings: 'Настрой отображение и управление локальными данными.',
+    admin: 'Управляй участниками и правами доступа к миру.',
+  }
   const exportProgress = () => {
     const payload = {
       format: 'terraria-progress-tracker', version: 1, exportedAt: new Date().toISOString(),
@@ -449,9 +463,10 @@ export default function App() {
       </header>
       <div className="content">
         {syncError && <div className="notice sync-error">Синхронизация: {syncError}</div>}
-        {(tab === 'settings' || tab === 'admin') && <div className="page-heading">
-          <div><div className="eyebrow">ТРЕКЕР TERRARIA</div><h1>{pageTitle}</h1></div>
-        </div>}
+        <div className="page-heading page-heading--global">
+          <div className="page-heading-copy"><div className="eyebrow">TERRARIA PROGRESS TRACKER <span>·</span> {session?.world.name || 'ДОСТОЙНЫЙ ВЫЗОВ'}</div><h1>{pageTitle}</h1><p>{pageDescriptions[tab] || 'Прогресс и инструменты твоего мира Terraria.'}</p></div>
+          <div className="page-heading-meta"><span className="page-heading-version">{session?.world.gameVersion || '1.4.5.x'}</span><span className="page-heading-online"><i/> {currentPlayers.length} {currentPlayers.length === 1 ? 'игрок' : 'игрока'}</span></div>
+        </div>
         {activeGroup && subnav[activeGroup.id] && <div className="section-tabs" role="tablist" aria-label="Подразделы">
           {subnav[activeGroup.id]!.map(entry => <button type="button" role="tab" aria-selected={tab === entry.id} className={tab === entry.id ? 'selected' : ''} key={entry.id} onClick={() => setTab(entry.id)}>{entry.label}</button>)}
         </div>}
