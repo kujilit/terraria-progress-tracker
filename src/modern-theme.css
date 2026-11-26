@@ -1,0 +1,25 @@
+/* Tailwind / shadcn-compatible semantic tokens. Existing CSS remains during incremental migration. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root {
+  --background: 225 24% 6%;
+  --foreground: 225 24% 95%;
+  --card: 225 20% 11%;
+  --card-foreground: 225 24% 95%;
+  --popover: 225 20% 11%;
+  --popover-foreground: 225 24% 95%;
+  --primary: 253 83% 73%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 225 18% 17%;
+  --secondary-foreground: 225 24% 94%;
+  --muted: 225 18% 17%;
+  --muted-foreground: 221 14% 65%;
+  --accent: 253 32% 24%;
+  --accent-foreground: 253 100% 95%;
+  --destructive: 0 63% 48%;
+  --border: 222 18% 22%;
+  --input: 222 18% 22%;
+  --ring: 253 83% 73%;
+  --radius: 0.75rem;
+}
