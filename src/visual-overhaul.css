@@ -1205,3 +1205,69 @@ button:disabled { transform:none!important; }
   .terraria-equipment-slot { grid-template-columns:40px minmax(0,1fr); }
   .companion-node-actions .ui-button { min-height:29px; }
 }
+
+/* Equipment layout: stable two-column composition with a full-width weapon row. */
+.character-equipment-panel { min-width:0; }
+.terraria-equipment-layout {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-areas:"armor accessories" "weapon .";
+  align-items:start;
+  gap:14px;
+}
+.terraria-equipment-group {
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-content:start;
+  gap:10px;
+  padding:14px;
+}
+.terraria-equipment-group:nth-child(1) { grid-area:armor; }
+.terraria-equipment-group:nth-child(2) { grid-area:accessories; }
+.terraria-equipment-group:nth-child(3) { grid-area:weapon; }
+.terraria-equipment-group-title {
+  min-height:24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-bottom:8px;
+  border-bottom:1px solid #35414b;
+  font-size:12px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.terraria-equipment-slot {
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  min-height:82px;
+  grid-template-columns:46px minmax(0,1fr);
+  gap:8px 10px;
+  padding:10px;
+}
+.terraria-slot-label {
+  font-size:11px;
+  line-height:1.3;
+  font-weight:600;
+}
+.terraria-slot-icon { width:46px; height:46px; }
+.terraria-picker-trigger {
+  width:100%;
+  min-height:42px;
+  padding:9px 10px;
+  font-size:12px;
+}
+.terraria-weapon-group .terraria-equipment-slot { min-height:82px; }
+@media (max-width:760px) {
+  .terraria-equipment-layout {
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"armor" "accessories" "weapon";
+  }
+}
+@media (max-width:420px) {
+  .terraria-equipment-group { grid-template-columns:minmax(0,1fr); }
+  .terraria-equipment-group-title { grid-column:1; }
+  .terraria-equipment-slot { grid-template-columns:42px minmax(0,1fr); }
+}
